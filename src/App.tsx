@@ -57,6 +57,12 @@ function App() {
   const [headerColor, setHeaderColor] = useState('0:3F3FFF,100:8B21F8');
   const [sections, setSections] = useState<SectionToggles>(DEFAULT_SECTIONS);
 
+  // Creative seed — stays stable per-profile so GIFs/emojis don't re-randomize
+  // on every style tweak. Only resets when user loads a new profile or clicks
+  // "Try Different Style".
+  const [creativeSeed, setCreativeSeed] = useState(() => Math.random());
+  const regenerateStyle = () => setCreativeSeed(Math.random());
+
   // Step 3 AI
   const [aiContent, setAiContent] = useState<AIContent | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -79,6 +85,7 @@ function App() {
       if (data) {
         setGithubUser(data.user);
         setGithubRepos(data.repos);
+        setCreativeSeed(Math.random()); // fresh seed for new profile
         setStep(2);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -115,6 +122,7 @@ function App() {
       userData: githubUser,
       repos: githubRepos,
       jobTitle,
+      creativeSeed,
     };
     const md = generateReadme(config);
     setGeneratedMd(md);
@@ -130,10 +138,11 @@ function App() {
     const config: GeneratorConfig = {
       theme, headerStyle, headerColor, socialLinks, sections,
       aiContent, userData: githubUser, repos: githubRepos, jobTitle,
+      creativeSeed,
     };
     const md = generateReadme(config);
     setGeneratedMd(md);
-  }, [githubUser, theme, headerStyle, headerColor, socialLinks, sections, aiContent, jobTitle, githubRepos, step]);
+  }, [githubUser, theme, headerStyle, headerColor, socialLinks, sections, aiContent, jobTitle, githubRepos, step, creativeSeed]);
 
   const reset = () => {
     setPage('hero');
@@ -233,7 +242,7 @@ function App() {
 
         {/* Right Panel — Preview */}
         <div id="preview-panel" className="flex-1 p-4 md:p-6 min-h-[500px] lg:min-h-screen">
-          <PreviewPanel markdown={generatedMd} onReset={reset} />
+          <PreviewPanel markdown={generatedMd} onReset={reset} onRegenerateStyle={regenerateStyle} />
         </div>
       </div>
     </div>

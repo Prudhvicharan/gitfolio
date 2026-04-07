@@ -8,9 +8,10 @@ import rehypeRaw from 'rehype-raw';
 interface PreviewPanelProps {
   markdown: string;
   onReset: () => void;
+  onRegenerateStyle: () => void;
 }
 
-const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset }) => {
+const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset, onRegenerateStyle }) => {
   const [viewMode, setViewMode] = useState<'preview' | 'code'>('preview');
   const [copied, setCopied] = useState(false);
 
@@ -56,6 +57,16 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset }) => {
 
         {/* Actions */}
         <div className="flex items-center gap-1">
+          {markdown && (
+            <button
+              onClick={onRegenerateStyle}
+              className="btn-ghost flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 border border-purple-500/20 hover:border-purple-500/40 rounded-lg px-2.5 py-1.5 transition-all"
+              title="Shuffle GIFs, emojis and dividers — keeps your settings"
+            >
+              <span className="text-sm">✦</span>
+              <span className="hidden sm:inline">Try Different Style</span>
+            </button>
+          )}
           <button
             onClick={onReset}
             className="btn-ghost flex items-center gap-1.5 text-xs"

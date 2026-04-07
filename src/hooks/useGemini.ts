@@ -1,8 +1,252 @@
+// import { GoogleGenAI } from '@google/genai';
+// import type { GithubUser, GithubRepo, AIContent } from '../types';
+// import { extractLanguages } from './useGithub';
+
+// // Preference order for model selection (shorter/exact names match what ListModels returns)
+// const MODEL_PREFERENCE = [
+//   'gemini-2.5-flash',
+//   'gemini-2.5-pro',
+//   'gemini-2.0-flash-lite',
+//   'gemini-2.0-flash',
+//   'gemini-1.5-flash',
+//   'gemini-1.5-pro',
+// ];
+
+// const buildPrompt = (user: GithubUser, repos: GithubRepo[], jobTitle: string): string => {
+//   const langs = extractLanguages(repos).slice(0, 10).join(', ');
+//   const repoDetails = repos
+//     .slice(0, 6)
+//     .map((r) => `• "${r.name}" [${r.language || '?'}] ⭐${r.stargazers_count} — ${r.description || 'no description'} | topics: ${r.topics?.join(', ') || 'none'}`)
+//     .join('\n');
+
+//   return `You are a world-class technical copywriter crafting an elite GitHub profile README for a developer.
+// Study every detail and generate content that feels personal, specific, and impressive — NOT generic.
+
+// === DEVELOPER DATA ===
+// Name: ${user.name || user.login}
+// GitHub handle: @${user.login}
+// Job title: ${jobTitle || user.bio || 'Software Engineer'}
+// GitHub bio: ${user.bio || 'Not provided'}
+// Location: ${user.location || 'Unknown'}
+// Company: ${user.company || 'Unknown'}
+// Followers: ${user.followers} | Public repos: ${user.public_repos}
+// Primary languages from repos: ${langs}
+
+// Top repositories (analyze these deeply for tech stack inference):
+// ${repoDetails}
+
+// === YOUR TASK ===
+// Output ONLY a raw JSON object — no markdown, no code fences, no explanation.
+
+// {
+//   "tagline": "A punchy 6-10 word phrase capturing their developer identity. NOT generic — must reference their actual tech or domain. Example: 'Engineering intelligent UIs, one pixel at a time'",
+
+//   "aboutMe": "3-4 sentences in THIRD PERSON (as a professional bio, like 'John is a...'). Reference their ACTUAL repo names, technologies, and what problems they solve. Make it feel like a senior dev's LinkedIn summary. Impressive and specific.",
+
+//   "quote": "An original, memorable 1-2 sentence coding philosophy quote that feels like THEY wrote it. Poetic, fresh, NOT a famous quote. Must reference their tech domain.",
+
+//   "funFacts": [
+//     "Fun fact 1 — witty, specific, max 12 words, references actual repo or skill",
+//     "Fun fact 2 — different angle, maybe a habit or preference",
+//     "Fun fact 3 — aspirational or funny, based on their trajectory"
+//   ],
+
+//   "skills": [
+//     "List every technology inferred from their repos, bio, languages, and topics.",
+//     "Include: programming languages, frameworks, libraries, databases, cloud tools, DevOps tools, testing tools.",
+//     "Use exact standard names like: React, Node.js, TypeScript, MongoDB, Docker, AWS, Tailwind CSS, Express.js, PostgreSQL, Git.",
+//     "Include 25-35 items. Be comprehensive — analyze repo topics and descriptions for hidden tech."
+//   ],
+
+//   "dreamProject": "2-3 sentences about an ambitious project they'd build based on their actual skills and interests.",
+
+//   "currentlyLearning": "What they're likely learning next given their repos and trajectory. 2-3 short sentences.",
+
+//   "typingLines": [
+//     "Line 1: Their job title — short, punchy (max 40 chars). Example: 'Full Stack Engineer'",
+//     "Line 2: A passion statement, max 45 chars. Example: 'Building scalable web apps'",
+//     "Line 3: A technology statement, max 45 chars. Example: 'React · Node.js · TypeScript'",
+//     "Line 4: An action statement, max 45 chars. Example: 'Open Source Contributor'",
+//     "Line 5: A fun/personality line, max 45 chars. Example: 'Coffee → Code → Repeat ☕'"
+//   ]
+// }
+
+// CRITICAL RULES:
+// - aboutMe MUST be in first person ("I am...", NOT "${user.name || user.login} is...")
+// - typingLines MUST be SHORT (max 45 characters each) — they scroll in a typing animation
+// - skills MUST include frameworks and tools, not just languages
+// - Reference actual repo names like "${repos[0]?.name || 'their repos'}" in the aboutMe
+// - Make it sound like a HUMAN wrote it, not an AI`;
+// };
+
+// /** Returns exact model names from the API (e.g. "gemini-2.0-flash") */
+// const listAvailableModels = async (apiKey: string): Promise<string[]> => {
+//   try {
+//     const res = await fetch(
+//       `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=50`
+//     );
+//     if (!res.ok) return [];
+//     const data = await res.json();
+//     return (data.models || [])
+//       .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
+//       .map((m: any) => (m.name as string).replace('models/', ''));
+//   } catch {
+//     return [];
+//   }
+// };
+
+// /** Sort available models by preference order */
+// const pickBestModels = (available: string[]): string[] => {
+//   const preferred: string[] = [];
+//   const rest: string[] = [];
+
+//   // First add models that match our preference list (in preference order)
+//   for (const pref of MODEL_PREFERENCE) {
+//     const match = available.find(a => a === pref || a.startsWith(pref + '-') || a === pref + '-latest');
+//     if (match && !preferred.includes(match)) preferred.push(match);
+//   }
+
+//   // Then add remaining available models we haven't tried
+//   for (const a of available) {
+//     if (!preferred.includes(a)) rest.push(a);
+//   }
+
+//   return [...preferred, ...rest];
+// };
+
+// const makeUserFriendlyError = (err: any, availableModels: string[], triedModels: string[]): string => {
+//   const msg: string = err?.message || String(err);
+
+//   if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
+//     const isZeroLimit = msg.includes('limit: 0') || msg.includes('"limit":0') || msg.includes('limit\":0');
+//     if (isZeroLimit) {
+//       return [
+//         `Your API key has 0 free-tier quota for this model.`,
+//         availableModels.length > 0
+//           ? `Your key can see: ${availableModels.slice(0, 4).join(', ')} — but all have 0 quota.`
+//           : '',
+//         `This happens when a project has billing enabled but the specific model's free tier is not active.`,
+//         `Fix: Go to aistudio.google.com → Create a brand new project → Create a new API key → Use THAT key here.`,
+//       ].filter(Boolean).join(' ');
+//     }
+//     return 'Rate limit hit. Please wait 1 minute and try again.';
+//   }
+
+//   if (msg.includes('400') || msg.includes('API_KEY_INVALID')) {
+//     return 'Invalid API key. Make sure you copied the complete key from aistudio.google.com/app/apikey.';
+//   }
+
+//   if (msg.includes('403')) {
+//     return 'API key lacks permission. Make sure the Gemini API is enabled for your project.';
+//   }
+
+//   if (triedModels.length >= 2 && availableModels.length > 0) {
+//     return [
+//       `Tried ${triedModels.length} models (${triedModels.slice(0, 3).join(', ')}...) but all failed.`,
+//       `Your key can see ${availableModels.length} models but none accepted requests.`,
+//       `This is a quota issue. Try: Get a new key from a fresh AI Studio project (no billing needed).`,
+//     ].join(' ');
+//   }
+
+//   return msg.length > 300 ? msg.slice(0, 300) + '...' : msg;
+// };
+
+// export const generateAIContent = async (
+//   apiKey: string,
+//   user: GithubUser,
+//   repos: GithubRepo[],
+//   jobTitle: string,
+//   onLog?: (msg: string, type?: string) => void
+// ): Promise<AIContent> => {
+//   const log = (msg: string, type = 'info') => onLog?.(msg, type);
+
+//   log('Initializing Gemini AI...', 'info');
+//   const ai = new GoogleGenAI({ apiKey });
+
+//   log('Analyzing your GitHub profile...', 'info');
+//   await new Promise(r => setTimeout(r, 300));
+//   log(`Found ${repos.length} repositories to analyze...`, 'info');
+
+//   // Discover which models this key actually has access to
+//   log('Discovering available models for your key...', 'info');
+//   const availableModels = await listAvailableModels(apiKey);
+
+//   if (availableModels.length === 0) {
+//     log('Could not list models — will try defaults directly...', 'warning');
+//   } else {
+//     log(`Key has access to ${availableModels.length} models.`, 'success');
+//   }
+
+//   // Build an ordered list using EXACT model names from the API
+//   const modelsToTry = availableModels.length > 0
+//     ? pickBestModels(availableModels)
+//     : MODEL_PREFERENCE;
+
+//   log(`Will try: ${modelsToTry.slice(0, 3).join(', ')}${modelsToTry.length > 3 ? '...' : ''}`, 'info');
+//   log('Sending your profile to Gemini...', 'ai');
+
+//   const prompt = buildPrompt(user, repos, jobTitle);
+//   const triedModels: string[] = [];
+//   let lastError: any;
+
+//   for (const modelName of modelsToTry) {
+//     triedModels.push(modelName);
+//     try {
+//       log(`→ Trying ${modelName}`, 'ai');
+
+//       const response = await ai.models.generateContent({
+//         model: modelName,
+//         contents: prompt,
+//       });
+
+//       const text = response.text ?? '';
+//       if (!text) throw new Error('Empty response from model');
+
+//       log('AI response received! Parsing content...', 'ai');
+//       const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+//       let parsed: AIContent;
+//       try {
+//         parsed = JSON.parse(cleaned);
+//       } catch {
+//         const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+//         if (!jsonMatch) throw new Error('AI returned unexpected format. Please try again.');
+//         parsed = JSON.parse(jsonMatch[0]);
+//       }
+
+//       log(`✓ Model: ${modelName}`, 'success');
+//       log('Bio generated ✓', 'success');
+//       log('Tagline crafted ✓', 'success');
+//       log('Fun facts written ✓', 'success');
+//       log('README content ready 🚀', 'success');
+//       return parsed;
+
+//     } catch (err: any) {
+//       lastError = err;
+//       const msg: string = err?.message || '';
+
+//       // Hard stops — no point trying more models
+//       if (msg.includes('API_KEY_INVALID') || msg.includes('400')) break;
+//       if (msg.includes('403')) break;
+
+//       // Quota with limit:0 — all models on this key will have same issue
+//       const isZeroLimit = msg.includes('limit: 0') || msg.includes('"limit":0') || msg.includes('limit\":0');
+//       if (isZeroLimit) break;
+
+//       // Model not available → try next
+//       log(`  ✗ ${modelName} not available`, 'warning');
+//       continue;
+//     }
+//   }
+
+//   throw new Error(makeUserFriendlyError(lastError, availableModels, triedModels));
+// };
 import { GoogleGenAI } from '@google/genai';
 import type { GithubUser, GithubRepo, AIContent } from '../types';
 import { extractLanguages } from './useGithub';
+import { detectArchetype } from '../utils/creativeAssets';
 
-// Preference order for model selection (shorter/exact names match what ListModels returns)
+// Model preference order
 const MODEL_PREFERENCE = [
   'gemini-2.5-flash',
   'gemini-2.5-pro',
@@ -13,73 +257,82 @@ const MODEL_PREFERENCE = [
 ];
 
 const buildPrompt = (user: GithubUser, repos: GithubRepo[], jobTitle: string): string => {
-  const langs = extractLanguages(repos).slice(0, 10).join(', ');
-  const repoDetails = repos
-    .slice(0, 6)
-    .map((r) => `• "${r.name}" [${r.language || '?'}] ⭐${r.stargazers_count} — ${r.description || 'no description'} | topics: ${r.topics?.join(', ') || 'none'}`)
-    .join('\n');
+  const langs      = extractLanguages(repos).slice(0, 10);
+  const archetype  = detectArchetype(langs, repos);
+  const joinYear   = new Date(user.created_at).getFullYear();
+  const totalStars = repos.reduce((sum, r) => sum + r.stargazers_count, 0);
 
-  return `You are a world-class technical copywriter crafting an elite GitHub profile README for a developer.
-Study every detail and generate content that feels personal, specific, and impressive — NOT generic.
+  const repoDetails = repos.slice(0, 8).map(r =>
+    `• "${r.name}" [${r.language || '?'}] ⭐${r.stargazers_count} — ${r.description || 'no description'} | forks: ${r.forks_count} | topics: ${r.topics?.slice(0,4).join(', ') || 'none'}`
+  ).join('\n');
 
-=== DEVELOPER DATA ===
-Name: ${user.name || user.login}
-GitHub handle: @${user.login}
-Job title: ${jobTitle || user.bio || 'Software Engineer'}
-GitHub bio: ${user.bio || 'Not provided'}
-Location: ${user.location || 'Unknown'}
-Company: ${user.company || 'Unknown'}
-Followers: ${user.followers} | Public repos: ${user.public_repos}
-Primary languages from repos: ${langs}
+  return `You are a world-class technical copywriter specializing in GitHub profile branding.
+Your job: generate deeply personalized, impressive, SPECIFIC content for a GitHub profile README.
+Do NOT be generic. Every sentence must reference something real from the data below.
 
-Top repositories (analyze these deeply for tech stack inference):
+=== DEVELOPER PROFILE ===
+Name:          ${user.name || user.login}
+GitHub:        @${user.login}
+Job title:     ${jobTitle || user.bio || 'Software Engineer'}
+GitHub bio:    ${user.bio || 'Not provided'}
+Location:      ${user.location || 'Unknown'}
+Company:       ${user.company || 'Independent'}
+Followers:     ${user.followers} | Following: ${user.following}
+Public repos:  ${user.public_repos}
+Total stars:   ${totalStars}
+GitHub since:  ${joinYear} (${new Date().getFullYear() - joinYear} years)
+Archetype:     ${archetype}
+Top languages: ${langs.join(', ')}
+
+Top repositories (study these deeply):
 ${repoDetails}
 
-=== YOUR TASK ===
-Output ONLY a raw JSON object — no markdown, no code fences, no explanation.
+=== OUTPUT FORMAT ===
+Return ONLY a raw JSON object. No markdown fences. No preamble. No trailing text.
 
 {
-  "tagline": "A punchy 6-10 word phrase capturing their developer identity. NOT generic — must reference their actual tech or domain. Example: 'Engineering intelligent UIs, one pixel at a time'",
+  "tagline": "6-10 words. Punchy. References their ACTUAL tech/domain. NOT generic. Example: 'Architecting distributed systems, one commit at a time'",
 
-  "aboutMe": "3-4 sentences in THIRD PERSON (as a professional bio, like 'John is a...'). Reference their ACTUAL repo names, technologies, and what problems they solve. Make it feel like a senior dev's LinkedIn summary. Impressive and specific.",
+  "aboutMe": "3-5 sentences in FIRST PERSON (I am...). Be specific: name their top repos, biggest tech, what year they joined GitHub, their total stars. Sound like a senior dev's portfolio bio — confident, technical, human. Avoid buzzwords like 'passionate' or 'love to code'.",
 
-  "quote": "An original, memorable 1-2 sentence coding philosophy quote that feels like THEY wrote it. Poetic, fresh, NOT a famous quote. Must reference their tech domain.",
+  "quote": "An ORIGINAL 1-2 sentence philosophy they'd actually say. NOT a famous quote. Something that feels like it came from their specific experience. Reference their domain.",
 
   "funFacts": [
-    "Fun fact 1 — witty, specific, max 12 words, references actual repo or skill",
-    "Fun fact 2 — different angle, maybe a habit or preference",
-    "Fun fact 3 — aspirational or funny, based on their trajectory"
+    "Specific fact 1 — references an actual repo or skill they have. Max 15 words. Witty.",
+    "Specific fact 2 — personality or habit angle. Max 15 words.",
+    "Specific fact 3 — aspirational or humorous. Max 15 words. References their stack."
   ],
 
   "skills": [
-    "List every technology inferred from their repos, bio, languages, and topics.",
-    "Include: programming languages, frameworks, libraries, databases, cloud tools, DevOps tools, testing tools.",
-    "Use exact standard names like: React, Node.js, TypeScript, MongoDB, Docker, AWS, Tailwind CSS, Express.js, PostgreSQL, Git.",
-    "Include 25-35 items. Be comprehensive — analyze repo topics and descriptions for hidden tech."
+    "Complete technology list inferred from repos, bio, languages, and topics.",
+    "Include languages, frameworks, databases, cloud, devops, testing, design tools.",
+    "Use exact standard names: React, Node.js, TypeScript, PostgreSQL, Docker, AWS, etc.",
+    "Minimum 20 items, maximum 35. Be comprehensive — read repo topics carefully."
   ],
 
-  "dreamProject": "2-3 sentences about an ambitious project they'd build based on their actual skills and interests.",
+  "dreamProject": "2-3 sentences. An ambitious project they'd logically build given their actual stack and interests. Specific, not generic.",
 
-  "currentlyLearning": "What they're likely learning next given their repos and trajectory. 2-3 short sentences.",
+  "currentlyLearning": "1-2 sentences. What they're logically leveling up in given their current repos. Natural progression.",
 
   "typingLines": [
-    "Line 1: Their job title — short, punchy (max 40 chars). Example: 'Full Stack Engineer'",
-    "Line 2: A passion statement, max 45 chars. Example: 'Building scalable web apps'",
-    "Line 3: A technology statement, max 45 chars. Example: 'React · Node.js · TypeScript'",
-    "Line 4: An action statement, max 45 chars. Example: 'Open Source Contributor'",
-    "Line 5: A fun/personality line, max 45 chars. Example: 'Coffee → Code → Repeat ☕'"
+    "Their role — short, punchy (max 40 chars)",
+    "Their main tech (max 40 chars, e.g. 'React · TypeScript · Node.js')",
+    "Something they build or a domain (max 40 chars)",
+    "A personality line (max 40 chars, e.g. 'Coffee → Code → Ship ☕')",
+    "An achievement or aspiration (max 40 chars)"
   ]
 }
 
-CRITICAL RULES:
-- aboutMe MUST be in first person ("I am...", NOT "${user.name || user.login} is...")
-- typingLines MUST be SHORT (max 45 characters each) — they scroll in a typing animation
-- skills MUST include frameworks and tools, not just languages
-- Reference actual repo names like "${repos[0]?.name || 'their repos'}" in the aboutMe
-- Make it sound like a HUMAN wrote it, not an AI`;
+RULES:
+- aboutMe MUST be first person: "I am...", "I build...", "I've spent..."
+- Reference at least 2 actual repo names from the list above
+- typingLines MUST be ≤ 45 characters each (they scroll in a tiny SVG)
+- skills MUST include non-language tools (frameworks, cloud, DevOps)
+- No em-dashes in JSON strings (use regular dash)
+- No single quotes in JSON strings (use double)
+- The output must be valid JSON parseable by JSON.parse()`;
 };
 
-/** Returns exact model names from the API (e.g. "gemini-2.0-flash") */
 const listAvailableModels = async (apiKey: string): Promise<string[]> => {
   try {
     const res = await fetch(
@@ -95,59 +348,34 @@ const listAvailableModels = async (apiKey: string): Promise<string[]> => {
   }
 };
 
-/** Sort available models by preference order */
 const pickBestModels = (available: string[]): string[] => {
   const preferred: string[] = [];
-  const rest: string[] = [];
-
-  // First add models that match our preference list (in preference order)
   for (const pref of MODEL_PREFERENCE) {
     const match = available.find(a => a === pref || a.startsWith(pref + '-') || a === pref + '-latest');
     if (match && !preferred.includes(match)) preferred.push(match);
   }
-
-  // Then add remaining available models we haven't tried
-  for (const a of available) {
-    if (!preferred.includes(a)) rest.push(a);
-  }
-
+  const rest = available.filter(a => !preferred.includes(a));
   return [...preferred, ...rest];
 };
 
 const makeUserFriendlyError = (err: any, availableModels: string[], triedModels: string[]): string => {
   const msg: string = err?.message || String(err);
-
   if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
-    const isZeroLimit = msg.includes('limit: 0') || msg.includes('"limit":0') || msg.includes('limit\":0');
+    const isZeroLimit = msg.includes('limit: 0') || msg.includes('"limit":0');
     if (isZeroLimit) {
-      return [
-        `Your API key has 0 free-tier quota for this model.`,
-        availableModels.length > 0
-          ? `Your key can see: ${availableModels.slice(0, 4).join(', ')} — but all have 0 quota.`
-          : '',
-        `This happens when a project has billing enabled but the specific model's free tier is not active.`,
-        `Fix: Go to aistudio.google.com → Create a brand new project → Create a new API key → Use THAT key here.`,
-      ].filter(Boolean).join(' ');
+      return `Your API key has 0 free quota. Fix: Go to aistudio.google.com → create a new project → get a fresh API key there.`;
     }
     return 'Rate limit hit. Please wait 1 minute and try again.';
   }
-
   if (msg.includes('400') || msg.includes('API_KEY_INVALID')) {
-    return 'Invalid API key. Make sure you copied the complete key from aistudio.google.com/app/apikey.';
+    return 'Invalid API key. Copy the complete key from aistudio.google.com/app/apikey.';
   }
-
   if (msg.includes('403')) {
     return 'API key lacks permission. Make sure the Gemini API is enabled for your project.';
   }
-
   if (triedModels.length >= 2 && availableModels.length > 0) {
-    return [
-      `Tried ${triedModels.length} models (${triedModels.slice(0, 3).join(', ')}...) but all failed.`,
-      `Your key can see ${availableModels.length} models but none accepted requests.`,
-      `This is a quota issue. Try: Get a new key from a fresh AI Studio project (no billing needed).`,
-    ].join(' ');
+    return `Tried ${triedModels.length} models but all failed (quota issue). Get a new key from a fresh AI Studio project.`;
   }
-
   return msg.length > 300 ? msg.slice(0, 300) + '...' : msg;
 };
 
@@ -163,27 +391,24 @@ export const generateAIContent = async (
   log('Initializing Gemini AI...', 'info');
   const ai = new GoogleGenAI({ apiKey });
 
-  log('Analyzing your GitHub profile...', 'info');
-  await new Promise(r => setTimeout(r, 300));
-  log(`Found ${repos.length} repositories to analyze...`, 'info');
+  log(`Analyzing @${user.login}'s GitHub profile...`, 'info');
+  await new Promise(r => setTimeout(r, 200));
+  log(`Found ${repos.length} repositories · ${repos.reduce((s, r) => s + r.stargazers_count, 0)} total stars`, 'info');
 
-  // Discover which models this key actually has access to
-  log('Discovering available models for your key...', 'info');
+  log('Discovering available models...', 'info');
   const availableModels = await listAvailableModels(apiKey);
-
   if (availableModels.length === 0) {
-    log('Could not list models — will try defaults directly...', 'warning');
+    log('Could not list models — trying defaults...', 'warning');
   } else {
     log(`Key has access to ${availableModels.length} models.`, 'success');
   }
 
-  // Build an ordered list using EXACT model names from the API
   const modelsToTry = availableModels.length > 0
     ? pickBestModels(availableModels)
     : MODEL_PREFERENCE;
 
-  log(`Will try: ${modelsToTry.slice(0, 3).join(', ')}${modelsToTry.length > 3 ? '...' : ''}`, 'info');
-  log('Sending your profile to Gemini...', 'ai');
+  log(`Trying: ${modelsToTry.slice(0, 3).join(', ')}...`, 'info');
+  log('Sending to Gemini for creative writing...', 'ai');
 
   const prompt = buildPrompt(user, repos, jobTitle);
   const triedModels: string[] = [];
@@ -192,7 +417,7 @@ export const generateAIContent = async (
   for (const modelName of modelsToTry) {
     triedModels.push(modelName);
     try {
-      log(`→ Trying ${modelName}`, 'ai');
+      log(`→ ${modelName}`, 'ai');
 
       const response = await ai.models.generateContent({
         model: modelName,
@@ -202,7 +427,7 @@ export const generateAIContent = async (
       const text = response.text ?? '';
       if (!text) throw new Error('Empty response from model');
 
-      log('AI response received! Parsing content...', 'ai');
+      log('Response received! Parsing...', 'ai');
       const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
       let parsed: AIContent;
@@ -215,26 +440,21 @@ export const generateAIContent = async (
       }
 
       log(`✓ Model: ${modelName}`, 'success');
-      log('Bio generated ✓', 'success');
       log('Tagline crafted ✓', 'success');
-      log('Fun facts written ✓', 'success');
+      log('Bio written ✓', 'success');
+      log('Fun facts generated ✓', 'success');
+      log('Skills mapped ✓', 'success');
       log('README content ready 🚀', 'success');
       return parsed;
 
     } catch (err: any) {
       lastError = err;
       const msg: string = err?.message || '';
-
-      // Hard stops — no point trying more models
       if (msg.includes('API_KEY_INVALID') || msg.includes('400')) break;
       if (msg.includes('403')) break;
-
-      // Quota with limit:0 — all models on this key will have same issue
-      const isZeroLimit = msg.includes('limit: 0') || msg.includes('"limit":0') || msg.includes('limit\":0');
+      const isZeroLimit = msg.includes('limit: 0') || msg.includes('"limit":0');
       if (isZeroLimit) break;
-
-      // Model not available → try next
-      log(`  ✗ ${modelName} not available`, 'warning');
+      log(`  ✗ ${modelName} unavailable`, 'warning');
       continue;
     }
   }

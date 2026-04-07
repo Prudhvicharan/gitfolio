@@ -75,4 +75,8 @@ export interface GeneratorConfig {
   userData: GithubUser | null;
   repos: GithubRepo[];
   jobTitle: string;
+  /** Stable seed per profile — used to lock in GIF/emoji/divider picks so style
+   *  changes in Step 2 don't scramble them. User can explicitly refresh via
+   *  "Try Different Style" button. */
+  creativeSeed?: number;
 }
