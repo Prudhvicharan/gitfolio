@@ -429,21 +429,37 @@ export const generateReadme = (config: GeneratorConfig): string => {
   }
 
   // ──────────────────────────────────────────────────────────
-  // 5. ABOUT ME  — table layout for reliable alignment
+  // 5. ABOUT ME  — flat layout (no tables + code fences mixed)
   // ──────────────────────────────────────────────────────────
   if (sections.aboutCode) {
     md += `## ${emo.about} About Me\n\n`;
 
-    // Use an HTML table: GIF on right column, bio + code block on left.
-    // This is far more stable than float:right in GitHub markdown.
-    md += `<table>\n<tr>\n<td valign="top" width="65%">\n\n`;
+    // GIF pinned to the right using align — but ONLY the GIF, nothing complex
+    // alongside it so there's nothing to overflow.
+    md += `<img align="right" width="260" src="${mainGif}" alt="Developer GIF" />\n\n`;
 
-    // AI bio text
+    // AI bio: short paragraph — stays beside the GIF naturally
     if (aiContent?.aboutMe) {
-      md += `${aiContent.aboutMe.trim()}\n\n`;
+      // Keep bio to max 3 sentences so it fits beside the GIF
+      const sentences = aiContent.aboutMe.trim().split(/(?<=[.!?])\s+/);
+      const shortBio = sentences.slice(0, 3).join(' ');
+      md += `${shortBio}\n\n`;
     }
 
-    // Creative code block — varies by archetype
+    // Bullet-point highlights (no code fences — safe beside float)
+    const skillSnippet = (aiContent?.skills?.length ? aiContent.skills.slice(0, 6) : langs.slice(0, 6)).join(' · ');
+    const learning = aiContent?.currentlyLearning?.replace(/^[^a-zA-Z]*/, '').trim() || 'Always exploring new technologies';
+
+    md += `- ${sp(['🔧','💻','⚡','🎯'])} **Tech:** ${skillSnippet}\n`;
+    if (user.location) md += `- 🌍 **Location:** ${user.location}\n`;
+    if (jobTitle) md += `- 🚀 **Role:** ${jobTitle}\n`;
+    md += `- 🌱 **Learning:** ${learning}\n`;
+    md += `- ⭐ **GitHub since:** ${new Date(user.created_at).getFullYear()}\n\n`;
+
+    // Clear the float BEFORE the code block so code is always full-width
+    md += `<br clear="right" />\n\n`;
+
+    // Creative code block — full-width, no float context
     md += buildCodeBlock({
       style: codeStyle,
       username: user.login,
@@ -452,18 +468,14 @@ export const generateReadme = (config: GeneratorConfig): string => {
       location: user.location,
       company: user.company,
       skills: aiContent?.skills?.length ? aiContent.skills.slice(0, 10) : langs.slice(0, 6),
-      learning: aiContent?.currentlyLearning?.replace(/^[^a-zA-Z]*/, '').trim() || 'Always exploring new tech',
+      learning,
       funFact: aiContent?.funFacts?.[0] || "I debug with console.log and I'm not ashamed",
       joinYear: new Date(user.created_at).getFullYear(),
       repos: user.public_repos,
       followers: user.followers,
     });
 
-    md += `</td>\n<td valign="top" align="center" width="35%">\n\n`;
-    md += `<img src="${mainGif}" width="240" alt="Developer GIF" />\n\n`;
-    md += `</td>\n</tr>\n</table>\n\n`;
-
-    // Quote block — after the table so it's full-width and unaffected
+    // Quote block — full-width, centered
     if (aiContent?.quote) {
       md += `<div align="center">\n\n> ${sp(['💭', '✨', '⚡', '🧠', '🔥'])} *"${aiContent.quote.trim()}"*\n\n</div>\n\n`;
     }
@@ -516,8 +528,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
   if (sections.funFacts && aiContent?.funFacts?.length) {
     md += `## ${emo.fun} Fun Facts\n\n`;
 
-    // Table layout: facts on left, GIF on right — same reliable pattern
-    md += `<table>\n<tr>\n<td valign="top" width="65%">\n\n`;
+    // Fun facts as bullet list — full width, no table
     aiContent.funFacts.forEach(fact => {
       md += `- ${sp(['🎯','⚡','🔥','💡','🚀','🎲','🌙','☕','🦄'])} ${fact.trim()}\n`;
     });
@@ -527,9 +538,10 @@ export const generateReadme = (config: GeneratorConfig): string => {
     if (aiContent.currentlyLearning) {
       md += `\n**${sp(['📚','🌱','🔬','⚗️'])} Currently Mastering:** ${aiContent.currentlyLearning.trim()}\n`;
     }
-    md += `\n</td>\n<td valign="top" align="center" width="35%">\n\n`;
-    md += `<img src="${sideGif}" width="220" alt="GIF" />\n\n`;
-    md += `</td>\n</tr>\n</table>\n\n`;
+    md += `\n`;
+
+    // GIF centered below the list — not beside it
+    md += `<div align="center">\n\n<img src="${sideGif}" width="300" alt="GIF" />\n\n</div>\n\n`;
     md += divider(divStyle);
   }
 
