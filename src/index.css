@@ -347,8 +347,8 @@ h1, h2, h3, h4, h5, h6, .font-mono {
   font-size: 0.9em;
 }
 /* FIX 1: Constrain <pre> so it can never push past its parent's width.
-   overflow-x:auto provides a scrollbar for genuinely long code lines
-   instead of blowing the layout wide open. */
+   Using pre-wrap ensures long lines of generated code wrap within bounds
+   instead of destroying the layout width. */
 .md-preview pre {
   background: #0D0D0D;
   padding: 16px;
@@ -356,24 +356,22 @@ h1, h2, h3, h4, h5, h6, .font-mono {
   border: 1px solid rgba(255,255,255,0.06);
   margin-bottom: 12px;
   clear: both;
-  /* The three critical constraints: */
-  max-width: 100%;       /* never wider than parent */
-  overflow-x: auto;      /* scrollbar for long lines, not layout explosion */
+  max-width: 100%;
+  overflow-x: hidden;
   box-sizing: border-box;
-  /* FIX 2 (repeated at element level): flex min-width override */
   min-width: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
-/* FIX 3: code inside pre — display:block + min-width:100% so the background
-   fills the full pre box and text wraps/scrolls correctly. */
+/* FIX 3: code inside pre — fill space and obey wrapping rules */
 .md-preview pre code {
   background: none;
   color: #94A3B8;
   padding: 0;
-  display: block;    /* fills the pre container horizontally */
-  min-width: 100%;   /* ensures background covers the whole scrollable area */
-  white-space: pre;  /* preserve indentation; pre already handles scrolling */
-  word-break: normal;
-  overflow-wrap: normal;
+  display: block;
+  min-width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 .md-preview table { width: 100%; border-collapse: collapse; margin-bottom: 16px; table-layout: fixed; }
 .md-preview th, .md-preview td { border: 1px solid rgba(255,255,255,0.08); padding: 8px 12px; text-align: left; word-break: break-word; overflow-wrap: anywhere; }
