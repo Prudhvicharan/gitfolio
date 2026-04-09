@@ -133,15 +133,28 @@ const Step2: React.FC<Step2Props> = ({
       <div>
         <p className="text-xs font-mono text-gray-400 mb-2">BANNER COLOR</p>
         <div className="flex gap-2 flex-wrap">
-          {HEADER_COLORS.map((c) => (
-            <button
-              key={c.value}
-              onClick={() => setHeaderColor(c.value)}
-              title={c.label}
-              className={`w-8 h-8 rounded-lg border-2 transition-all ${headerColor === c.value ? 'border-white scale-110' : 'border-transparent'}`}
-              style={{ background: c.value.includes(':') ? `linear-gradient(135deg, #${c.value.split(',')[0].split(':')[1]}, #${c.value.split(',')[1].split(':')[1]})` : c.value }}
-            />
-          ))}
+          {HEADER_COLORS.map((c) => {
+            const isSelected = headerColor === c.value;
+            // Compute the display background for the swatch
+            const swatchBg = c.value === 'gradient'
+              ? 'linear-gradient(135deg, #f43f5e, #f59e0b, #10b981, #6366f1)'
+              : c.value.includes(':')
+              ? `linear-gradient(135deg, #${c.value.split(',')[0].split(':')[1]}, #${c.value.split(',')[1].split(':')[1]})`
+              : c.value;
+            return (
+              <button
+                key={c.value}
+                onClick={() => setHeaderColor(c.value)}
+                title={c.label}
+                className={`w-9 h-9 rounded-lg transition-all ${
+                  isSelected
+                    ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-110'
+                    : 'ring-1 ring-white/20 hover:ring-white/50 hover:scale-105'
+                }`}
+                style={{ background: swatchBg }}
+              />
+            );
+          })}
         </div>
       </div>
 

@@ -255,7 +255,6 @@ import {
   FOOTER_QUOTES,
   DIVIDERS,
   EXTRA_WIDGETS,
-  BANNER_CONFIGS,
   CODING_GIFS, THINKING_GIFS, WORKING_GIFS,
 } from './creativeAssets';
 
@@ -366,8 +365,19 @@ export const generateReadme = (config: GeneratorConfig): string => {
     ? 'gradient'
     : headerColor.replace('#', '');
 
-  // Pick banner config
-  const bannerCfg   = BANNER_CONFIGS.find(b => b.type === headerStyle) ?? pick(BANNER_CONFIGS);
+  // ─────────────────────────────────────────────────────────
+  // Header banner — fully deterministic from user's selection
+  // NEVER random. The user chose it, it stays locked.
+  // ─────────────────────────────────────────────────────────
+  const HEADER_STYLE_PRESETS: Record<string, { capsuleType: string; animation: string; height: number }> = {
+    wave:     { capsuleType: 'waving',   animation: 'twinkling', height: 220 },
+    venom:    { capsuleType: 'venom',    animation: 'fadeIn',    height: 200 },
+    slice:    { capsuleType: 'slice',    animation: 'twinkling', height: 200 },
+    cylinder: { capsuleType: 'cylinder', animation: 'blinking',  height: 180 },
+    shark:    { capsuleType: 'shark',    animation: 'twinkling', height: 200 },
+  };
+  const headerPreset = HEADER_STYLE_PRESETS[headerStyle] ?? HEADER_STYLE_PRESETS['wave'];
+  const { capsuleType, animation: bannerAnimation, height: bannerHeight } = headerPreset;
 
   let md = '';
 
@@ -378,10 +388,10 @@ export const generateReadme = (config: GeneratorConfig): string => {
     md += `<img width="100%" src="${EXTRA_WIDGETS.capsuleHeader(
       encodeUrl(displayName),
       encodeUrl(jobTitle || user.bio || 'Full Stack Developer'),
-      bannerCfg.type,
+      capsuleType,
       bannerColor,
-      bannerCfg.height,
-      bannerCfg.animation,
+      bannerHeight,
+      bannerAnimation,
     )}" />\n\n`;
   }
 
@@ -658,7 +668,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
 
   // Footer capsule banner
   if (sections.header) {
-    md += `<img width="100%" src="${EXTRA_WIDGETS.capsuleFooter(bannerCfg.type, bannerColor)}" />\n`;
+    md += `<img width="100%" src="${EXTRA_WIDGETS.capsuleFooter(capsuleType, bannerColor)}" />\n`;
   }
 
   return md;

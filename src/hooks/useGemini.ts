@@ -246,14 +246,15 @@ import type { GithubUser, GithubRepo, AIContent } from '../types';
 import { extractLanguages } from './useGithub';
 import { detectArchetype } from '../utils/creativeAssets';
 
-// Model preference order
+// Model preference order — most reliable free-tier models FIRST.
+// gemini-2.5 requires billing; 1.5-flash / 2.0-flash are free tier.
 const MODEL_PREFERENCE = [
+  'gemini-1.5-flash',
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+  'gemini-1.5-pro',
   'gemini-2.5-flash',
   'gemini-2.5-pro',
-  'gemini-2.0-flash-lite',
-  'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
 ];
 
 const buildPrompt = (user: GithubUser, repos: GithubRepo[], jobTitle: string): string => {
@@ -363,7 +364,8 @@ const makeUserFriendlyError = (err: any, availableModels: string[], triedModels:
   if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
     const isZeroLimit = msg.includes('limit: 0') || msg.includes('"limit":0');
     if (isZeroLimit) {
-      return `Your API key has 0 free quota. Fix: Go to aistudio.google.com → create a new project → get a fresh API key there.`;
+      return `Some models had 0 free quota (usually newer models like 2.5 that require billing). \
+Tried ${triedModels.length} models. If all failed, get a fresh API key from a new AI Studio project at aistudio.google.com.`;
     }
     return 'Rate limit hit. Please wait 1 minute and try again.';
   }
@@ -374,7 +376,7 @@ const makeUserFriendlyError = (err: any, availableModels: string[], triedModels:
     return 'API key lacks permission. Make sure the Gemini API is enabled for your project.';
   }
   if (triedModels.length >= 2 && availableModels.length > 0) {
-    return `Tried ${triedModels.length} models but all failed (quota issue). Get a new key from a fresh AI Studio project.`;
+    return `Tried ${triedModels.length} models (${triedModels.slice(0, 3).join(', ')}) but all failed. Get a fresh key from aistudio.google.com.`;
   }
   return msg.length > 300 ? msg.slice(0, 300) + '...' : msg;
 };
@@ -450,10 +452,16 @@ export const generateAIContent = async (
     } catch (err: any) {
       lastError = err;
       const msg: string = err?.message || '';
+      // Hard stops — invalid key or permission error, no point trying more
       if (msg.includes('API_KEY_INVALID') || msg.includes('400')) break;
       if (msg.includes('403')) break;
+      // 0-free-quota on this specific model (often newer 2.5 models that need billing)
+      // → log and CONTINUE to next model — older free-tier models may still work
       const isZeroLimit = msg.includes('limit: 0') || msg.includes('"limit":0');
-      if (isZeroLimit) break;
+      if (isZeroLimit) {
+        log(`  ✗ ${modelName}: no free quota (billing required) — trying next...`, 'warning');
+        continue;
+      }
       log(`  ✗ ${modelName} unavailable`, 'warning');
       continue;
     }
