@@ -149,9 +149,9 @@ const Step2: React.FC<Step2Props> = ({
                 className={`w-9 h-9 rounded-lg transition-all ${
                   isSelected
                     ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-110'
-                    : 'ring-1 ring-white/20 hover:ring-white/50 hover:scale-105'
+                    : 'ring-1 ring-white/30 hover:ring-white/60 hover:scale-105'
                 }`}
-                style={{ background: swatchBg }}
+                style={{ background: swatchBg, border: '1px solid rgba(255,255,255,0.15)' }}
               />
             );
           })}

@@ -247,14 +247,17 @@ import { extractLanguages } from './useGithub';
 import { detectArchetype } from '../utils/creativeAssets';
 
 // Model preference order — most reliable free-tier models FIRST.
-// gemini-2.5 requires billing; 1.5-flash / 2.0-flash are free tier.
+// IMPORTANT: more specific names must come BEFORE shorter prefixes so
+// pickBestModels doesn't accidentally match "gemini-2.0-flash-lite-001"
+// to the "gemini-2.0-flash" slot (leaving the lite slot empty).
+// gemini-2.5 requires billing; 2.0-flash-lite / 1.5-flash are free tier.
 const MODEL_PREFERENCE = [
-  'gemini-1.5-flash',
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-1.5-pro',
-  'gemini-2.5-flash',
-  'gemini-2.5-pro',
+  'gemini-2.0-flash-lite',   // most reliable free-tier; specific name first
+  'gemini-2.0-flash',        // free tier
+  'gemini-1.5-flash',        // free tier (may not exist in newer projects)
+  'gemini-1.5-pro',          // free tier with limits
+  'gemini-2.5-flash',        // requires billing
+  'gemini-2.5-pro',          // requires billing
 ];
 
 const buildPrompt = (user: GithubUser, repos: GithubRepo[], jobTitle: string): string => {
@@ -452,17 +455,16 @@ export const generateAIContent = async (
     } catch (err: any) {
       lastError = err;
       const msg: string = err?.message || '';
-      // Hard stops — invalid key or permission error, no point trying more
-      if (msg.includes('API_KEY_INVALID') || msg.includes('400')) break;
-      if (msg.includes('403')) break;
-      // 0-free-quota on this specific model (often newer 2.5 models that need billing)
-      // → log and CONTINUE to next model — older free-tier models may still work
-      const isZeroLimit = msg.includes('limit: 0') || msg.includes('"limit":0');
+      // Only hard-stop if the key itself is invalid — all other errors try next model
+      if (msg.includes('API_KEY_INVALID')) break;
+      if (msg.includes('403') && msg.includes('API_KEY')) break;
+      // 0-free-quota means billing required on THIS model — always try next
+      const isZeroLimit = msg.includes('limit: 0') || msg.includes('"limit":0') || msg.includes('0 free quota');
       if (isZeroLimit) {
         log(`  ✗ ${modelName}: no free quota (billing required) — trying next...`, 'warning');
         continue;
       }
-      log(`  ✗ ${modelName} unavailable`, 'warning');
+      log(`  ✗ ${modelName} unavailable — trying next...`, 'warning');
       continue;
     }
   }

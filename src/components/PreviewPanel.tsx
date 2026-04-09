@@ -34,7 +34,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset, onRegene
   return (
     <div className="h-full flex flex-col gap-0 rounded-2xl overflow-hidden border border-white/8">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white/3 border-b border-white/8 shrink-0">
+      <div className="flex items-center justify-between px-3 py-2.5 bg-white/3 border-b border-white/8 shrink-0 gap-2">
         {/* View tabs */}
         <div className="flex items-center bg-black/40 rounded-lg p-0.5">
           <button
@@ -56,15 +56,15 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset, onRegene
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           {markdown && (
             <button
               onClick={onRegenerateStyle}
-              className="btn-ghost flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 border border-purple-500/20 hover:border-purple-500/40 rounded-lg px-2.5 py-1.5 transition-all"
+              className="btn-ghost flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 border border-purple-500/20 hover:border-purple-500/40 rounded-lg px-2 py-1.5 transition-all"
               title="Shuffle GIFs, emojis and dividers — keeps your settings"
             >
               <span className="text-sm">✦</span>
-              <span className="hidden sm:inline">Try Different Style</span>
+              <span className="hidden lg:inline">Try Different Style</span>
             </button>
           )}
           <button
@@ -73,7 +73,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset, onRegene
             title="Start over"
           >
             <RefreshCw size={13} />
-            <span className="hidden sm:inline">Restart</span>
+            <span className="hidden md:inline">Restart</span>
           </button>
           <button
             onClick={copyToClipboard}
@@ -82,7 +82,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset, onRegene
             title="Copy to clipboard"
           >
             {copied ? <Check size={13} /> : <Copy size={13} />}
-            <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy'}</span>
+            <span className="hidden md:inline">{copied ? 'Copied!' : 'Copy'}</span>
           </button>
           <button
             onClick={downloadMarkdown}
@@ -91,13 +91,13 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset, onRegene
             title="Download README.md"
           >
             <Download size={13} />
-            <span>Download</span>
+            <span className="hidden sm:inline">Download</span>
           </button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto bg-black/20">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden bg-black/20" style={{ minWidth: 0 }}>
         <AnimatePresence mode="wait">
           {!markdown ? (
             <motion.div
@@ -125,6 +125,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset, onRegene
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="p-6 md-preview"
+              style={{ minWidth: 0, maxWidth: '100%', width: '100%', boxSizing: 'border-box' }}
             >
               {/* GitHub-style dark header bar */}
               <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/6">
@@ -141,7 +142,14 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset, onRegene
                       alt={alt || ''}
                       loading="lazy"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).style.opacity = '0.3';
+                        const el = e.target as HTMLImageElement;
+                        // Show broken badge instead of invisible/faded image
+                        el.style.display = 'none';
+                        const badge = document.createElement('span');
+                        badge.title = `Image unavailable in preview: ${src}`;
+                        badge.style.cssText = 'display:inline-block;padding:2px 8px;margin:2px;border-radius:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:10px;color:#555;font-family:monospace;';
+                        badge.textContent = `⚠ ${alt || 'image'} (loads on GitHub)`;
+                        el.parentNode?.insertBefore(badge, el.nextSibling);
                       }}
                       style={{ maxWidth: '100%', display: 'inline-block', margin: '4px 2px', borderRadius: 6 }}
                     />

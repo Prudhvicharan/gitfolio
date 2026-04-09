@@ -310,7 +310,20 @@ h1, h2, h3, h4, h5, h6, .font-mono {
 .terminal-line.warning { color: #F59E0B; }
 
 /* ---- Markdown Preview Overrides ---- */
-.md-preview { color: #CBD5E1; font-family: 'IBM Plex Sans', sans-serif; overflow-x: hidden; }
+/* The outer wrapper needs min-width:0 so that as a flex child it can shrink
+   below its content's intrinsic size. Without this, <pre> inside will push
+   the panel to its full content width (e.g. 2594px). */
+.md-preview {
+  color: #CBD5E1;
+  font-family: 'IBM Plex Sans', sans-serif;
+  overflow-x: hidden;
+  /* KEY FIX: flex children default to min-width:auto which lets them grow
+     to content size. Setting 0 lets the container shrink properly. */
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
 .md-preview h1 { color: #F8FAFC; font-size: 2rem; font-weight: 700; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
 .md-preview h2 { color: #F8FAFC; font-size: 1.5rem; font-weight: 600; margin: 24px 0 12px; font-family: 'JetBrains Mono', monospace; }
 .md-preview h3 { color: #E2E8F0; font-size: 1.2rem; font-weight: 600; margin: 20px 0 8px; font-family: 'JetBrains Mono', monospace; }
@@ -325,9 +338,43 @@ h1, h2, h3, h4, h5, h6, .font-mono {
 .md-preview h2, .md-preview h3 { clear: both; }
 .md-preview ul, .md-preview ol { padding-left: 1.5rem; margin-bottom: 12px; }
 .md-preview li { margin-bottom: 6px; line-height: 1.7; }
-.md-preview code { background: rgba(99,102,241,0.15); color: #A5B4FC; padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
-.md-preview pre { background: #0D0D0D; padding: 16px; border-radius: 10px; overflow-x: auto; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 12px; clear: both; }
-.md-preview pre code { background: none; color: #94A3B8; padding: 0; }
+.md-preview code {
+  background: rgba(99,102,241,0.15);
+  color: #A5B4FC;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+}
+/* FIX 1: Constrain <pre> so it can never push past its parent's width.
+   overflow-x:auto provides a scrollbar for genuinely long code lines
+   instead of blowing the layout wide open. */
+.md-preview pre {
+  background: #0D0D0D;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 12px;
+  clear: both;
+  /* The three critical constraints: */
+  max-width: 100%;       /* never wider than parent */
+  overflow-x: auto;      /* scrollbar for long lines, not layout explosion */
+  box-sizing: border-box;
+  /* FIX 2 (repeated at element level): flex min-width override */
+  min-width: 0;
+}
+/* FIX 3: code inside pre — display:block + min-width:100% so the background
+   fills the full pre box and text wraps/scrolls correctly. */
+.md-preview pre code {
+  background: none;
+  color: #94A3B8;
+  padding: 0;
+  display: block;    /* fills the pre container horizontally */
+  min-width: 100%;   /* ensures background covers the whole scrollable area */
+  white-space: pre;  /* preserve indentation; pre already handles scrolling */
+  word-break: normal;
+  overflow-wrap: normal;
+}
 .md-preview table { width: 100%; border-collapse: collapse; margin-bottom: 16px; table-layout: fixed; }
 .md-preview th, .md-preview td { border: 1px solid rgba(255,255,255,0.08); padding: 8px 12px; text-align: left; word-break: break-word; overflow-wrap: anywhere; }
 .md-preview th { background: rgba(99,102,241,0.1); color: #F8FAFC; font-weight: 600; }
@@ -416,4 +463,15 @@ h1, h2, h3, h4, h5, h6, .font-mono {
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
   .hide-mobile { display: none !important; }
+}
+
+@media (max-width: 640px) {
+  .btn-primary, .btn-secondary {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  .btn-ghost {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
 }

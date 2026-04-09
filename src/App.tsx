@@ -241,7 +241,7 @@ function App() {
         </div>
 
         {/* Right Panel — Preview */}
-        <div id="preview-panel" className="flex-1 p-4 md:p-6 min-h-[500px] lg:min-h-screen">
+        <div id="preview-panel" className="flex-1 p-3 md:p-6 min-h-[500px] lg:min-h-screen border-t border-white/6 lg:border-t-0">
           <PreviewPanel markdown={generatedMd} onReset={reset} onRegenerateStyle={regenerateStyle} />
         </div>
       </div>

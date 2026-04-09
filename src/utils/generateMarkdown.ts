@@ -247,7 +247,6 @@
 import type { GeneratorConfig } from '../types';
 import { extractLanguages, skillsToIconKeys } from '../hooks/useGithub';
 import {
-  pick,
   detectArchetype, getGifsForArchetype,
   getCodeBlockStyle,
   TYPING_FONTS, TYPING_COLORS,
@@ -345,18 +344,21 @@ export const generateReadme = (config: GeneratorConfig): string => {
   const skillIconKeys = skillsToIconKeys(skillSource);
 
   // Typing lines
-  const typingLines = aiContent?.typingLines?.length
-    ? aiContent.typingLines
-        .map(l => l.replace(/Line \d+:.*?['"]/i, '').replace(/['"]/g, '').trim())
-        .filter(l => l.length > 2 && l.length < 80)
-        .map(l => sanitizeLine(l))
-        .join(';')
-    : [
-        encodeUrl(jobTitle || 'Software Engineer'),
-        encodeUrl(displayName),
-        encodeUrl('Open Source Enthusiast'),
-        encodeUrl("Let's build something great!"),
-      ].join(';');
+  const defaultTypingLines = [
+    encodeUrl(jobTitle || 'Software Engineer'),
+    encodeUrl(displayName),
+    encodeUrl('Open Source Enthusiast'),
+    encodeUrl("Let's build something great!"),
+  ].join(';');
+  const typingLines = (() => {
+    if (!aiContent?.typingLines?.length) return defaultTypingLines;
+    const cleaned = aiContent.typingLines
+      .map(l => l.replace(/Line \d+:.*?['"]/i, '').replace(/['"]/g, '').trim())
+      .filter(l => l.length > 2 && l.length < 80)
+      .map(l => sanitizeLine(l))
+      .join(';');
+    return cleaned || defaultTypingLines;
+  })();
 
   // Header color
   const bannerColor = headerColor.includes(':')
@@ -613,7 +615,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
       md += `<table>\n<tr>\n`;
       featured.forEach(repo => {
         md += `<td width="50%" valign="top">\n\n`;
-        md += `### ${pick(['🚀','⚡','🌟','🔥','💡'])} [${repo.name}](${repo.html_url})\n\n`;
+        md += `### ${sp(['🚀','⚡','🌟','🔥','💡'])} [${repo.name}](${repo.html_url})\n\n`;
         if (repo.description) md += `${repo.description}\n\n`;
         md += `**Stack:** \`${repo.language || 'Various'}\` · `;
         md += `⭐ ${repo.stargazers_count} · 🍴 ${repo.forks_count}\n\n`;

@@ -232,7 +232,7 @@ export const getCodeBlockStyle = (archetype: ProfileArchetype): CodeBlockStyle =
     case 'backend':  return 'json';
     case 'frontend': return 'typescript';
     case 'fullstack':return 'typescript';
-    default:         return Math.random() > 0.5 ? 'typescript' : 'json';
+    default:         return 'typescript';
   }
 };
 

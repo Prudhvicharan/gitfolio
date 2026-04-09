@@ -158,10 +158,10 @@ const Step3: React.FC<Step3Props> = ({
         </motion.div>
       )}
 
-      <div className="flex gap-3">
-        <button onClick={onBack} className="btn-secondary min-w-[80px]">← Back</button>
-
-        {!aiContent ? (
+      {!aiContent ? (
+        /* Pre-generation: Back + Enhance side by side */
+        <div className="flex gap-3">
+          <button onClick={onBack} className="btn-secondary min-w-[80px]">← Back</button>
           <button
             onClick={handleGenerate}
             disabled={!apiKey.trim() || generating}
@@ -179,26 +179,32 @@ const Step3: React.FC<Step3Props> = ({
               </>
             )}
           </button>
-        ) : (
-          <div className="flex gap-2 flex-1">
+        </div>
+      ) : (
+        /* Post-generation: stacks on mobile, row on sm+ */
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+          <div className="flex gap-2">
+            <button onClick={onBack} className="btn-secondary flex-1 sm:flex-none sm:min-w-[80px]">
+              ← Back
+            </button>
             <button
               onClick={handleGenerate}
               disabled={!apiKey.trim() || generating}
-              className="btn-secondary flex items-center gap-1.5"
+              className="btn-secondary flex-1 flex items-center justify-center gap-1.5"
             >
               <RefreshCw size={13} />
               Regenerate
             </button>
-            <button onClick={onFinish} className="btn-primary flex-1">
-              Generate README →
-            </button>
           </div>
-        )}
-      </div>
+          <button onClick={onFinish} className="btn-primary w-full sm:flex-1">
+            Generate README →
+          </button>
+        </div>
+      )}
 
       <button
         onClick={handleSkip}
-        className="text-xs text-gray-600 hover:text-gray-400 transition-colors text-center w-full font-mono"
+        className="text-xs text-gray-600 hover:text-gray-400 transition-colors text-center w-full font-mono py-1"
       >
         Skip AI — Generate without personalization
       </button>
