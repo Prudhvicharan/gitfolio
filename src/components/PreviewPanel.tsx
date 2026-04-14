@@ -5,6 +5,40 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 
+// Stateful image component — prevents duplicate placeholders on re-render.
+// DOM manipulation in onError creates orphaned nodes each time React unmounts/remounts
+// the img (e.g. multiple state updates while GitHub data + AI content loads).
+// React state ensures exactly one placeholder per failed image, regardless of re-renders.
+const PreviewImage = ({ src, alt }: { src?: string; alt?: string }) => {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <span
+        title={src}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: 5,
+          padding: '3px 10px', margin: '3px 2px', borderRadius: 5,
+          background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.18)',
+          fontSize: 10, color: '#6366f1', fontFamily: 'monospace', whiteSpace: 'nowrap',
+        }}
+      >
+        <span style={{ opacity: 0.6 }}>⬛</span>
+        <span style={{ color: '#818cf8' }}>{alt || 'widget'}</span>
+        <span style={{ color: '#4b5563', marginLeft: 2 }}>· renders on GitHub</span>
+      </span>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={alt || ''}
+      loading="lazy"
+      onError={() => setFailed(true)}
+      style={{ maxWidth: '100%', display: 'inline-block', margin: '4px 2px', borderRadius: 6 }}
+    />
+  );
+};
+
 interface PreviewPanelProps {
   markdown: string;
   onReset: () => void;
@@ -132,28 +166,19 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset, onRegene
                 <div className="w-2 h-2 rounded-full bg-emerald-400" />
                 <span className="text-xs font-mono text-gray-600">README.md — GitHub Profile Preview</span>
               </div>
+              {/* GitHub-only widgets notice */}
+              <div className="mb-4 flex items-start gap-2 px-3 py-2 rounded-lg bg-indigo-500/8 border border-indigo-500/15">
+                <span className="text-indigo-400 text-xs shrink-0 mt-px">ⓘ</span>
+                <p className="text-xs text-gray-500 font-mono leading-relaxed">
+                  <span className="text-indigo-400">Dynamic widgets</span> (stats cards, trophies, activity graphs) are blocked by browser security — they render correctly when pasted into GitHub.
+                </p>
+              </div>
+
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeRaw]}
                 components={{
-                  img: ({ src, alt }) => (
-                    <img
-                      src={src}
-                      alt={alt || ''}
-                      loading="lazy"
-                      onError={(e) => {
-                        const el = e.target as HTMLImageElement;
-                        // Show broken badge instead of invisible/faded image
-                        el.style.display = 'none';
-                        const badge = document.createElement('span');
-                        badge.title = `Image unavailable in preview: ${src}`;
-                        badge.style.cssText = 'display:inline-block;padding:2px 8px;margin:2px;border-radius:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:10px;color:#555;font-family:monospace;';
-                        badge.textContent = `⚠ ${alt || 'image'} (loads on GitHub)`;
-                        el.parentNode?.insertBefore(badge, el.nextSibling);
-                      }}
-                      style={{ maxWidth: '100%', display: 'inline-block', margin: '4px 2px', borderRadius: 6 }}
-                    />
-                  ),
+                  img: ({ src, alt }) => <PreviewImage src={src} alt={alt} />,
                   a: ({ href, children }) => (
                     <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: '#818CF8' }}>
                       {children}
