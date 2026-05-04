@@ -1,6 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Magic%20Wand.png" alt="Magic Wand" width="80" height="80" />
-  <h1>GitFolio 🌟</h1>
+  <h1 align="center">✨ GitFolio ✨</h1>
   <p><em>An elegant, AI-powered GitHub Profile README generator.</em></p>
 </div>
 
