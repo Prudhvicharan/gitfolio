@@ -56,8 +56,10 @@ export default function PublishGuide({
           </p>
         </li>
       </ol>
-      {config.sections.snake && (
-        <div className="snake-setup">
+      {(config.sections.snake || config.sections.contribution3d) && (
+        <div className="workflow-stack">
+          {config.sections.snake && (
+            <div className="snake-setup">
           <h3>Set up the contribution snake</h3>
           <p>
             GitHub must generate this animation inside your profile repository.
@@ -131,10 +133,10 @@ export default function PublishGuide({
               you complete the setup and confirm it above.
             </p>
           )}
-        </div>
-      )}
-      {config.sections.contribution3d && (
-        <div className="snake-setup">
+            </div>
+          )}
+          {config.sections.contribution3d && (
+            <div className="snake-setup">
           <h3>Set up the 3D contribution landscape</h3>
           <p>
             Generate the contribution visual in your own profile repository so
@@ -207,6 +209,8 @@ export default function PublishGuide({
               The landscape will not appear in Preview or the downloaded README
               until you complete the setup and confirm it above.
             </p>
+          )}
+            </div>
           )}
         </div>
       )}

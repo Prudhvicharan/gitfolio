@@ -1541,6 +1541,11 @@ textarea {
   margin: 8px 0;
   font-size: 13px;
 }
+.workflow-stack {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
 .snake-setup {
   background: #151721;
   border: 1px solid var(--line);
@@ -2552,6 +2557,10 @@ textarea {
   }
 }
 @media (max-width: 480px) {
+  .workflow-stack {
+    gap: 14px;
+    margin-top: 20px;
+  }
   .site-nav,
   .landing-main {
     padding-left: 20px;
