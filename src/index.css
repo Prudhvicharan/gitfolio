@@ -1501,3 +1501,34 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+@media (max-width: 800px) {
+  .builder-controls {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: #09090bf5;
+    backdrop-filter: blur(12px);
+    padding: 10px 0;
+  }
+  .preview-card,
+  .publish-guide {
+    scroll-margin-top: 135px;
+  }
+  .step-content h1 {
+    scroll-margin-top: 150px;
+  }
+}
+.widget-check {
+  padding: 0 18px 12px;
+}
+.widget-check > .help {
+  margin-top: 0;
+}
+.widget-check > .notice {
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+.widget-check .notice .text-button {
+  display: block;
+  text-align: left;
+}

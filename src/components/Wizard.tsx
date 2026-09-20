@@ -69,7 +69,6 @@ export default function Wizard({
   const [pending, setPending] = useState(false);
   const githubRequest = useRef<AbortController | null>(null);
   const aiRequest = useRef<AbortController | null>(null);
-  const headingFocus = useRef(false);
   const patch = (value: Partial<GeneratorConfig>) =>
     setConfig((previous) => ({ ...previous, ...value }));
   const cancelAI = () => {
@@ -97,11 +96,7 @@ export default function Wizard({
       );
   }, [config, repos, save]);
   useEffect(() => {
-    if (active) {
-      if (headingFocus.current)
-        document.getElementById('step-heading-' + step)?.focus();
-      headingFocus.current = true;
-    }
+    if (active) document.getElementById('step-heading-' + step)?.focus();
   }, [step, active]);
   useEffect(() => {
     if (!active || step !== 3) aiRequest.current?.abort();
@@ -269,6 +264,17 @@ export default function Wizard({
     onStep(1);
     setMobileView('edit');
   };
+  const showPreview = () => {
+    setMobileView('preview');
+    requestAnimationFrame(() => {
+      document
+        .querySelector('.preview-card')
+        ?.scrollIntoView({ block: 'start' });
+      document
+        .getElementById('preview-heading')
+        ?.focus({ preventScroll: true });
+    });
+  };
   const publish = () => {
     setMobileView('preview');
     requestAnimationFrame(() => {
@@ -298,9 +304,13 @@ export default function Wizard({
           }}
           aria-label="GitFolio home, keep current draft"
         >
-          <span className="brand-mark" aria-hidden="true">
-            G.
-          </span>{' '}
+          <img
+            className="brand-mark"
+            src="/favicon.svg"
+            width={34}
+            height={34}
+            alt=""
+          />{' '}
           GitFolio
         </button>
         <div className="header-actions">
@@ -316,7 +326,11 @@ export default function Wizard({
           </a>
         </div>
       </header>
-      <main id="main-content" className="builder-main">
+      <main
+        id={active ? 'main-content' : undefined}
+        className="builder-main"
+        tabIndex={-1}
+      >
         <div className="builder-controls">
           <StepIndicator
             currentStep={step}
@@ -326,13 +340,19 @@ export default function Wizard({
           <div className="mobile-tabs segmented" aria-label="Builder view">
             <button
               aria-pressed={mobileView === 'edit'}
-              onClick={() => setMobileView('edit')}
+              onClick={() => {
+                setMobileView('edit');
+                window.scrollTo({ top: 0, behavior: 'instant' });
+              }}
             >
               <Pencil size={16} /> Edit
             </button>
             <button
               aria-pressed={mobileView === 'preview'}
-              onClick={() => setMobileView('preview')}
+              onClick={() => {
+                setMobileView('preview');
+                window.scrollTo({ top: 0, behavior: 'instant' });
+              }}
             >
               <Eye size={16} /> Preview
             </button>
@@ -388,7 +408,7 @@ export default function Wizard({
                     generating={generating}
                     onCancel={cancelAI}
                     onBack={() => go(2)}
-                    onFinish={publish}
+                    onFinish={showPreview}
                     active={active && step === 3}
                     onPending={setPending}
                   />
@@ -441,15 +461,16 @@ export default function Wizard({
             <PreviewPanel
               markdown={markdown}
               onRemoveWidget={(url) =>
-                patch({
+                setConfig((previous) => ({
+                  ...previous,
                   disabledWidgetUrls: [
-                    ...(config.disabledWidgetUrls || []),
+                    ...(previous.disabledWidgetUrls || []),
                     url,
                   ],
                   sections: widgetSection(url)
-                    ? { ...config.sections, [widgetSection(url)!]: false }
-                    : config.sections,
-                })
+                    ? { ...previous.sections, [widgetSection(url)!]: false }
+                    : previous.sections,
+                }))
               }
               onRegenerateStyle={() => patch({ creativeSeed: Math.random() })}
               onPublish={publish}

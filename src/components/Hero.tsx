@@ -20,9 +20,13 @@ export default function Hero({ onStart, onDemo }: Props) {
     <div className="landing">
       <header className="site-nav">
         <a className="brand" href="#" aria-label="GitFolio home">
-          <span className="brand-mark" aria-hidden="true">
-            G.
-          </span>
+          <img
+            className="brand-mark"
+            src="/favicon.svg"
+            width={34}
+            height={34}
+            alt=""
+          />
           GitFolio
         </a>
         <nav className="nav-links" aria-label="Main navigation">
@@ -38,7 +42,7 @@ export default function Hero({ onStart, onDemo }: Props) {
           </a>
         </nav>
       </header>
-      <main className="landing-main" id="main-content">
+      <main className="landing-main" id="main-content" tabIndex={-1}>
         <section className="hero-grid" aria-labelledby="hero-title">
           <div className="hero-copy">
             <span className="hero-eyebrow">

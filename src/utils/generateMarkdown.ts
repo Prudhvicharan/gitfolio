@@ -41,9 +41,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
       cylinder: 'cylinder',
       shark: 'shark',
     };
-    const color = headerColor.includes(':')
-      ? `auto:${headerColor}`
-      : headerColor.replace('#', '');
+    const color = headerColor.replace('#', '');
     add(
       image(
         EXTRA_WIDGETS.capsuleHeader(

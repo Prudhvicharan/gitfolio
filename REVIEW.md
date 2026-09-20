@@ -1,0 +1,116 @@
+# Reviewing `site-overhaul`
+
+All work is on a feature branch. Nothing has been merged, pushed, or deployed.
+The full finding-by-finding change log is in [OVERHAUL.md](./OVERHAUL.md).
+
+## Run the release candidate
+
+Use Node 22.18+:
+
+```sh
+git switch site-overhaul
+npm ci
+npm test
+npm run lint
+npm run build
+npm run preview -- --host 127.0.0.1
+```
+
+Open http://127.0.0.1:4173/. Use the production preview to verify prerendering and
+security headers; the development server intentionally serves the interactive dev app.
+
+## Review checklist
+
+1. **Landing:** review the headline, example styles, AI prerequisite, FAQ, and privacy
+   disclosure. Inspect the [desktop screenshot](./docs/review/home-desktop.png) and
+   [mobile screenshot](./docs/review/home-mobile.png).
+2. **Demo:** explore the fictional sample without an account. Switch presets and
+   verify that all section controls affect the output. Minimal and Balanced avoid
+   external image requests by default.
+3. **Real profile:** import your username, choose repositories (including forks if
+   desired), and inspect the sample-size and partial-error messages.
+4. **Content review:** edit the biography/skills, confirm the review checkbox, and
+   apply. Unapplied edits must not replace the preview or be exported. Availability
+   must appear only after explicitly selecting “Open to work.”
+5. **AI (credential-dependent):** enter your own key directly in the app, consent to
+   sending metadata to Google, and request a draft. Verify it is plausible and factual,
+   review/apply it, then leave and return to Review: the key field should be empty.
+   Do not paste keys into chat, source, or test fixtures. Google quotas/billing apply.
+6. **Export:** copy and download the README; inspect both raw Markdown and the visual
+   preview. For image-based presets, use **Check widgets** to test loading and remove unavailable images. Follow the publishing checklist in a profile repository only when ready.
+   Back up existing content before replacing it.
+7. **Snake:** optionally download `snake.yml`, review its external actions and write
+   permission, install/run it in your profile repository, then enable its image.
+8. **Drafts:** opt in, reload, and verify recovery. Turn saving off to delete the saved
+   copy. Reset-all requires confirmation and clears profile/settings/draft.
+9. **Mobile and keyboard:** use the sticky Edit/Preview controls; Tab through every
+   control, try the skip link, inspect focus visibility, and test 200% zoom. Screenshots:
+   [builder desktop](./docs/review/builder-desktop.png),
+   [preview mobile](./docs/review/preview-mobile.png).
+10. **Staging before merge:** verify response security headers, social preview image,
+    canonical URL, and a published README's rendering on GitHub. No staging deployment
+    was made by this implementation task.
+
+## Repeat browser QA without changing app dependencies
+
+The optional browser scripts use temporary packages outside the repository:
+
+```sh
+npm install --prefix /tmp/gitfolio-qa playwright @axe-core/playwright lighthouse
+node /tmp/gitfolio-qa/node_modules/playwright/cli.js install chromium
+node scripts/qa/check.mjs
+node scripts/qa/flows.mjs
+node scripts/qa/edges.mjs
+node scripts/qa/live.mjs
+node scripts/qa/performance.mjs
+```
+
+The production preview must be running. `flows` and `edges` intercept API requests
+with fixtures; they do not need credentials. `live` performs a read-only import of
+`Prudhvicharan` using GitHub's public API. Run performance measurements alone, not
+concurrently with other browser suites. Set `GITFOLIO_QA_ROOT`, `GITFOLIO_QA_URL`, or
+`GITFOLIO_QA_OUTPUT` to customize package, site, and artifact locations. Default
+artifacts go to `/tmp/gitfolio-qa/artifacts`.
+
+## Verified results
+
+- Production build, TypeScript, lint, and 13 regression tests pass.
+- 15 end-to-end flows and 14 failure-path/keyboard/layout checks pass in Chromium.
+- Automated WCAG A/AA checks pass for the homepage at 320/375/768/1024/1440px, and
+  for the profile/style/review/mobile-preview flows tested; no horizontal overflow.
+- Happy-path browser checks report no runtime errors.
+- Real GitHub import succeeded: 28 public repositories for `Prudhvicharan`.
+- Initial JavaScript decreased from approximately 276 KB to 66 KB gzip; the wizard,
+  Markdown renderer, and Gemini SDK are separate lazy chunks.
+- Final Lighthouse and dependency-audit results are recorded in OVERHAUL.md and
+  `docs/review/qa-summary.json`.
+
+## Decisions made within the audit scope
+
+- Preserved React/TypeScript/Vite, existing brand colors/typefaces, core headline,
+  and public path. New navigation uses same-page anchors; no route migration.
+- Defaulted to readable text instead of third-party images; Animated is opt-in.
+- Replaced unverified trophy badges with explicitly labeled public profile facts.
+- Kept credentials memory-only, with no “remember key” option.
+- Bounded import at 500 recent public repositories and selection at 8; coverage is
+  disclosed. Forks remain selectable.
+- Kept AI to one disclosed model, with no automatic paid-model fallback.
+- Added only the audit-recommended `rehype-sanitize` production dependency; removed
+  unused packages and applied compatible security updates. QA tooling stays external.
+
+## Remaining verification and limits
+
+- A real Gemini request requires your Google project/key. Success/error/cancellation
+  paths were tested with fixtures, not represented as a live AI success.
+- Snake workflow execution and final GitHub rendering require a profile repository;
+  no workflow was run or account content modified by this task.
+- Automated scans and desktop/mobile emulation do not certify full WCAG conformance.
+  Do a real-device Safari/Chrome and VoiceOver/NVDA pass before declaring conformance.
+- Lighthouse numbers are local lab measurements, not field Core Web Vitals. Recheck
+  the deployed build and security headers before promoting it.
+- Optional image providers and Google model availability remain external dependencies.
+
+Beyond the original audit, consider adding the existing checks to CI, maintaining a
+small dependency/model-availability review schedule, and collecting consent-based
+completion feedback before adding more features. None requires changing the product
+architecture now.

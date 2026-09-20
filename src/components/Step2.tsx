@@ -54,7 +54,7 @@ const HEADER_COLORS = [
   { value: '0:3F3FFF,100:8B21F8', label: 'Violet Grad' },
   { value: '0:22D3EE,100:6366F1', label: 'Cyan Blue' },
   { value: '0:F59E0B,100:EF4444', label: 'Sunset' },
-  { value: 'gradient', label: 'Rainbow' },
+  { value: 'gradient', label: 'Random gradient' },
   { value: '#0D1117', label: 'Dark' },
 ];
 

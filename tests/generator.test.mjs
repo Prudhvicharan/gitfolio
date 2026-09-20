@@ -140,3 +140,19 @@ test('removed widgets stay out of exported Markdown', () => {
     )
   );
 });
+
+test('custom header gradients use the provider syntax without a random-color prefix', () => {
+  const md = generateReadme({ ...config, headerColor: '0:3F3FFF,100:8B21F8' });
+  assert.match(md, /color=0:3F3FFF,100:8B21F8/);
+  assert.doesNotMatch(md, /color=auto:/);
+});
+
+test('widget checks include only distinct HTTPS image URLs and decode query separators', async () => {
+  const { widgetUrls } = await import('../src/utils/checkWidgets.ts');
+  assert.deepEqual(
+    widgetUrls(
+      '<img src="https://example.com/a?a=1&amp;b=2" /><img src="https://example.com/a?a=1&amp;b=2" /><img src="javascript:alert(1)" />'
+    ),
+    ['https://example.com/a?a=1&b=2']
+  );
+});

@@ -4,34 +4,34 @@ Branch: `site-overhaul`. Preserve React/TypeScript/Vite, existing brand colors,
 typography, and the public URL. Review in logical commits; do not deploy or merge.
 
 ## Must Fix
-- [ ] A5: Remove unverified achievements, fallback skills, and assumed hireability.
-- [ ] A17: Memory-only credentials, migration cleanup, accurate privacy disclosures.
-- [ ] A18/A10: Sanitize Markdown, validate AI responses and URLs, preserve working output.
-- [ ] A8: Profile-bound AI results, cancellation, authoritative section toggles.
-- [ ] A6: Honest widget states, retry/removal, preserve image layout attributes.
-- [ ] A7: Opt-in snake with complete downloadable workflow.
-- [ ] A14/A15: Labels, control states, focus, announcements, contrast, reduced motion.
+- [x] A5: Remove unverified achievements, fallback skills, and assumed hireability.
+- [x] A17: Memory-only credentials, migration cleanup, accurate privacy disclosures.
+- [x] A18/A10: Sanitize Markdown, validate AI responses and URLs, preserve working output.
+- [x] A8: Profile-bound AI results, cancellation, authoritative section toggles.
+- [x] A6: Honest widget states, retry/removal, preserve image layout attributes.
+- [x] A7: Opt-in snake with complete downloadable workflow.
+- [x] A14/A15: Labels, control states, focus, announcements, contrast, reduced motion.
 
 ## Should Fix
-- [ ] A1/A2: Realistic sample preview; disclose optional AI key before starting.
-- [ ] A3/A4: Mobile Edit/Preview, step navigation, credential-free draft recovery.
-- [ ] A9: Repository selection, pagination, sample labels, partial-failure recovery.
-- [ ] A13: Lazy wizard, Markdown renderer, AI SDK; measure production bundles.
-- [ ] A16: Metadata, social image, canonical, sitemap/robots, prerender landing.
-- [ ] A17: Data-flow/privacy documentation, source and issue links.
+- [x] A1/A2: Realistic sample preview; disclose optional AI key before starting.
+- [x] A3/A4: Mobile Edit/Preview, step navigation, credential-free draft recovery.
+- [x] A9: Repository selection, pagination, sample labels, partial-failure recovery.
+- [x] A13: Lazy wizard, Markdown renderer, AI SDK; measure production bundles.
+- [x] A16: Metadata, social image, canonical, sitemap/robots, prerender landing.
+- [x] A17: Data-flow/privacy documentation, source and issue links.
 
 ## Nice to Have
-- [ ] A12: Accurate action/model labels, clear reset/change-profile semantics.
-- [ ] A15: Meaningful alt text, restrained motion, consistent icons.
-- [ ] A19: Clean lint and focused regression tests.
+- [x] A12: Accurate action/model labels, clear reset/change-profile semantics.
+- [x] A15: Meaningful alt text, restrained motion, consistent icons.
+- [x] A19: Clean lint and focused regression tests.
 
 ## New Features
-- [ ] Editable content review with explicit approval before applying AI.
-- [ ] Repository picker.
-- [ ] Minimal / Balanced / Animated presets.
-- [ ] GitHub publishing checklist and snake workflow download.
-- [ ] Widget readiness feedback.
-- [ ] Credential-free demo.
+- [x] Editable content review with explicit approval before applying AI.
+- [x] Repository picker.
+- [x] Minimal / Balanced / Animated presets.
+- [x] GitHub publishing checklist and snake workflow download.
+- [x] Widget readiness feedback.
+- [x] Credential-free demo.
 
 ## Verification and decisions
 - Baseline build passes; baseline lint has seven errors.
@@ -43,7 +43,7 @@ typography, and the public URL. Review in logical commits; do not deploy or merg
   responsive layout, security, and performance results will be recorded here.
 
 ## Change log
-Implementation in progress.
+Implementation completed in four logical commits; see REVIEW.md for the release checklist.
 
 ### Chunk 1 — trustworthy generation and data boundaries
 - A5/A8/A9: Removed inferred achievements/availability and fallback skills; all-off
@@ -97,3 +97,46 @@ Implementation in progress.
   768, 1024, 1440px; automated WCAG A/AA scans pass on the landing, style, review,
   and mobile preview. Fifteen end-to-end flows pass with intercepted GitHub/Gemini
   responses and no real credentials. Final performance checks are in progress.
+
+### Chunk 4 — verification, integration polish, and handoff
+- A14/A15: Keyboard skip-link/step/export focus, a persistent mobile view switch,
+  and matching visible/accessibility names. “Review & export” opens the export
+  controls; the publishing guide remains a separate action.
+- A6: Verified failed-widget retry, removal, re-enabling, and all-sections-off output.
+  Added an explicit image-loading check with timeout and bulk removal; its copy
+  distinguishes successful loading from content accuracy or GitHub compatibility.
+- A10: Verified quota errors, malformed AI responses, cancellation, storage denial,
+  and preservation of existing content. No real key was used in fixture tests.
+- A7/A12: Corrected inherited custom-gradient URL syntax against Capsule Render's
+  documentation; renamed the provider's random gradient option accurately.
+- Added optional, repeatable browser/axe/Lighthouse scripts outside app dependencies,
+  screenshots, QA summary, and a concrete branch review checklist in REVIEW.md.
+
+## Final verification — 2026-09-20
+
+- `npm test`: 13/13 passing; `npm run lint` and `npm run build`: passing.
+- `npm audit`: 0 reported vulnerabilities, including development dependencies.
+- Chromium: 15 happy-path end-to-end checks and 14 failure/keyboard/layout checks pass.
+- axe: no tested WCAG A/AA violations; homepage widths 320/375/768/1024/1440 and
+  profile/style/review/mobile-preview states checked. Screenshots visually reviewed.
+- Real GitHub import: Prudhvicharan, 28 public repositories, successful.
+- Local Lighthouse mobile: Performance 99, Accessibility 100, Best Practices 100,
+  SEO 100; LCP 1.9s, TBT 0ms, CLS 0.
+- Local Lighthouse desktop: all four categories 100; LCP 0.4s, TBT 0ms, CLS 0.
+- Initial JS: ~276 KB → ~66 KB gzip (about 76% reduction). Wizard, preview, AI SDK
+  remain separate lazy chunks. No >500 KB chunk warning.
+- Remaining non-blocking Lighthouse opportunities: unused framework JS (~34 KiB),
+  the CSS render-blocking request, and the font dependency chain. No extra complexity
+  was added to chase a single lab point.
+
+## Explicitly unverified / requires user environment
+
+- Real Gemini generation needs the user's Google project/key. The user was offered
+  local testing without sharing a key in chat. Fixture success/failure is not live AI.
+- Publishing a README and running snake.yml were not performed; those change a user's
+  GitHub repository. Generated workflow inputs were checked against upstream docs.
+- Physical-device Safari/Chrome and VoiceOver/NVDA testing, and deployed Vercel header /
+  social-preview verification remain release checks. Local lab scores are not field
+  performance or full accessibility certification.
+- No content assets or brand decisions remain required. No paid service was added.
+- All changes are on site-overhaul; no merge, push, or deployment was performed.
