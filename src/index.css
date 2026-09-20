@@ -442,13 +442,15 @@ textarea {
   font-size: 14px;
 }
 .disclosure > summary::before {
-  content: '+';
+  content: '›';
   color: #b9a4ef;
   font-family: var(--font-mono);
   font-size: 18px;
+  transform: rotate(0deg);
+  transition: transform 180ms var(--ease-out);
 }
 .disclosure[open] > summary::before {
-  content: '−';
+  transform: rotate(90deg);
 }
 .disclosure > summary > span {
   color: var(--muted);
@@ -457,6 +459,14 @@ textarea {
 }
 .disclosure > .form-stack {
   padding: 6px 0 20px;
+}
+.disclosure[open] > .form-stack,
+.disclosure[open] > p {
+  animation: disclosure-enter 160ms var(--ease-out) both;
+}
+@keyframes disclosure-enter {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .spin {
   animation: spin 1s linear infinite;
@@ -587,6 +597,36 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 32px;
+}
+.step-frame {
+  will-change: auto;
+}
+.step-frame.step-exit {
+  pointer-events: none;
+  animation: step-exit-forward 120ms var(--ease-in) both;
+}
+.step-frame.step-exit.step-backward {
+  animation-name: step-exit-backward;
+}
+.step-frame.step-enter {
+  animation: step-enter-forward 220ms var(--ease-out) both;
+}
+.step-frame.step-enter.step-backward {
+  animation-name: step-enter-backward;
+}
+@keyframes step-exit-forward {
+  to { opacity: 0; transform: translateX(-12px); }
+}
+@keyframes step-exit-backward {
+  to { opacity: 0; transform: translateX(12px); }
+}
+@keyframes step-enter-forward {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes step-enter-backward {
+  from { opacity: 0; transform: translateX(-14px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 .section-intro h1 {
   font-size: 32px;
@@ -1040,6 +1080,33 @@ textarea {
   line-height: 1.6;
   margin: 0;
 }
+.generation-state {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 38px;
+  padding: 9px 11px;
+  border: 1px solid #3a3750;
+  border-radius: 8px;
+  background: #121218;
+  color: #c9c6d4;
+  font-size: 12px;
+}
+.generation-state span {
+  animation: generation-copy 180ms var(--ease-out) both;
+}
+.generation-spark {
+  color: var(--accent-hover);
+  animation: generation-pulse 1600ms cubic-bezier(.4, 0, .2, 1) infinite;
+}
+@keyframes generation-copy {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes generation-pulse {
+  0%, 100% { opacity: .55; transform: scale(.98); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
 .content-editor > .form-stack {
   gap: 22px;
 }
@@ -1282,6 +1349,17 @@ textarea {
   max-width: 100%;
   height: auto;
   vertical-align: middle;
+}
+.md-preview img.preview-image-loading {
+  opacity: 0;
+  transform: scale(.995);
+}
+.md-preview img.preview-image-loaded {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
 }
 .md-preview img[align='right'] {
   float: right;
@@ -2012,6 +2090,14 @@ textarea {
   }
 }
 @media (max-width: 800px) {
+  .step-frame.step-exit,
+  .step-frame.step-exit.step-backward {
+    animation-name: step-exit-mobile;
+  }
+  .step-frame.step-enter,
+  .step-frame.step-enter.step-backward {
+    animation-name: step-enter-mobile;
+  }
   .builder-controls {
     position: sticky;
     top: 0;
@@ -2027,6 +2113,13 @@ textarea {
   .step-content h1 {
     scroll-margin-top: 150px;
   }
+}
+@keyframes step-exit-mobile {
+  to { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes step-enter-mobile {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .widget-check {
   padding: 0 18px 12px;

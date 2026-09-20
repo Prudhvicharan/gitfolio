@@ -89,9 +89,14 @@ export default function Wizard({
   const [generating, setGenerating] = useState(false);
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
   const [pending, setPending] = useState(false);
+  const [visibleStep, setVisibleStep] = useState(step);
+  const [stepMotion, setStepMotion] = useState<'idle' | 'exit' | 'enter'>('idle');
+  const [stepDirection, setStepDirection] = useState<'forward' | 'backward'>('forward');
   const isDemo = config.userData?.id === 0;
   const githubRequest = useRef<AbortController | null>(null);
   const aiRequest = useRef<AbortController | null>(null);
+  const visibleStepRef = useRef(step);
+  const stepTimers = useRef<number[]>([]);
   const patch = (value: Partial<GeneratorConfig>) =>
     setConfig((previous) => ({ ...previous, ...value }));
   const cancelAI = () => {
@@ -106,8 +111,23 @@ export default function Wizard({
     return () => {
       githubRequest.current?.abort();
       aiRequest.current?.abort();
+      stepTimers.current.forEach(window.clearTimeout);
     };
   }, []);
+  useEffect(() => {
+    if (step === visibleStepRef.current) return;
+    stepTimers.current.forEach(window.clearTimeout);
+    stepTimers.current = [];
+    const direction = step > visibleStepRef.current ? 'forward' : 'backward';
+    setStepDirection(direction);
+    setStepMotion('exit');
+    stepTimers.current.push(window.setTimeout(() => {
+      visibleStepRef.current = step;
+      setVisibleStep(step);
+      setStepMotion('enter');
+      stepTimers.current.push(window.setTimeout(() => setStepMotion('idle'), 220));
+    }, 120));
+  }, [step]);
   useEffect(() => {
     if (!config.userData || config.userData.id === 0) return;
     const draft = { config, availableRepos: repos };
@@ -116,8 +136,9 @@ export default function Wizard({
       setStatus('This browser could not save your progress. Download your README before leaving.');
   }, [config, repos, save]);
   useEffect(() => {
-    if (active) document.getElementById('step-heading-' + step)?.focus();
-  }, [step, active]);
+    if (active && stepMotion === 'idle')
+      document.getElementById('step-heading-' + visibleStep)?.focus();
+  }, [visibleStep, stepMotion, active]);
   useEffect(() => {
     if (!active || step !== 3) aiRequest.current?.abort();
   }, [active, step]);
@@ -308,6 +329,7 @@ export default function Wizard({
     });
   };
   const markdown = generateReadme(config);
+  const stepClass = `step-frame step-${stepMotion} step-${stepDirection}`;
   return (
     <div className="builder-shell">
       <header className="builder-header">
@@ -400,7 +422,7 @@ export default function Wizard({
                 {error}
               </div>
             )}
-            <div hidden={step !== 1}>
+            <div hidden={visibleStep !== 1} className={stepClass}>
               <Step1
                 username={username}
                 setUsername={setUsername}
@@ -421,7 +443,7 @@ export default function Wizard({
             </div>
             {config.userData && (
               <>
-                <div hidden={step !== 2}>
+                <div hidden={visibleStep !== 2} className={stepClass}>
                   <Step2
                     config={config}
                     onChange={patch}
@@ -432,7 +454,7 @@ export default function Wizard({
                     demo={isDemo}
                   />
                 </div>
-                <div hidden={step !== 3}>
+                <div hidden={visibleStep !== 3} className={stepClass}>
                   <Step3
                     key={
                       config.userData.login +
@@ -445,7 +467,7 @@ export default function Wizard({
                     onCancel={cancelAI}
                     onBack={() => go(2)}
                     onFinish={showPreview}
-                    active={active && step === 3}
+                    active={active && visibleStep === 3 && stepMotion === 'idle'}
                     onPending={setPending}
                     demo={isDemo}
                     onBuildProfile={onBuildProfile}
@@ -453,7 +475,7 @@ export default function Wizard({
                 </div>
               </>
             )}
-            {!config.userData && step !== 1 && (
+            {!config.userData && visibleStep !== 1 && (
               <button className="btn-primary" onClick={() => onStep(1)}>
                 <ArrowLeft size={16} /> Import a profile first
               </button>

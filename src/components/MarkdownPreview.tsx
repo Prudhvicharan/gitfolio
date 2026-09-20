@@ -15,6 +15,7 @@ function PreviewImage({
   align?: string;
 }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   if (failed)
     return (
       <span className="widget-error" role="status">
@@ -40,9 +41,11 @@ function PreviewImage({
   return (
     <img
       {...props}
+      className={`${props.className || ''} ${loaded ? 'preview-image-loaded' : 'preview-image-loading'}`.trim()}
       loading="lazy"
       decoding="async"
       referrerPolicy="no-referrer"
+      onLoad={() => setLoaded(true)}
       onError={() => setFailed(true)}
     />
   );
