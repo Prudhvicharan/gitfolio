@@ -77,3 +77,23 @@ Implementation in progress.
   Animated remains available. No API key persistence option is offered.
 - Verification: 11 regression tests, lint and production build pass. In-app browser
   bootstrap still fails before connection; isolated browser QA is being prepared.
+
+### Chunk 3 — product presentation, performance, discoverability, trust
+- A1/A2/New: Retained the core headline and brand palette/typefaces; added a realistic
+  fictional README example, two sample styles, credential-free demo, and clear AI
+  prerequisites. Added how-it-works, FAQ, privacy/data flow, and project/support links.
+- A13/A15: Removed particle/shimmer motion and unused animation/icon/legacy-AI/Markdown
+  packages. Self-hosted existing fonts with OFL licenses. All changed code formatted
+  for maintainability; no additional production framework was introduced.
+- A16: Descriptive metadata, canonical, Open Graph/Twitter tags, generated 1200×630
+  sharing artwork, branded favicon, robots/sitemap, and React prerender/hydration.
+- A18: Production CSP, no frames/objects, nosniff, no-referrer, and permissions headers;
+  local production preview uses the same header configuration.
+- A12/A17: README documentation now matches actual key/data behavior and quota limits.
+- Integration polish: no spurious cancellation messages, safe demo replacement,
+  same-profile refresh preserves reviewed text, widget removal disables its section
+  and re-enabling restores it, all-off output has an accurate empty state.
+- Browser evidence: desktop/mobile screenshots reviewed; no overflow at 320, 375,
+  768, 1024, 1440px; automated WCAG A/AA scans pass on the landing, style, review,
+  and mobile preview. Fifteen end-to-end flows pass with intercepted GitHub/Gemini
+  responses and no real credentials. Final performance checks are in progress.

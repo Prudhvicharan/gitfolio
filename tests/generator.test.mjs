@@ -1,53 +1,142 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { generateReadme, generateSnakeWorkflow } from '../src/utils/generateMarkdown.ts';
-import { EMPTY_CONTENT, PRESETS, validateAIContent, safeUrl } from '../src/utils/content.ts';
+import {
+  generateReadme,
+  generateSnakeWorkflow,
+} from '../src/utils/generateMarkdown.ts';
+import {
+  EMPTY_CONTENT,
+  PRESETS,
+  validateAIContent,
+  safeUrl,
+} from '../src/utils/content.ts';
 import { fetchProfile, normalizeUsername } from '../src/hooks/useGithub.ts';
-const user = { login: 'example', name: 'Example', bio: null, followers: 0, public_repos: 0, created_at: '2020-01-01' };
-const config = { userData: user, repos: [], sections: {...PRESETS.animated, trophies:true}, socialLinks:{}, aiContent:null, theme:'radical', headerStyle:'wave', headerColor:'gradient', jobTitle:'', creativeSeed:0.5 };
+const user = {
+  login: 'example',
+  name: 'Example',
+  bio: null,
+  followers: 0,
+  public_repos: 0,
+  created_at: '2020-01-01',
+};
+const config = {
+  userData: user,
+  repos: [],
+  sections: { ...PRESETS.animated, trophies: true },
+  socialLinks: {},
+  aiContent: null,
+  theme: 'radical',
+  headerStyle: 'wave',
+  headerColor: 'gradient',
+  jobTitle: '',
+  creativeSeed: 0.5,
+};
 test('empty accounts receive no invented skills, achievements or availability', () => {
   const md = generateReadme(config);
-  assert.doesNotMatch(md, /Pull Shark|Starstruck|hireable|Open to work|skillicons/);
+  assert.doesNotMatch(
+    md,
+    /Pull Shark|Starstruck|hireable|Open to work|skillicons/
+  );
   assert.equal(md, generateReadme(config));
 });
 test('all section switches are authoritative, including links', () => {
-  assert.equal(generateReadme({...config, socialLinks:{linkedin:'https://linkedin.com/in/example'}, sections:Object.fromEntries(Object.keys(config.sections).map(k=>[k,false]))}), '');
+  assert.equal(
+    generateReadme({
+      ...config,
+      socialLinks: { linkedin: 'https://linkedin.com/in/example' },
+      sections: Object.fromEntries(
+        Object.keys(config.sections).map((k) => [k, false])
+      ),
+    }),
+    ''
+  );
 });
 test('untrusted profile values are escaped and unsafe URLs omitted', () => {
-  const md=generateReadme({...config,userData:{...user,name:'<iframe src="https://evil.test"></iframe>',bio:'[click](javascript:alert(1))'},socialLinks:{portfolio:'javascript:alert(1)'}});
+  const md = generateReadme({
+    ...config,
+    userData: {
+      ...user,
+      name: '<iframe src="https://evil.test"></iframe>',
+      bio: '[click](javascript:alert(1))',
+    },
+    socialLinks: { portfolio: 'javascript:alert(1)' },
+  });
   assert.doesNotMatch(md, /<iframe|\[Portfolio\]/);
-  assert.equal(safeUrl('javascript:alert(1)'),null);
-  assert.equal(safeUrl('https://user:pass@example.com'),null);
-  assert.equal(safeUrl('example.com'),'https://example.com/');
+  assert.equal(safeUrl('javascript:alert(1)'), null);
+  assert.equal(safeUrl('https://user:pass@example.com'), null);
+  assert.equal(safeUrl('example.com'), 'https://example.com/');
 });
 test('malformed AI objects are rejected at the boundary', () => {
-  assert.throws(()=>validateAIContent({...EMPTY_CONTENT,aboutMe:{}}));
-  assert.throws(()=>validateAIContent({...EMPTY_CONTENT,skills:[42]}));
-  assert.deepEqual(validateAIContent(EMPTY_CONTENT),EMPTY_CONTENT);
+  assert.throws(() => validateAIContent({ ...EMPTY_CONTENT, aboutMe: {} }));
+  assert.throws(() => validateAIContent({ ...EMPTY_CONTENT, skills: [42] }));
+  assert.deepEqual(validateAIContent(EMPTY_CONTENT), EMPTY_CONTENT);
 });
-test('snake is opt-in and its workflow includes account and write permissions',()=>{
-  assert.doesNotMatch(generateReadme({...config,sections:{...config.sections,snake:true}}),/github-snake/);
-  const workflow=generateSnakeWorkflow('example');
-  assert.match(workflow,/github_user_name: example/);assert.match(workflow,/contents: write/);assert.match(workflow,/github_token:/);
+test('snake is opt-in and its workflow includes account and write permissions', () => {
+  assert.doesNotMatch(
+    generateReadme({
+      ...config,
+      sections: { ...config.sections, snake: true },
+    }),
+    /github-snake/
+  );
+  const workflow = generateSnakeWorkflow('example');
+  assert.match(workflow, /github_user_name: example/);
+  assert.match(workflow, /contents: write/);
+  assert.match(workflow, /github_token:/);
 });
-test('username normalization rejects path and query injection',()=>{
-  assert.equal(normalizeUsername(' @octocat '),'octocat');
-  for (const value of ['https://github.com/x','x?admin=1','a--b','-x']) assert.throws(()=>normalizeUsername(value));
+test('username normalization rejects path and query injection', () => {
+  assert.equal(normalizeUsername(' @octocat '), 'octocat');
+  for (const value of ['https://github.com/x', 'x?admin=1', 'a--b', '-x'])
+    assert.throws(() => normalizeUsername(value));
 });
-test('repository failure remains visible rather than pretending the account is empty',async()=>{
-  const original=globalThis.fetch;
-  globalThis.fetch=async url => url.includes('/repos?') ? new Response('',{status:503}) : Response.json(user);
-  try { const result=await fetchProfile('example');assert.match(result.warning,/incomplete/);assert.equal(result.user.login,'example'); }
-  finally {globalThis.fetch=original;}
+test('repository failure remains visible rather than pretending the account is empty', async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async (url) =>
+    url.includes('/repos?')
+      ? new Response('', { status: 503 })
+      : Response.json(user);
+  try {
+    const result = await fetchProfile('example');
+    assert.match(result.warning, /incomplete/);
+    assert.equal(result.user.login, 'example');
+  } finally {
+    globalThis.fetch = original;
+  }
 });
-test('pagination retains older repositories and forks for user selection',async()=>{
-  const original=globalThis.fetch;let calls=0;
-  globalThis.fetch=async url=>{calls++; if(!url.includes('/repos?'))return Response.json({...user,public_repos:101});return Response.json(url.endsWith('page=1')?Array.from({length:100},(_,id)=>({id,name:`repo-${id}`,stargazers_count:0,fork:false})):[{id:101,name:'older',stargazers_count:100,fork:true}]);};
-  try {const result=await fetchProfile('example');assert.equal(calls,3);assert.equal(result.repos.length,101);assert.equal(result.repos[0].name,'older');}
-  finally {globalThis.fetch=original;}
+test('pagination retains older repositories and forks for user selection', async () => {
+  const original = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async (url) => {
+    calls++;
+    if (!url.includes('/repos?'))
+      return Response.json({ ...user, public_repos: 101 });
+    return Response.json(
+      url.endsWith('page=1')
+        ? Array.from({ length: 100 }, (_, id) => ({
+            id,
+            name: `repo-${id}`,
+            stargazers_count: 0,
+            fork: false,
+          }))
+        : [{ id: 101, name: 'older', stargazers_count: 100, fork: true }]
+    );
+  };
+  try {
+    const result = await fetchProfile('example');
+    assert.equal(calls, 3);
+    assert.equal(result.repos.length, 101);
+    assert.equal(result.repos[0].name, 'older');
+  } finally {
+    globalThis.fetch = original;
+  }
 });
 
-test('removed widgets stay out of exported Markdown',()=>{
- const md=generateReadme(config);const src=md.match(/src="([^"]+)"/)[1].replaceAll('&amp;','&');
- assert.ok(!generateReadme({...config,disabledWidgetUrls:[src]}).includes(src.split('&')[0]));
+test('removed widgets stay out of exported Markdown', () => {
+  const md = generateReadme(config);
+  const src = md.match(/src="([^"]+)"/)[1].replaceAll('&amp;', '&');
+  assert.ok(
+    !generateReadme({ ...config, disabledWidgetUrls: [src] }).includes(
+      src.split('&')[0]
+    )
+  );
 });

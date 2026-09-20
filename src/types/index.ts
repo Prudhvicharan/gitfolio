@@ -28,7 +28,14 @@ export interface GithubRepo {
   topics: string[];
 }
 
-export type ThemeId = 'radical' | 'tokyonight' | 'dracula' | 'github_dark' | 'onedark' | 'nord' | 'catppuccin_mocha';
+export type ThemeId =
+  | 'radical'
+  | 'tokyonight'
+  | 'dracula'
+  | 'github_dark'
+  | 'onedark'
+  | 'nord'
+  | 'catppuccin_mocha';
 export type HeaderStyle = 'wave' | 'venom' | 'slice' | 'cylinder' | 'shark';
 
 export interface SocialLinks {
