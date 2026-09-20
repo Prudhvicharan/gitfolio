@@ -95,6 +95,12 @@ export default function App() {
                 demoRef.current = false;
                 setDemo(false);
                 setSessionVersion((value) => value + 1);
+                navigate(HOME_ROUTE);
+              }}
+              onBuildProfile={() => {
+                demoRef.current = false;
+                setDemo(false);
+                setSessionVersion((value) => value + 1);
                 navigate({ page: 'builder', step: 1, demo: false });
               }}
               startDemo={demo}

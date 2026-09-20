@@ -15,7 +15,7 @@ interface Props {
   onDemo: () => void;
   onCancel: () => void;
   demo?: boolean;
-  onExitDemo: () => void;
+  onBuildProfile: () => void;
 }
 function Field({
   label,
@@ -177,8 +177,8 @@ export default function Step1(p: Props) {
         )}
       </form>
       {p.demo ? (
-        <button className="btn-primary full" onClick={p.onExitDemo}>
-          Build with my GitHub <ArrowRight size={18} />
+        <button className="btn-primary full" onClick={p.onBuildProfile}>
+          Build my profile <ArrowRight size={18} />
         </button>
       ) : (
         <>

@@ -16,10 +16,10 @@ interface Props {
   active: boolean;
   onPending: (pending: boolean) => void;
   demo?: boolean;
-  onUseOwnProfile: () => void;
+  onBuildProfile: () => void;
 }
 
-export default function Step3({ config, onChange, onGenerate, generating, onCancel, onBack, onFinish, active, onPending, demo = false, onUseOwnProfile }: Props) {
+export default function Step3({ config, onChange, onGenerate, generating, onCancel, onBack, onFinish, active, onPending, demo = false, onBuildProfile }: Props) {
   const fallback = { ...EMPTY_CONTENT, aboutMe: config.userData?.bio || '', skills: extractLanguages(config.repos) };
   const [draft, setDraft] = useState<AIContent>(() => config.aiContent ?? fallback);
   const [apiKey, setApiKey] = useState('');
@@ -134,14 +134,9 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
           Demo content is locked and export is disabled. Import your own public
           GitHub profile when you are ready to build.
         </div>
-        <div className="button-row">
-          <button className="btn-secondary" onClick={onBack}>
-            <ArrowLeft size={16} /> Explore styles
-          </button>
-          <button className="btn-primary" onClick={onUseOwnProfile}>
-            Build with my GitHub
-          </button>
-        </div>
+        <button className="btn-primary full" onClick={onBuildProfile}>
+          Build my profile
+        </button>
       </section>
     );
   }

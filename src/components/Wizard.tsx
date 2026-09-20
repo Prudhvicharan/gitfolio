@@ -55,6 +55,7 @@ interface Props {
   onHome: () => void;
   onStartDemo: () => void;
   onExitDemo: () => void;
+  onBuildProfile: () => void;
   startDemo: boolean;
   active: boolean;
 }
@@ -64,6 +65,7 @@ export default function Wizard({
   onHome,
   onStartDemo,
   onExitDemo,
+  onBuildProfile,
   startDemo,
   active,
 }: Props) {
@@ -414,7 +416,7 @@ export default function Wizard({
                   githubRequest.current?.abort();
                 }}
                 demo={isDemo}
-                onExitDemo={onExitDemo}
+                onBuildProfile={onBuildProfile}
               />
             </div>
             {config.userData && (
@@ -446,7 +448,7 @@ export default function Wizard({
                     active={active && step === 3}
                     onPending={setPending}
                     demo={isDemo}
-                    onUseOwnProfile={onExitDemo}
+                    onBuildProfile={onBuildProfile}
                   />
                 </div>
               </>

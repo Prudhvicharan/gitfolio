@@ -27,6 +27,8 @@ export function parseDraft(raw: string | null): Draft | null {
       !user ||
       typeof user.login !== 'string' ||
       !/^[a-z\d-]{1,39}$/i.test(user.login) ||
+      typeof user.id !== 'number' ||
+      user.id <= 0 ||
       typeof user.public_repos !== 'number' ||
       typeof user.followers !== 'number'
     )
