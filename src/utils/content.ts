@@ -11,7 +11,7 @@ export const SECTION_LABELS: Record<keyof SectionToggles, string> = {
   stats: 'GitHub stats',
   streak: 'Streak stats',
   languages: 'Language card',
-  activityGraph: 'Contribution overview',
+  activityGraph: 'Public work snapshot',
   topRepos: 'Selected projects',
   snake: 'Contribution snake',
 };
@@ -38,8 +38,9 @@ export const PRESETS: Record<
     skillIcons: true,
     header: true,
     typing: true,
-    stats: true,
+    trophies: true,
     activityGraph: true,
+    funFacts: true,
   },
 };
 export const EMPTY_CONTENT: AIContent = {
@@ -133,11 +134,9 @@ export function widgetSection(url: string): keyof SectionToggles | null {
   if (url.includes('readme-typing-svg.demolab.com')) return 'typing';
   if (url.includes('skillicons.dev/')) return 'skillIcons';
   if (url.includes('/api/top-langs/')) return 'languages';
-  if (url.includes('github-readme-stats-eight-theta.vercel.app/api?'))
+  if (url.includes('github-readme-stats.vercel.app/api?'))
     return 'stats';
   if (url.includes('streak-stats.demolab.com')) return 'streak';
-  if (url.includes('github-profile-summary-cards.vercel.app'))
-    return 'activityGraph';
   if (url.includes('github-snake')) return 'snake';
   return null;
 }

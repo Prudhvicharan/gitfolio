@@ -77,8 +77,8 @@ export const generateReadme = (config: GeneratorConfig): string => {
     if (typing) add(`<div align="center">\n${typing}\n</div>`);
   }
   if (sections.aboutCode) {
-    const about = [`# Hi, I'm ${text(name)}`];
-    if (content?.tagline) about.push(`### ${text(content.tagline)}`);
+    const about = [sections.header ? '## About me' : `<div align="center">\n<h1>Hi, I'm ${text(name)}</h1>${content?.tagline ? `\n<p><strong>${text(content.tagline)}</strong></p>` : ''}\n</div>`];
+    if (sections.header && content?.tagline) about.push(`### ${text(content.tagline)}`);
     const bio = content ? content.aboutMe : user.bio;
     if (bio) about.push(text(bio));
     if (jobTitle) about.push(`**Focus:** ${text(jobTitle)}`);
@@ -92,9 +92,9 @@ export const generateReadme = (config: GeneratorConfig): string => {
     add(about.join('\n\n'));
   }
   if (sections.socialBadges) {
-    const links = [
-      `[GitHub](https://github.com/${encodeURIComponent(user.login)})`,
-    ];
+    const badge = (label: string, url: string, logo: string, color: string) =>
+      `<a href="${htmlAttribute(url)}"><img src="https://img.shields.io/badge/${encodeURIComponent(label)}-${color}?style=for-the-badge&logo=${logo}&logoColor=white" alt="${htmlAttribute(label)}" /></a>`;
+    const links = [badge('GitHub', `https://github.com/${encodeURIComponent(user.login)}`, 'github', '181717')];
     for (const [label, input] of [
       ['LinkedIn', socialLinks.linkedin],
       ['Twitter / X', socialLinks.twitter],
@@ -102,16 +102,14 @@ export const generateReadme = (config: GeneratorConfig): string => {
     ] as const) {
       const url = safeUrl(input);
       if (url)
-        links.push(
-          `[${label}](${url.replace(/[()]/g, (char) => encodeURIComponent(char))})`
-        );
+        links.push(badge(label, url, label === 'LinkedIn' ? 'linkedin' : label === 'Portfolio' ? 'googlechrome' : 'x', label === 'LinkedIn' ? '0A66C2' : '111827'));
     }
     if (
       socialLinks.email &&
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(socialLinks.email)
     )
-      links.push(`[Email](mailto:${encodeURIComponent(socialLinks.email)})`);
-    add(`## Connect\n\n${links.join(' · ')}`);
+      links.push(badge('Email', `mailto:${encodeURIComponent(socialLinks.email)}`, 'gmail', 'B91C1C'));
+    add(`## Connect\n\n<p align="left">${links.join(' ')}</p>`);
   }
   if (sections.skillIcons) {
     const keys = skillsToIconKeys(skills);
@@ -127,8 +125,10 @@ export const generateReadme = (config: GeneratorConfig): string => {
     if (notes.length) add(`## Personal notes\n\n${notes.join('\n')}`);
   }
   if (sections.trophies) {
+    const stars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+    const forks = repos.reduce((sum, repo) => sum + repo.forks_count, 0);
     add(
-      `## Profile facts\n\n- Public repositories: ${user.public_repos}\n- Followers: ${user.followers}\n- Stars across the ${repos.length} selected repositories: ${repos.reduce((sum, repo) => sum + repo.stargazers_count, 0)}`
+      `## At a glance\n\n<table><tr><td align="center"><strong>${user.public_repos}</strong><br/><sub>PUBLIC REPOSITORIES</sub></td><td align="center"><strong>${user.followers}</strong><br/><sub>FOLLOWERS</sub></td><td align="center"><strong>${stars}</strong><br/><sub>SELECTED REPO STARS</sub></td><td align="center"><strong>${forks}</strong><br/><sub>SELECTED REPO FORKS</sub></td></tr></table>`
     );
   }
   const stats: string[] = [];
@@ -159,22 +159,25 @@ export const generateReadme = (config: GeneratorConfig): string => {
   if (stats.some(Boolean))
     add(`## GitHub statistics\n\n${stats.filter(Boolean).join('\n')}`);
   if (sections.activityGraph) {
-    const graph = image(
-      EXTRA_WIDGETS.activityGraph(user.login),
-      'Public contribution activity',
-      'width="100%"'
-    );
-    if (graph) add(`## Contribution overview\n\n${graph}`);
+    const languages = extractLanguages(repos).slice(0, 5);
+    const originals = repos.filter((repo) => !repo.fork).length;
+    const summary = [
+      `**${repos.length}** featured repositories`,
+      `**${originals}** original projects`,
+      languages.length ? `Working across **${languages.map(text).join(', ')}**` : '',
+    ].filter(Boolean);
+    add(`## Public work snapshot\n\n${summary.join(' · ')}`);
   }
   if (sections.topRepos && repos.length) {
-    add(
-      `## Selected projects\n\n${repos
-        .map((repo) => {
-          const url = `https://github.com/${encodeURIComponent(user.login)}/${encodeURIComponent(repo.name)}`;
-          return `### [${text(repo.name)}](${url})\n\n${repo.description ? text(repo.description) + '\n\n' : ''}${repo.language ? text(repo.language) + ' · ' : ''}${repo.stargazers_count} stars${repo.fork ? ' · Fork' : ''}`;
-        })
-        .join('\n\n')}`
-    );
+    const cells = repos.map((repo) => {
+      const url = `https://github.com/${encodeURIComponent(user.login)}/${encodeURIComponent(repo.name)}`;
+      const meta = [repo.language, `${repo.stargazers_count} ★`, repo.fork ? 'Fork' : null].filter(Boolean).join(' · ');
+      return `<td width="50%" valign="top"><h3><a href="${htmlAttribute(url)}">${htmlAttribute(repo.name)}</a></h3><p>${htmlAttribute(repo.description || 'Explore the repository and its source code.')}</p><sub>${htmlAttribute(meta)}</sub></td>`;
+    });
+    const rows: string[] = [];
+    for (let index = 0; index < cells.length; index += 2)
+      rows.push(`<tr>${cells[index]}${cells[index + 1] || '<td></td>'}</tr>`);
+    add(`## Selected work\n\n<table>${rows.join('')}</table>`);
   }
   if (sections.snake && config.snakeReady) {
     const snake = image(

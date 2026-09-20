@@ -18,6 +18,7 @@ export const markdownSchema = {
     'ol',
     'li',
     'strong',
+    'sub',
     'em',
     'blockquote',
     'pre',
@@ -46,6 +47,12 @@ export const markdownSchema = {
       ['align', 'left', 'right', 'center'],
     ],
     div: [['align', 'left', 'right', 'center']],
+    p: [['align', 'left', 'right', 'center']],
+    td: [
+      'width',
+      ['align', 'left', 'right', 'center'],
+      ['valign', 'top', 'middle', 'bottom'],
+    ],
     code: [['className', /^language-./]],
   },
   protocols: {

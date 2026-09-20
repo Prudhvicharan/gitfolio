@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Sparkles, WandSparkles } from 'lucide-react';
 import type {
   GithubRepo,
   HeaderStyle,
@@ -10,52 +10,106 @@ import { PRESETS, SECTION_LABELS, widgetSection } from '../utils/content';
 const THEMES: { id: ThemeId; label: string; colors: string[] }[] = [
   {
     id: 'radical',
-    label: 'Radical',
+    label: 'Obsidian Rose',
     colors: ['#fe428e', '#141321', '#a9fef7'],
   },
   {
     id: 'tokyonight',
-    label: 'Tokyo Night',
+    label: 'Midnight Blue',
     colors: ['#70a5fd', '#1a1b27', '#bf91f3'],
   },
   {
     id: 'dracula',
-    label: 'Dracula',
+    label: 'Plum Noir',
     colors: ['#ff79c6', '#282a36', '#bd93f9'],
   },
   {
     id: 'github_dark',
-    label: 'GitHub Dark',
+    label: 'Carbon Blue',
     colors: ['#58a6ff', '#0d1117', '#1f6feb'],
   },
   {
     id: 'onedark',
-    label: 'One Dark',
+    label: 'Warm Graphite',
     colors: ['#e5c07b', '#282c34', '#61afef'],
   },
-  { id: 'nord', label: 'Nord', colors: ['#81a1c1', '#2e3440', '#88c0d0'] },
+  { id: 'nord', label: 'Arctic', colors: ['#81a1c1', '#2e3440', '#88c0d0'] },
   {
     id: 'catppuccin_mocha',
-    label: 'Catppuccin',
+    label: 'Mocha Violet',
     colors: ['#cba6f7', '#1e1e2e', '#89b4fa'],
   },
 ];
 
 const HEADER_STYLES: { id: HeaderStyle; label: string; desc: string }[] = [
-  { id: 'wave', label: 'Wave', desc: 'Smooth flowing wave banner' },
-  { id: 'venom', label: 'Venom', desc: 'Jagged, dramatic edge' },
-  { id: 'slice', label: 'Slice', desc: 'Clean diagonal cut' },
-  { id: 'cylinder', label: 'Cylinder', desc: 'Rounded cylindrical pill' },
-  { id: 'shark', label: 'Shark', desc: 'Shark-fin spike' },
+  { id: 'wave', label: 'Soft wave', desc: 'Smooth flowing banner' },
+  { id: 'slice', label: 'Editorial cut', desc: 'Clean diagonal edge' },
+  { id: 'cylinder', label: 'Soft frame', desc: 'Rounded premium frame' },
 ];
 
 const HEADER_COLORS = [
-  { value: '#6366F1', label: 'Indigo' },
-  { value: '0:3F3FFF,100:8B21F8', label: 'Violet Grad' },
-  { value: '0:22D3EE,100:6366F1', label: 'Cyan Blue' },
-  { value: '0:F59E0B,100:EF4444', label: 'Sunset' },
-  { value: 'gradient', label: 'Random gradient' },
-  { value: '#0D1117', label: 'Dark' },
+  { value: '#312E81', label: 'Deep indigo' },
+  { value: '0:312E81,100:7C3AED', label: 'Violet dusk' },
+  { value: '0:0F766E,50:2563EB,100:7C3AED', label: 'Aurora' },
+  { value: '0:9A3412,100:BE123C', label: 'Ember' },
+  { value: '#0D1117', label: 'Obsidian' },
+];
+const STYLE_PRESETS = {
+  minimal: {
+    name: 'Editorial',
+    eyebrow: 'Quiet confidence',
+    description: 'Typography-led, focused, and fast. No decorative widgets.',
+    theme: 'github_dark' as ThemeId,
+    headerStyle: 'slice' as HeaderStyle,
+    headerColor: '#0D1117',
+    accent: ['#f8fafc', '#64748b'],
+  },
+  balanced: {
+    name: 'Studio',
+    eyebrow: 'Premium portfolio',
+    description: 'A polished story with metrics, projects, and purposeful detail.',
+    theme: 'catppuccin_mocha' as ThemeId,
+    headerStyle: 'cylinder' as HeaderStyle,
+    headerColor: '0:312E81,100:7C3AED',
+    accent: ['#8b5cf6', '#c4b5fd'],
+  },
+  animated: {
+    name: 'Aurora',
+    eyebrow: 'Signature motion',
+    description: 'A cinematic header, animated intro, skills, and rich project story.',
+    theme: 'tokyonight' as ThemeId,
+    headerStyle: 'wave' as HeaderStyle,
+    headerColor: '0:0F766E,50:2563EB,100:7C3AED',
+    accent: ['#22d3ee', '#8b5cf6'],
+  },
+};
+const SECTION_GROUPS: {
+  title: string;
+  description: string;
+  ai?: boolean;
+  keys: (keyof SectionToggles)[];
+}[] = [
+  {
+    title: 'Story',
+    description: 'AI can draft these sections from your selected projects.',
+    ai: true,
+    keys: ['aboutCode', 'funFacts', 'typing'],
+  },
+  {
+    title: 'Identity',
+    description: 'Visual elements that establish a memorable first impression.',
+    keys: ['header', 'socialBadges', 'skillIcons'],
+  },
+  {
+    title: 'Proof',
+    description: 'Show useful evidence without relying on a fragile activity image.',
+    keys: ['trophies', 'activityGraph', 'topRepos'],
+  },
+  {
+    title: 'Live widgets',
+    description: 'Optional third-party cards. Availability can vary.',
+    keys: ['stats', 'streak', 'languages', 'snake'],
+  },
 ];
 
 interface Props {
@@ -89,36 +143,35 @@ export default function Step2({
         <h1 id="step-heading-2" tabIndex={-1}>
           Your work. Your style.
         </h1>
-        <p>Start with a preset, then choose your projects and sections.</p>
+        <p>Choose a complete visual direction, then shape the story it tells.</p>
       </div>
       <fieldset>
-        <legend>Start with a preset</legend>
-        <div className="preset-grid">
+        <legend>Choose your visual direction</legend>
+        <div className="signature-grid">
           {(Object.keys(PRESETS) as (keyof typeof PRESETS)[]).map((name) => (
             <button
               key={name}
-              className="choice"
+              className="signature-card"
               aria-pressed={
                 JSON.stringify(config.sections) ===
                 JSON.stringify(PRESETS[name])
               }
-              onClick={() =>
+              onClick={() => {
+                const style = STYLE_PRESETS[name];
                 onChange({
                   sections: { ...PRESETS[name] },
+                  theme: style.theme,
+                  headerStyle: style.headerStyle,
+                  headerColor: style.headerColor,
                   disabledWidgetUrls: [],
-                })
-              }
+                });
+              }}
             >
-              <strong>{name[0].toUpperCase() + name.slice(1)}</strong>
-              <span>
-                {
-                  {
-                    minimal: 'Just the essentials',
-                    balanced: 'A clear, complete story',
-                    animated: 'Motion and live stats',
-                  }[name]
-                }
-              </span>
+              <span className="signature-preview" style={{ background: `linear-gradient(135deg, ${STYLE_PRESETS[name].accent.join(', ')})` }} />
+              <span className="signature-eyebrow">{STYLE_PRESETS[name].eyebrow}</span>
+              <strong>{STYLE_PRESETS[name].name}</strong>
+              <span>{STYLE_PRESETS[name].description}</span>
+              <small>{name === 'animated' ? 'Motion + AI story' : name === 'balanced' ? 'Best all-round choice' : 'Zero external widgets'}</small>
             </button>
           ))}
         </div>
@@ -180,19 +233,26 @@ export default function Step2({
         </p>
       </fieldset>
       <fieldset>
-        <legend>Sections</legend>
-        <div className="section-options">
-          {Object.entries(SECTION_LABELS).map(([key, label]) => (
-            <label className="check-option" key={key}>
-              <input
-                type="checkbox"
-                checked={config.sections[key as keyof SectionToggles]}
-                onChange={(e) =>
-                  setSection(key as keyof SectionToggles, e.target.checked)
-                }
-              />
-              <span>{label}</span>
-            </label>
+        <legend>Build your README</legend>
+        <div className="section-groups">
+          {SECTION_GROUPS.map((group) => (
+            <section className="section-group" key={group.title}>
+              <div className="section-group-heading">
+                <div>
+                  <strong>{group.title}</strong>
+                  <p>{group.description}</p>
+                </div>
+                {group.ai && <span className="ai-capability"><WandSparkles size={13} /> AI generated</span>}
+              </div>
+              <div className="section-options">
+                {group.keys.map((key) => (
+                  <label className="check-option" key={key}>
+                    <input type="checkbox" checked={config.sections[key]} onChange={(event) => setSection(key, event.target.checked)} />
+                    <span>{SECTION_LABELS[key]}{key === 'snake' && <small>Setup required</small>}</span>
+                  </label>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       </fieldset>
@@ -201,10 +261,10 @@ export default function Step2({
         config.sections.streak ||
         config.sections.languages) && (
         <details className="disclosure" open>
-          <summary>Colors & header style</summary>
+          <summary><Sparkles size={16} /> Refine the visual system <span>optional</span></summary>
           <div className="form-stack">
             <fieldset>
-              <legend>Stats theme</legend>
+              <legend>Live card palette</legend>
               <div className="theme-options">
                 {THEMES.map((t) => (
                   <button
@@ -262,8 +322,9 @@ export default function Step2({
         </details>
       )}
       <div className="quiet-note">
-        Stats, icons, banners, and animations load from third-party services.
-        Availability can vary. Minimal uses text only.
+        Core story, facts, public-work summary, and projects always render as native
+        GitHub Markdown. Only items under “Live widgets,” plus banners and icons,
+        depend on external image services.
       </div>
       <div className="button-row">
         <button className="btn-secondary" onClick={onBack}>

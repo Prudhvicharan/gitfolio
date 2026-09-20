@@ -147,7 +147,7 @@ test('custom header gradients use the provider syntax without a random-color pre
   assert.doesNotMatch(md, /color=auto:/);
 });
 
-test('review content, centered animation, and contribution overview reach the export', () => {
+test('review content, centered animation, and native work snapshot reach the export', () => {
   const md = generateReadme({
     ...config,
     sections: { ...config.sections, funFacts: true, typing: true, activityGraph: true },
@@ -167,7 +167,8 @@ test('review content, centered animation, and contribution overview reach the ex
   assert.match(md, /Building useful things/);
   assert.match(md, /I enjoy small tools/);
   assert.match(md, /An accessible developer assistant/);
-  assert.match(md, /github-profile-summary-cards\.vercel\.app/);
+  assert.match(md, /## Public work snapshot/);
+  assert.doesNotMatch(md, /github-profile-summary-cards\.vercel\.app/);
 });
 
 test('widget checks include only distinct HTTPS image URLs and decode query separators', async () => {

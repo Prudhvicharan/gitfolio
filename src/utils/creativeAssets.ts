@@ -260,19 +260,16 @@ export const FOOTER_QUOTES = [
 ];
 
 // ─── METRICS / EXTRAS WIDGETS ───────────────────────────────
-// All URLs verified working as of 2025:
-// - github-readme-stats public vercel.app instance: UNRELIABLE (503s)
-//   → using eight-theta community instance which is stable
+// Optional remote enhancements. Core README sections never require these services.
 // - github-profile-trophy.vercel.app: UNRELIABLE (503s)
 //   → replaced with shields.io achievement badges
 // - streak-stats.demolab.com: WORKING ✓
 // - skillicons.dev: WORKING ✓
 export const EXTRA_WIDGETS = {
-  // Use the eight-theta community instance — stable, same API, same params
   stats: (username: string, theme: string) =>
-    `https://github-readme-stats-eight-theta.vercel.app/api?username=${username}&show_icons=true&theme=${theme}&hide_border=true&bg_color=0D1117&include_all_commits=true&count_private=true&rank_icon=github`,
+    `https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true&theme=${theme}&hide_border=true&bg_color=00000000&include_all_commits=true&rank_icon=github`,
   topLangs: (username: string, theme: string) =>
-    `https://github-readme-stats-eight-theta.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=${theme}&hide_border=true&bg_color=0D1117&langs_count=10&card_width=380`,
+    `https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=${theme}&hide_border=true&bg_color=00000000&langs_count=8&card_width=380`,
   repoCard: (username: string, repo: string, theme: string) =>
     `https://github-readme-stats-eight-theta.vercel.app/api/pin/?username=${username}&repo=${repo}&theme=${theme}&hide_border=true&bg_color=0D1117&title_color=6366f1&icon_color=a855f7`,
   streak: (username: string, theme: string) =>
@@ -285,8 +282,6 @@ export const EXTRA_WIDGETS = {
     `https://komarev.com/ghpvc/?username=${username}&label=Profile+Views&color=blueviolet&style=flat-square`,
   followers: (username: string) =>
     `https://img.shields.io/github/followers/${username}?label=Followers&style=flat-square&color=blue&labelColor=1a1a2e`,
-  activityGraph: (username: string) =>
-    `https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=${username}&theme=radical`,
   snake: (username: string) =>
     `https://raw.githubusercontent.com/${username}/${username}/output/github-snake-dark.svg`,
   skillIcons: (icons: string) =>
