@@ -130,9 +130,10 @@ export function validateAIContent(value: unknown): AIContent {
     'projectStories',
   ] as const) {
     const input = data[key] ?? [];
+    const maximumItems = key === 'skills' ? 100 : key === 'projectStories' ? 50 : 35;
     if (
       !Array.isArray(input) ||
-      input.length > 35 ||
+      input.length > maximumItems ||
       !input.every((item) => typeof item === 'string' && item.length <= 300)
     ) {
       throw new Error(

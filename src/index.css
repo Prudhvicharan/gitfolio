@@ -186,6 +186,11 @@ input[type='checkbox']:active:not(:disabled) {
 textarea {
   resize: vertical;
 }
+.field textarea:not(.raw-markdown) {
+  field-sizing: content;
+  min-height: 76px;
+  max-height: 280px;
+}
 [hidden] {
   display: none !important;
 }
@@ -928,8 +933,9 @@ textarea {
   color: #ede9fe;
 }
 .repo-list {
-  max-height: 280px;
+  max-height: 360px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--line);
   border-radius: 10px;
   margin-top: 12px;
@@ -1383,6 +1389,7 @@ textarea {
   font-size: 11px;
 }
 .raw-markdown {
+  field-sizing: fixed;
   font-family: var(--font-mono);
   font-size: 12px !important;
   height: clamp(420px, 62vh, 760px);
@@ -1468,6 +1475,17 @@ textarea {
   background: #090b10;
   padding: 16px;
   border-radius: 10px;
+}
+.md-preview p code {
+  display: inline-block;
+  margin: 4px 3px;
+  padding: 5px 8px;
+  border: 1px solid #343640;
+  border-radius: 6px;
+  background: #15161b;
+  color: #d8d4f4;
+  font-size: 11px;
+  line-height: 1.25;
 }
 .md-preview table {
   display: block;
@@ -2677,21 +2695,6 @@ textarea {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
-  }
-}
-@media (min-width: 1101px) {
-  .preview-card {
-    position: sticky;
-    top: 20px;
-    max-height: calc(100vh - 40px);
-    display: flex;
-    flex-direction: column;
-  }
-  .preview-body {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
   }
 }
 @media (max-width: 800px) {

@@ -12,7 +12,7 @@ import {
   writeSessionDraft,
 } from '../utils/draft';
 import { DEMO_CONTENT, DEMO_USER, DEMO_REPOS } from '../utils/demo';
-import { fetchProfile } from '../hooks/useGithub';
+import { extractLanguages, fetchProfile } from '../hooks/useGithub';
 import { generateAIContent } from '../hooks/useGemini';
 import { generateReadme } from '../utils/generateMarkdown';
 import Step1 from './Step1';
@@ -254,7 +254,7 @@ export default function Wizard({
     setError(null);
     const timeout = setTimeout(() => controller.abort(), 45000);
     try {
-      const content = await generateAIContent(
+      const generated = await generateAIContent(
         key,
         config.userData,
         config.repos,
@@ -262,6 +262,24 @@ export default function Wizard({
         undefined,
         controller.signal
       );
+      const content = {
+        ...generated,
+        skills: [
+          ...(config.aiContent?.skills || []),
+          ...generated.skills,
+          ...extractLanguages(config.repos),
+        ].reduce<string[]>((all, skill) => {
+          const value = skill.trim();
+          if (
+            value &&
+            !all.some(
+              (existing) => existing.toLowerCase() === value.toLowerCase()
+            )
+          )
+            all.push(value);
+          return all;
+        }, []),
+      };
       return aiRequest.current === controller && !controller.signal.aborted
         ? content
         : null;

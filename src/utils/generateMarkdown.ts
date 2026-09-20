@@ -70,7 +70,18 @@ export const generateReadme = (config: GeneratorConfig): string => {
   const add = (value: string) => {
     if (value.trim()) parts.push(value);
   };
-  const skills = content ? content.skills : extractLanguages(repos);
+  const skills = [
+    ...(content?.skills || []),
+    ...extractLanguages(repos),
+  ].reduce<string[]>((all, skill) => {
+    const value = skill.trim();
+    if (
+      value &&
+      !all.some((existing) => existing.toLowerCase() === value.toLowerCase())
+    )
+      all.push(value);
+    return all;
+  }, []);
   const layout = config.layout ?? 'studio';
   const title = (label: string, symbol: string) =>
     `## ${layout === 'aurora' ? `${symbol} ` : ''}${label}`;
@@ -143,7 +154,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
           ? `  focus: ${JSON.stringify(content.focusAreas.map(safeCode))},`
           : '',
         skills.length
-          ? `  toolkit: ${JSON.stringify(skills.slice(0, 8).map(safeCode))},`
+          ? `  toolkit: ${JSON.stringify(skills.map(safeCode))},`
           : '',
         content.currentlyLearning
           ? `  exploring: ${JSON.stringify(safeCode(content.currentlyLearning))},`
@@ -183,7 +194,13 @@ export const generateReadme = (config: GeneratorConfig): string => {
     const widget = keys
       ? image(EXTRA_WIDGETS.skillIcons(keys), `Skills: ${skills.join(', ')}`)
       : '';
-    if (widget) add(`${title(layout === 'aurora' ? 'Technology constellation' : 'Tools & technologies', '⌘')}\n\n${layout === 'editorial' ? widget : `<p align="center">${widget}</p>`}`);
+    const labels = skills
+      .map((skill) => `<code>${htmlAttribute(skill)}</code>`)
+      .join(' ');
+    if (widget || labels)
+      add(
+        `${title(layout === 'aurora' ? 'Technology constellation' : 'Tools & technologies', '⌘')}\n\n${widget ? (layout === 'editorial' ? widget : `<p align="center">${widget}</p>`) : ''}${widget && labels ? '\n\n' : ''}${labels ? `<p align="${layout === 'editorial' ? 'left' : 'center'}">${labels}</p>` : ''}`
+      );
   }
   if (sections.funFacts && content) {
     const notes = content.funFacts.map((fact) => `- ${text(fact)}`);

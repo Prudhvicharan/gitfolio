@@ -220,8 +220,8 @@ export default function Step2({
           </span>
         </legend>
         <p className="help">
-          Choose up to 8. Only these repositories inform your AI draft and
-          project list.
+          Choose up to 8 for focused project stories. Every skill you review
+          next remains visible, including technologies without an icon.
         </p>
         {warning && (
           <p className="notice warning" role="status">

@@ -206,6 +206,48 @@ test('visual directions generate genuinely different compositions', () => {
   assert.notEqual(editorial, aurora);
 });
 
+test('technology constellation preserves every skill and repository language', () => {
+  const skills = [
+    'TypeScript',
+    'JavaScript',
+    'React',
+    'Node.js',
+    'PostgreSQL',
+    'Docker',
+    'AWS',
+    'Git',
+    'Accessible design systems',
+    'Frontend Development',
+  ];
+  const md = generateReadme({
+    ...config,
+    layout: 'aurora',
+    repos: [
+      {
+        id: 1,
+        name: 'styles',
+        description: null,
+        language: 'SCSS',
+        stargazers_count: 0,
+        forks_count: 0,
+        fork: false,
+        topics: [],
+      },
+    ],
+    aiContent: { ...EMPTY_CONTENT, skills },
+  });
+
+  for (const skill of [...skills, 'SCSS'])
+    assert.match(md, new RegExp(`<code>${skill.replace('.', '\\.')}</code>`));
+  assert.match(md, /toolkit: \[[^\n]*"Accessible design systems"/);
+  assert.match(md, /skillicons\.dev\/icons\?i=[^"&]*ts/);
+});
+
+test('AI validation accepts a comprehensive technology list', () => {
+  const skills = Array.from({ length: 60 }, (_, index) => `Technology ${index}`);
+  assert.deepEqual(validateAIContent({ ...EMPTY_CONTENT, skills }).skills, skills);
+});
+
 test('content security policy permits current providers and excludes unreliable stats hosts', async () => {
   const { readFile } = await import('node:fs/promises');
   const policy = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8')).headers[0].headers[0].value;
