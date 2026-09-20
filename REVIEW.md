@@ -33,6 +33,8 @@ security headers; the development server intentionally serves the interactive de
    locked Alex Morgan sample must remain visible. **Exit demo** must return to the
    homepage. **Build my profile** must open an editable real-profile import and must
    never restore the fictional profile as a draft.
+   From the real Profile step, return home and choose **Explore a demo**; it must open
+   the demo immediately without a replacement confirmation or stale real-builder UI.
 3. **Real profile:** import your username, choose repositories (including forks if
    desired), and inspect the sample-size and partial-error messages.
 4. **Content review:** choose either AI creation or guided manual writing. Confirm the

@@ -266,3 +266,16 @@ Implementation completed in four logical commits; see REVIEW.md for the release 
   user drafts still restore normally.
 - Verification: 21 regression tests, lint, TypeScript, client/SSR builds, and prerender
   pass. The new regression explicitly rejects fictional demo data at the draft boundary.
+
+## Chunk 13 — isolated homepage launches
+
+- Removed the persistent hidden Wizard that stayed mounted after returning home. That
+  stale instance made a later **Explore a demo** click behave as though the user were
+  replacing an active editing session and triggered an irrelevant confirmation.
+- Home, real builder, and demo builder are now represented by the route itself instead
+  of duplicated `started` and `demo` state. Returning home unmounts the builder; either
+  homepage CTA then mounts exactly the mode it names.
+- Browser back/forward still remounts when crossing directly between real and demo
+  routes, while normal step navigation preserves the current builder session.
+- Verification: 21 regression tests, lint, TypeScript, client/SSR builds, and prerender
+  pass. No homepage action uses a replacement confirmation.
