@@ -7,9 +7,11 @@ import rehypeSanitize from 'rehype-sanitize';
 import { markdownSchema } from '../utils/markdownSchema';
 function PreviewImage({
   onRemove,
+  readOnly,
   ...props
 }: ComponentProps<'img'> & {
   onRemove: (url: string) => void;
+  readOnly: boolean;
   align?: string;
 }) {
   const [failed, setFailed] = useState(false);
@@ -20,7 +22,7 @@ function PreviewImage({
         <span>
           The service may be unavailable, or this asset may not exist yet.
         </span>
-        <span className="button-row">
+        {!readOnly && <span className="button-row">
           <button onClick={() => setFailed(false)} className="btn-secondary">
             Retry
           </button>
@@ -32,7 +34,7 @@ function PreviewImage({
               Remove from README
             </button>
           )}
-        </span>
+        </span>}
       </span>
     );
   return (
@@ -48,9 +50,11 @@ function PreviewImage({
 export default function MarkdownPreview({
   markdown,
   onRemove,
+  readOnly = false,
 }: {
   markdown: string;
   onRemove: (url: string) => void;
+  readOnly?: boolean;
 }) {
   return (
     <div className="md-preview">
@@ -71,14 +75,18 @@ export default function MarkdownPreview({
                   : undefined
               }
               onRemove={onRemove}
+              readOnly={readOnly}
             />
           ),
-          a: ({ href, children }) => (
-            <a href={href} target="_blank" rel="noopener noreferrer">
-              {children}
-              <span className="sr-only"> (opens a new tab)</span>
-            </a>
-          ),
+          a: ({ href, children }) =>
+            readOnly ? (
+              <span className="demo-preview-link">{children}</span>
+            ) : (
+              <a href={href} target="_blank" rel="noopener noreferrer">
+                {children}
+                <span className="sr-only"> (opens a new tab)</span>
+              </a>
+            ),
         }}
       >
         {markdown}

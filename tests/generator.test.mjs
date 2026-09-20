@@ -11,6 +11,7 @@ import {
   safeUrl,
 } from '../src/utils/content.ts';
 import { fetchProfile, normalizeUsername } from '../src/hooks/useGithub.ts';
+import { DEMO_CONTENT, DEMO_REPOS, DEMO_USER } from '../src/utils/demo.ts';
 const user = {
   login: 'example',
   name: 'Example',
@@ -70,6 +71,16 @@ test('malformed AI objects are rejected at the boundary', () => {
   assert.throws(() => validateAIContent({ ...EMPTY_CONTENT, aboutMe: {} }));
   assert.throws(() => validateAIContent({ ...EMPTY_CONTENT, skills: [42] }));
   assert.deepEqual(validateAIContent(EMPTY_CONTENT), EMPTY_CONTENT);
+});
+test('curated demo content is complete, valid, and clearly fictional', () => {
+  assert.deepEqual(validateAIContent(DEMO_CONTENT), DEMO_CONTENT);
+  assert.equal(DEMO_USER.id, 0);
+  assert.equal(DEMO_REPOS.length, DEMO_CONTENT.projectStories.length);
+  assert.ok(DEMO_CONTENT.skills.length >= 5);
+  assert.ok(DEMO_CONTENT.focusAreas.length >= 3);
+  assert.ok(
+    DEMO_REPOS.every((repo) => repo.full_name.startsWith('gitfolio-demo/'))
+  );
 });
 test('snake is opt-in and its workflow is portable and free of personal data', () => {
   assert.doesNotMatch(

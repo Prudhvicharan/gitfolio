@@ -35,6 +35,7 @@ export default function PreviewPanel({
   } | null>(null);
   const widgetRequest = useRef<AbortController | null>(null);
   const urls = widgetUrls(markdown);
+  const visibleMode = demo ? 'preview' : mode;
   useEffect(() => () => widgetRequest.current?.abort(), []);
   const check = async () => {
     widgetRequest.current?.abort();
@@ -66,47 +67,51 @@ export default function PreviewPanel({
       <div className="preview-toolbar">
         <div className="segmented" aria-label="Preview format">
           <button
-            aria-pressed={mode === 'preview'}
+            aria-pressed={visibleMode === 'preview'}
             onClick={() => setMode('preview')}
           >
             <Eye size={16} /> Preview
           </button>
-          <button
-            aria-pressed={mode === 'code'}
-            onClick={() => setMode('code')}
-          >
-            <Code size={16} /> Markdown
-          </button>
+          {!demo && (
+            <button
+              aria-pressed={mode === 'code'}
+              onClick={() => setMode('code')}
+            >
+              <Code size={16} /> Markdown
+            </button>
+          )}
         </div>
         <span className="file-label">
           <FileText size={14} /> README.md
         </span>
       </div>
-      <div className="export-toolbar">
-        <button
-          className="btn-secondary"
-          disabled={!markdown || pending}
-          onClick={copy}
-        >
-          {status === 'Markdown copied.' ? (
-            <Check size={16} />
-          ) : (
-            <Copy size={16} />
-          )}{' '}
-          Copy
-        </button>
-        <button
-          className="btn-secondary"
-          disabled={!markdown || pending}
-          onClick={() => {
-            downloadFile(markdown, 'README.md', 'text/markdown');
-            setStatus('README.md download requested.');
-          }}
-        >
-          <Download size={16} /> Download
-        </button>
-      </div>
-      {urls.length > 0 && (
+      {!demo && (
+        <div className="export-toolbar">
+          <button
+            className="btn-secondary"
+            disabled={!markdown || pending}
+            onClick={copy}
+          >
+            {status === 'Markdown copied.' ? (
+              <Check size={16} />
+            ) : (
+              <Copy size={16} />
+            )}{' '}
+            Copy
+          </button>
+          <button
+            className="btn-secondary"
+            disabled={!markdown || pending}
+            onClick={() => {
+              downloadFile(markdown, 'README.md', 'text/markdown');
+              setStatus('README.md download requested.');
+            }}
+          >
+            <Download size={16} /> Download
+          </button>
+        </div>
+      )}
+      {!demo && urls.length > 0 && (
         <div className="widget-check">
           <button className="text-button" onClick={check} disabled={checking}>
             {checking ? 'Checking widget images…' : 'Check widgets'}
@@ -137,13 +142,15 @@ export default function PreviewPanel({
           )}
         </div>
       )}
-      <p className="export-status" role="status">
-        {status}
-      </p>
+      {!demo && (
+        <p className="export-status" role="status">
+          {status}
+        </p>
+      )}
       {demo && (
-        <p className="notice">
-          Fictional sample profile. Import your GitHub username before
-          publishing.
+        <p className="notice demo-preview-notice">
+          <strong>Interactive showroom.</strong> The profile is fictional and
+          export is locked. Visual controls remain available in Style.
         </p>
       )}
       <div className="preview-body">
@@ -162,7 +169,7 @@ export default function PreviewPanel({
             </p>
             <span>Preview updates as you configure.</span>
           </div>
-        ) : mode === 'code' ? (
+        ) : visibleMode === 'code' ? (
           <div className="field">
             <label htmlFor="raw-markdown">Generated Markdown (read only)</label>
             <textarea
@@ -175,7 +182,11 @@ export default function PreviewPanel({
           </div>
         ) : (
           <Suspense fallback={<p role="status">Loading preview…</p>}>
-            <MarkdownPreview markdown={markdown} onRemove={onRemoveWidget} />
+            <MarkdownPreview
+              markdown={markdown}
+              onRemove={onRemoveWidget}
+              readOnly={demo}
+            />
           </Suspense>
         )}
       </div>
@@ -185,9 +196,11 @@ export default function PreviewPanel({
             {markdown.split('\n').length} lines ·{' '}
             {(new Blob([markdown]).size / 1024).toFixed(1)} KB
           </span>
-          <button className="text-button" onClick={onPublish}>
-            How to publish <span aria-hidden="true">↗</span>
-          </button>
+          {!demo && (
+            <button className="text-button" onClick={onPublish}>
+              How to publish <span aria-hidden="true">↗</span>
+            </button>
+          )}
         </footer>
       )}
     </section>

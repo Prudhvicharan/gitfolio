@@ -15,9 +15,11 @@ interface Props {
   onFinish: () => void;
   active: boolean;
   onPending: (pending: boolean) => void;
+  demo?: boolean;
+  onUseOwnProfile: () => void;
 }
 
-export default function Step3({ config, onChange, onGenerate, generating, onCancel, onBack, onFinish, active, onPending }: Props) {
+export default function Step3({ config, onChange, onGenerate, generating, onCancel, onBack, onFinish, active, onPending, demo = false, onUseOwnProfile }: Props) {
   const fallback = { ...EMPTY_CONTENT, aboutMe: config.userData?.bio || '', skills: extractLanguages(config.repos) };
   const [draft, setDraft] = useState<AIContent>(() => config.aiContent ?? fallback);
   const [apiKey, setApiKey] = useState('');
@@ -83,6 +85,66 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
       setMessage('Shorten the lists or entries before approving this content.');
     }
   };
+
+  if (demo) {
+    return (
+      <section
+        className="step-content demo-review"
+        aria-labelledby="step-heading-3"
+      >
+        <div className="section-intro">
+          <span className="eyebrow">03 / CURATED SAMPLE</span>
+          <h1 id="step-heading-3" tabIndex={-1}>
+            See the complete experience.
+          </h1>
+          <p>
+            This fictional profile is already written and approved so you can
+            judge the finished README without entering data or credentials.
+          </p>
+        </div>
+        <div className="demo-content-card">
+          <Sparkles size={22} />
+          <div>
+            <span className="eyebrow">PREFILLED FOR THE DEMO</span>
+            <h2>Alex’s story is ready to explore.</h2>
+            <p>
+              Switch visual directions and sections in Style, inspect the live
+              preview, and see how the same content becomes a different
+              composition.
+            </p>
+          </div>
+        </div>
+        <ul className="demo-feature-list">
+          <li>
+            <Check size={16} /> Complete professional narrative
+          </li>
+          <li>
+            <Check size={16} /> Four project stories with technology signals
+          </li>
+          <li>
+            <Check size={16} /> Native insights with no unreliable statistics
+            service
+          </li>
+          <li>
+            <Check size={16} /> No API key, workflow, saving, or publishing in
+            demo mode
+          </li>
+        </ul>
+        <div className="notice">
+          Demo content is locked and export is disabled. Import your own public
+          GitHub profile when you are ready to build.
+        </div>
+        <div className="button-row">
+          <button className="btn-secondary" onClick={onBack}>
+            <ArrowLeft size={16} /> Explore styles
+          </button>
+          <button className="btn-primary" onClick={onUseOwnProfile}>
+            Build with my GitHub
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="step-content" aria-labelledby="step-heading-3">

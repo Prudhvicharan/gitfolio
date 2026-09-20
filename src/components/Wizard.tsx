@@ -11,7 +11,7 @@ import {
   writeDraft,
   writeSessionDraft,
 } from '../utils/draft';
-import { DEMO_USER, DEMO_REPOS } from '../utils/demo';
+import { DEMO_CONTENT, DEMO_USER, DEMO_REPOS } from '../utils/demo';
 import { fetchProfile } from '../hooks/useGithub';
 import { generateAIContent } from '../hooks/useGemini';
 import { generateReadme } from '../utils/generateMarkdown';
@@ -37,6 +37,18 @@ const initialConfig = (): GeneratorConfig => ({
   disabledWidgetUrls: [],
   layout: 'studio',
 });
+const demoConfig = (): GeneratorConfig => ({
+  ...initialConfig(),
+  theme: 'tokyonight',
+  headerStyle: 'wave',
+  headerColor: '0:0F766E,50:2563EB,100:7C3AED',
+  sections: { ...PRESETS.animated, languages: true, stats: true },
+  aiContent: DEMO_CONTENT,
+  userData: DEMO_USER,
+  repos: DEMO_REPOS,
+  jobTitle: 'Product Engineer',
+  layout: 'aurora',
+});
 interface Props {
   step: number;
   onStep: (step: number) => void;
@@ -54,7 +66,7 @@ export default function Wizard({
   const [saved] = useState(readDraft);
   const [config, setConfig] = useState<GeneratorConfig>(() =>
     startDemo
-      ? { ...initialConfig(), userData: DEMO_USER, repos: DEMO_REPOS }
+      ? demoConfig()
       : (saved?.config ?? initialConfig())
   );
   const [repos, setRepos] = useState<GithubRepo[]>(() =>
@@ -71,6 +83,7 @@ export default function Wizard({
   const [generating, setGenerating] = useState(false);
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
   const [pending, setPending] = useState(false);
+  const isDemo = config.userData?.id === 0;
   const githubRequest = useRef<AbortController | null>(null);
   const aiRequest = useRef<AbortController | null>(null);
   const patch = (value: Partial<GeneratorConfig>) =>
@@ -90,7 +103,7 @@ export default function Wizard({
     };
   }, []);
   useEffect(() => {
-    if (!config.userData) return;
+    if (!config.userData || config.userData.id === 0) return;
     const draft = { config, availableRepos: repos };
     const savedNow = save ? writeDraft(draft) : writeSessionDraft(draft);
     if (!savedNow)
@@ -111,6 +124,13 @@ export default function Wizard({
     return () => window.removeEventListener('beforeunload', warn);
   }, [pending]);
   const go = (next: number) => {
+    if (isDemo && next === 1) {
+      setConfig(initialConfig());
+      setRepos([]);
+      setUsername('');
+      setPending(false);
+      setStatus('Demo closed. Import your GitHub profile to begin.');
+    }
     if (pending && next !== 3) {
       setError('Apply or discard your content edits before leaving Review.');
       return;
@@ -123,6 +143,7 @@ export default function Wizard({
   const importProfile = async () => {
     if (
       config.userData &&
+      config.userData.id !== 0 &&
       username.trim().replace(/^@/, '').toLowerCase() !==
         config.userData.login.toLowerCase() &&
       (config.aiContent || pending) &&
@@ -196,7 +217,7 @@ export default function Wizard({
       return;
     setSave(false);
     cancelAI();
-    setConfig({ ...initialConfig(), userData: DEMO_USER, repos: DEMO_REPOS });
+    setConfig(demoConfig());
     setRepos(DEMO_REPOS);
     setUsername('gitfolio-demo');
     setWarning(null);
@@ -313,10 +334,22 @@ export default function Wizard({
             alt=""
           />{' '}
           GitFolio
+          {isDemo && <span className="demo-badge">Demo</span>}
         </button>
         <div className="header-actions">
-          <button className="text-button" onClick={reset}>
-            <RotateCcw size={15} /> Reset all
+          <button
+            className="text-button"
+            onClick={() => (isDemo ? go(1) : reset())}
+          >
+            {isDemo ? (
+              <>
+                <ArrowLeft size={15} /> Exit demo
+              </>
+            ) : (
+              <>
+                <RotateCcw size={15} /> Reset all
+              </>
+            )}
           </button>
           <a
             href="https://github.com/Prudhvicharan/gitfolio/issues"
@@ -395,6 +428,7 @@ export default function Wizard({
                     warning={warning}
                     onNext={() => go(3)}
                     onBack={() => go(1)}
+                    demo={isDemo}
                   />
                 </div>
                 <div hidden={step !== 3}>
@@ -412,6 +446,8 @@ export default function Wizard({
                     onFinish={showPreview}
                     active={active && step === 3}
                     onPending={setPending}
+                    demo={isDemo}
+                    onUseOwnProfile={() => go(1)}
                   />
                 </div>
               </>
@@ -421,7 +457,8 @@ export default function Wizard({
                 <ArrowLeft size={16} /> Import a profile first
               </button>
             )}
-            <div className="draft-settings">
+            {!isDemo && (
+              <div className="draft-settings">
               <label className="check-option">
                 <input
                   type="checkbox"
@@ -448,7 +485,8 @@ export default function Wizard({
               <p role="status" className="help">
                 {status}
               </p>
-            </div>
+              </div>
+            )}
           </div>
           <div
             className={`preview-column ${mobileView === 'edit' ? 'mobile-hidden' : ''}`}
@@ -474,11 +512,11 @@ export default function Wizard({
                 }))
               }
               onPublish={publish}
-              demo={config.userData?.id === 0}
+              demo={isDemo}
               pending={pending}
               hasProfile={!!config.userData}
             />
-            {config.userData && (
+            {config.userData && !isDemo && (
               <PublishGuide config={config} onChange={patch} />
             )}
           </div>

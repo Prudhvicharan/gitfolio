@@ -119,6 +119,7 @@ interface Props {
   warning: string | null;
   onNext: () => void;
   onBack: () => void;
+  demo?: boolean;
 }
 export default function Step2({
   config,
@@ -127,6 +128,7 @@ export default function Step2({
   warning,
   onNext,
   onBack,
+  demo = false,
 }: Props) {
   const selected = new Set(config.repos.map((repo) => repo.id));
   const setSection = (key: keyof SectionToggles, value: boolean) =>
@@ -145,6 +147,19 @@ export default function Step2({
         </h1>
         <p>Choose a complete visual direction, then shape the story it tells.</p>
       </div>
+      {demo && (
+        <div className="demo-banner" role="status">
+          <Sparkles size={16} />
+          <div>
+            <strong>Curated demo</strong>
+            <span>
+              Sample content and repositories are locked. Explore layouts,
+              sections, and colors, then import your GitHub profile to create
+              yours.
+            </span>
+          </div>
+        </div>
+      )}
       <fieldset>
         <legend>Choose your visual direction</legend>
         <div className="signature-grid">
@@ -153,8 +168,12 @@ export default function Step2({
               key={name}
               className="signature-card"
               aria-pressed={
-                JSON.stringify(config.sections) ===
-                JSON.stringify(PRESETS[name])
+                config.layout ===
+                {
+                  minimal: 'editorial',
+                  balanced: 'studio',
+                  animated: 'aurora',
+                }[name]
               }
               onClick={() => {
                 const style = STYLE_PRESETS[name];
@@ -209,8 +228,11 @@ export default function Step2({
                 <input
                   type="checkbox"
                   checked={selected.has(repo.id)}
-                  disabled={!selected.has(repo.id) && selected.size >= 8}
+                  disabled={
+                    demo || (!selected.has(repo.id) && selected.size >= 8)
+                  }
                   onChange={(e) =>
+                    !demo &&
                     onChange({
                       repos: e.target.checked
                         ? [...config.repos, repo]
@@ -252,8 +274,24 @@ export default function Step2({
               <div className="section-options">
                 {group.keys.map((key) => (
                   <label className="check-option" key={key}>
-                    <input type="checkbox" checked={config.sections[key]} onChange={(event) => setSection(key, event.target.checked)} />
-                    <span>{SECTION_LABELS[key]}{key === 'snake' && <small>Setup required</small>}</span>
+                    <input
+                      type="checkbox"
+                      checked={config.sections[key]}
+                      disabled={demo && key === 'snake'}
+                      onChange={(event) =>
+                        setSection(key, event.target.checked)
+                      }
+                    />
+                    <span>
+                      {SECTION_LABELS[key]}
+                      {key === 'snake' && (
+                        <small>
+                          {demo
+                            ? 'Available after importing your profile'
+                            : 'Setup required'}
+                        </small>
+                      )}
+                    </span>
                   </label>
                 ))}
               </div>
