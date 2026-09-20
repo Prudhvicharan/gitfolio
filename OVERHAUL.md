@@ -140,3 +140,23 @@ Implementation completed in four logical commits; see REVIEW.md for the release 
   performance or full accessibility certification.
 - No content assets or brand decisions remain required. No paid service was added.
 - All changes are on site-overhaul; no merge, push, or deployment was performed.
+
+## Chunk 5 — refresh recovery and AI-first content workflow
+
+- Refresh-safe `?builder=profile|style|review` URLs restore the exact builder step.
+  Current-tab recovery is automatic through session storage; optional device saving
+  now means continuing after the browser closes.
+- Removed the shuffle control because it changed only hidden animation parameters and
+  did not help users build a better README.
+- Rebuilt Review around one primary “Generate complete draft” action. AI now drafts
+  every content field, edits update the preview immediately, and one approval action
+  unlocks export. Manual fields live under a clearly labeled fine-tuning section.
+- Added the previously missing tagline output, kept notes/project ideas in their own
+  section, centered the typing animation, and added warnings when filled content is
+  hidden by a disabled Style toggle.
+- Replaced the failing activity graph endpoint with a contribution overview card from
+  GitHub Profile Summary Cards. The contribution snake remains a separate setup-based
+  option because GitHub Actions must generate it in the user's repository.
+- Verification: 14 regression tests, lint, TypeScript, client/SSR builds, and landing
+  prerender pass. Live Gemini and deployed third-party image checks still require the
+  user's environment.

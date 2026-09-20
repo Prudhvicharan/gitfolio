@@ -29,20 +29,22 @@ security headers; the development server intentionally serves the interactive de
    external image requests by default.
 3. **Real profile:** import your username, choose repositories (including forks if
    desired), and inspect the sample-size and partial-error messages.
-4. **Content review:** edit the biography/skills, confirm the review checkbox, and
-   apply. Unapplied edits must not replace the preview or be exported. Availability
-   must appear only after explicitly selecting “Open to work.”
+4. **Content review:** generate or edit the profile content and confirm every field
+   updates the preview immediately. Personal notes and animated lines explain where
+   they appear and warn when their Style section is disabled. Approve the content
+   once before export. Availability appears only after selecting “Open to work.”
 5. **AI (credential-dependent):** enter your own key directly in the app, consent to
-   sending metadata to Google, and request a draft. Verify it is plausible and factual,
-   review/apply it, then leave and return to Review: the key field should be empty.
+   sending metadata to Google, and request a complete draft. Verify every generated
+   field is plausible, approve it, then leave and return to Review: the key field should be empty.
    Do not paste keys into chat, source, or test fixtures. Google quotas/billing apply.
 6. **Export:** copy and download the README; inspect both raw Markdown and the visual
    preview. For image-based presets, use **Check widgets** to test loading and remove unavailable images. Follow the publishing checklist in a profile repository only when ready.
    Back up existing content before replacing it.
 7. **Snake:** optionally download `snake.yml`, review its external actions and write
    permission, install/run it in your profile repository, then enable its image.
-8. **Drafts:** opt in, reload, and verify recovery. Turn saving off to delete the saved
-   copy. Reset-all requires confirmation and clears profile/settings/draft.
+8. **Drafts and refresh:** reload Profile, Style, and Review and verify the same step
+   and current-tab progress return. Enable long-term saving to continue after closing
+   the browser. Reset-all requires confirmation and clears both saved copies.
 9. **Mobile and keyboard:** use the sticky Edit/Preview controls; Tab through every
    control, try the skip link, inspect focus visibility, and test 200% zoom. Screenshots:
    [builder desktop](./docs/review/builder-desktop.png),
@@ -74,7 +76,7 @@ artifacts go to `/tmp/gitfolio-qa/artifacts`.
 
 ## Verified results
 
-- Production build, TypeScript, lint, and 13 regression tests pass.
+- Production build, TypeScript, lint, and 14 regression tests pass.
 - 15 end-to-end flows and 14 failure-path/keyboard/layout checks pass in Chromium.
 - Automated WCAG A/AA checks pass for the homepage at 320/375/768/1024/1440px, and
   for the profile/style/review/mobile-preview flows tested; no horizontal overflow.
@@ -88,7 +90,7 @@ artifacts go to `/tmp/gitfolio-qa/artifacts`.
 ## Decisions made within the audit scope
 
 - Preserved React/TypeScript/Vite, existing brand colors/typefaces, core headline,
-  and public path. New navigation uses same-page anchors; no route migration.
+  and public path. Builder steps use refresh-safe query URLs without a server rewrite.
 - Defaulted to readable text instead of third-party images; Animated is opt-in.
 - Replaced unverified trophy badges with explicitly labeled public profile facts.
 - Kept credentials memory-only, with no “remember key” option.
@@ -109,6 +111,8 @@ artifacts go to `/tmp/gitfolio-qa/artifacts`.
 - Lighthouse numbers are local lab measurements, not field Core Web Vitals. Recheck
   the deployed build and security headers before promoting it.
 - Optional image providers and Google model availability remain external dependencies.
+- The contribution overview now uses GitHub Profile Summary Cards; confirm this
+  third-party image on the deployed site and keep the built-in widget check available.
 
 Beyond the original audit, consider adding the existing checks to CI, maintaining a
 small dependency/model-availability review schedule, and collecting consent-based
