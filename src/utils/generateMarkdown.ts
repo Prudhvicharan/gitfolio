@@ -126,7 +126,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
   }
   if (sections.trophies) {
     const stars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
-    const forks = repos.reduce((sum, repo) => sum + repo.forks_count, 0);
+    const forks = repos.reduce((sum, repo) => sum + (repo.forks_count || 0), 0);
     add(
       `## At a glance\n\n<table><tr><td align="center"><strong>${user.public_repos}</strong><br/><sub>PUBLIC REPOSITORIES</sub></td><td align="center"><strong>${user.followers}</strong><br/><sub>FOLLOWERS</sub></td><td align="center"><strong>${stars}</strong><br/><sub>SELECTED REPO STARS</sub></td><td align="center"><strong>${forks}</strong><br/><sub>SELECTED REPO FORKS</sub></td></tr></table>`
     );
