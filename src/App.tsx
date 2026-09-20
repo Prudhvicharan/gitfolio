@@ -39,6 +39,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', pop);
   }, []);
   const navigate = (next: AppRoute) => {
+    const stayOnPage = routeRef.current.page === next.page;
     history.pushState(
       { ...history.state, gitfolio: next },
       '',
@@ -46,7 +47,16 @@ export default function App() {
     );
     routeRef.current = next;
     setRoute(next);
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    requestAnimationFrame(() =>
+      window.scrollTo({
+        top: 0,
+        behavior:
+          stayOnPage &&
+          !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? 'smooth'
+            : 'auto',
+      })
+    );
   };
   const start = (sample = false) => {
     navigate({ page: 'builder', step: sample ? 2 : 1, demo: sample });

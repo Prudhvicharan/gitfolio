@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   Check,
@@ -14,11 +14,45 @@ interface Props {
   onDemo?: () => void;
 }
 export default function Hero({ onStart, onDemo }: Props) {
+  const landingRef = useRef<HTMLDivElement>(null);
   const [sampleStyle, setSampleStyle] = useState<'balanced' | 'minimal'>(
     'balanced'
   );
+  useEffect(() => {
+    const root = landingRef.current;
+    if (!root) return;
+    const items = Array.from(
+      root.querySelectorAll<HTMLElement>(
+        '.proof-strip, .landing-section, .how-card, .privacy-item, .closing-cta'
+      )
+    );
+    root.classList.add('motion-ready');
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      !('IntersectionObserver' in window)
+    ) {
+      items.forEach((item) => item.classList.add('is-visible'));
+      return;
+    }
+    items.forEach((item, index) => {
+      item.classList.add('reveal-item');
+      item.style.setProperty('--reveal-delay', `${(index % 3) * 55}ms`);
+    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+    );
+    items.forEach((item) => observer.observe(item));
+    return () => observer.disconnect();
+  }, []);
   return (
-    <div className="landing">
+    <div className="landing" ref={landingRef}>
       <header className="site-nav">
         <a className="brand" href="#" aria-label="GitFolio home">
           <img

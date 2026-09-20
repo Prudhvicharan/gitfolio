@@ -54,6 +54,28 @@
 * {
   box-sizing: border-box;
 }
+html {
+  scroll-behavior: smooth;
+  scrollbar-color: #343640 transparent;
+  scrollbar-width: thin;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: #343640;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #4a4c57;
+  background-clip: padding-box;
+}
 body {
   margin: 0;
   min-width: 320px;
@@ -278,6 +300,15 @@ textarea {
   transition-duration: 70ms;
   transition-timing-function: var(--ease-in);
 }
+.btn-primary svg,
+.btn-secondary svg,
+.text-button svg {
+  transition: transform 180ms var(--ease-out);
+}
+.btn-primary:hover svg:last-child,
+.text-button:hover svg:last-child {
+  transform: translateX(2px);
+}
 .icon-button {
   background: transparent;
   border: 1px solid var(--line);
@@ -490,6 +521,11 @@ textarea {
   background:
     radial-gradient(circle at 7% 4%, #6d5bd018, transparent 25rem),
     linear-gradient(180deg, #0b0b0f, #09090b 42rem);
+  animation: page-enter 280ms var(--ease-out) both;
+}
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: none; }
 }
 .builder-shell::before {
   content: '';
@@ -715,6 +751,21 @@ textarea {
 .signature-card:hover {
   border-color: #5b5d68;
   transform: translateY(-1px);
+}
+.signature-card .signature-preview-detail i {
+  transition:
+    transform 220ms var(--ease-out),
+    opacity 180ms var(--ease-standard);
+  transform-origin: bottom;
+}
+.signature-card:hover .signature-preview-detail i:nth-child(1) {
+  transform: scaleY(1.25);
+}
+.signature-card:hover .signature-preview-detail i:nth-child(2) {
+  transform: scaleY(.82);
+}
+.signature-card:hover .signature-preview-detail i:nth-child(3) {
+  transform: scaleY(1.12);
 }
 .signature-card,
 .theme-choice,
@@ -1508,6 +1559,7 @@ textarea {
 /* Landing */
 .landing {
   background: radial-gradient(ellipse at 75% 15%, #5143981f, transparent 44%), var(--canvas);
+  animation: page-enter 280ms var(--ease-out) both;
 }
 .site-nav {
   display: flex;
@@ -1563,6 +1615,18 @@ textarea {
   line-height: 1.08;
   margin-bottom: 25px;
 }
+.hero-copy > * {
+  animation: hero-copy-enter 520ms var(--ease-out) both;
+}
+.hero-copy > :nth-child(1) { animation-delay: 40ms; }
+.hero-copy > :nth-child(2) { animation-delay: 90ms; }
+.hero-copy > :nth-child(3) { animation-delay: 140ms; }
+.hero-copy > :nth-child(4) { animation-delay: 190ms; }
+.hero-copy > :nth-child(5) { animation-delay: 230ms; }
+@keyframes hero-copy-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .hero-copy h1 span {
   color: #a99df8;
 }
@@ -1595,6 +1659,11 @@ textarea {
 .hero-demo {
   position: relative;
   min-width: 0;
+  animation: hero-preview-enter 620ms 130ms var(--ease-out) both;
+}
+@keyframes hero-preview-enter {
+  from { opacity: 0; transform: translateY(14px) scale(.988); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .demo-window {
   border: 1px solid var(--line-strong);
@@ -1772,6 +1841,20 @@ textarea {
   padding: 80px 0;
   scroll-margin-top: 20px;
 }
+.landing.motion-ready .reveal-item {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 460ms var(--ease-out),
+    transform 520ms var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.landing.motion-ready .reveal-item.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  will-change: auto;
+}
 .landing-section h2 {
   font-size: 34px;
   letter-spacing: -1.2px;
@@ -1794,6 +1877,14 @@ textarea {
   border-radius: 13px;
   background: linear-gradient(140deg, #171720, #111217);
   padding: 26px;
+  transition:
+    border-color 160ms var(--ease-standard),
+    background-color 160ms var(--ease-standard),
+    transform 220ms var(--ease-out);
+}
+.how-card:hover {
+  border-color: #444650;
+  transform: translateY(-2px);
 }
 .how-number {
   display: block;
@@ -2128,6 +2219,21 @@ textarea {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+@media (min-width: 1101px) {
+  .preview-card {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+  }
+  .preview-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }
 @media (max-width: 800px) {

@@ -397,7 +397,12 @@ export default function Wizard({
               aria-pressed={mobileView === 'edit'}
               onClick={() => {
                 setMobileView('edit');
-                window.scrollTo({ top: 0, behavior: 'instant' });
+                window.scrollTo({
+                  top: 0,
+                  behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                    ? 'auto'
+                    : 'smooth',
+                });
               }}
             >
               <Pencil size={16} /> Edit
@@ -406,7 +411,12 @@ export default function Wizard({
               aria-pressed={mobileView === 'preview'}
               onClick={() => {
                 setMobileView('preview');
-                window.scrollTo({ top: 0, behavior: 'instant' });
+                window.scrollTo({
+                  top: 0,
+                  behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                    ? 'auto'
+                    : 'smooth',
+                });
               }}
             >
               <Eye size={16} /> Preview
