@@ -175,3 +175,19 @@ Implementation completed in four logical commits; see REVIEW.md for the release 
   novelty options from the UI, and retained optional live cards for users who want them.
 - The raw Markdown editor now has a responsive viewport height, preserves source line
   width, scrolls in both directions, and remains vertically resizable.
+
+## Chunk 7 — composition engine and reference-driven storytelling
+
+- Audited the owner's profile README as the quality reference. Its strength comes from
+  content depth and pacing: developer-as-code identity, categorized expertise, project
+  narratives, current focus, working principles, personality, proof, and a strong close.
+- Added a persisted layout identity. Editorial, Studio, and Aurora now produce different
+  Markdown structures rather than sharing one template with renamed colors.
+- Aurora adds a generated code-profile block, expressive section system, technology
+  constellation, featured-build grid, and closing statement. Studio keeps the project
+  grid and premium hierarchy without the code motif. Editorial produces a restrained,
+  linear, text-first portfolio.
+- Expanded AI and manual content with focus areas, working principles, and current goals.
+  Older saved drafts migrate safely with empty values for the new fields.
+- Fixed the preview CSP that was blocking Shields and the current GitHub Stats host;
+  removed obsolete provider domains and added a regression test for the allowlist.

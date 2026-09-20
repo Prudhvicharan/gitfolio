@@ -25,8 +25,8 @@ security headers; the development server intentionally serves the interactive de
    disclosure. Inspect the [desktop screenshot](./docs/review/home-desktop.png) and
    [mobile screenshot](./docs/review/home-mobile.png).
 2. **Demo:** explore the fictional sample without an account. Switch presets and
-   verify that all section controls affect the output. Minimal and Balanced avoid
-   external image requests by default.
+   verify Editorial, Studio, and Aurora change the actual README composition. Aurora
+   must include its code-profile motif; Editorial must remain linear and text-led.
 3. **Real profile:** import your username, choose repositories (including forks if
    desired), and inspect the sample-size and partial-error messages.
 4. **Content review:** choose either AI creation or guided manual writing. Confirm the
@@ -111,6 +111,8 @@ artifacts go to `/tmp/gitfolio-qa/artifacts`.
 - Lighthouse numbers are local lab measurements, not field Core Web Vitals. Recheck
   the deployed build and security headers before promoting it.
 - Optional image providers and Google model availability remain external dependencies.
+- The deployed CSP must allow the current Shields and GitHub Stats hosts. A blocked
+  provider appears as an unsupported widget even when its URL works outside GitFolio.
 - Public work and profile metrics now use native Markdown/HTML and must render without
   any image service. Use the widget check only for optional banners, icons, and cards.
 
