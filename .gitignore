@@ -26,3 +26,12 @@ dist-ssr
 # App data
 .env
 .agent/
+.agents/
+.codex/
+AGENTS.md
+
+# Local review and audit artifacts
+/REVIEW.md
+/OVERHAUL.md
+/docs/review/
+/scripts/qa/

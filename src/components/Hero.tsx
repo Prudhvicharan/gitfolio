@@ -1,157 +1,392 @@
-import { motion } from 'framer-motion';
-
-const PARTICLES = Array.from({ length: 20 }, (_, i) => ({
-  id: i,
-  size: Math.random() * 3 + 1,
-  left: Math.random() * 100,
-  delay: Math.random() * 8,
-  duration: Math.random() * 6 + 8,
-  opacity: Math.random() * 0.4 + 0.1,
-}));
-
-const EXAMPLE_BADGES = [
-  'https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white',
-  'https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB',
-  'https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white',
-  'https://img.shields.io/badge/Python-14354C?style=for-the-badge&logo=python&logoColor=white',
-  'https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white',
-];
-
-const FEATURES = [
-  { icon: '🤖', title: 'AI-Powered Bio', desc: 'Gemini writes your tagline, about me, and fun facts from your real GitHub data' },
-  { icon: '📊', title: '13+ Visual Components', desc: 'Stats, streaks, trophies, activity graph, skill icons, snake animation & more' },
-  { icon: '🎨', title: '7 Themes & 5 Header Styles', desc: 'Radical, Tokyo Night, Dracula — pick what matches your aesthetic' },
-  { icon: '🔒', title: 'Privacy First', desc: 'Your API key never leaves your browser. Direct calls to Google\'s servers only.' },
-];
-
-interface HeroProps {
+import { useState } from 'react';
+import {
+  ArrowRight,
+  Check,
+  Code,
+  FileText,
+  LockKeyhole,
+  SlidersHorizontal,
+  Sparkles,
+} from 'lucide-react';
+interface Props {
   onStart: () => void;
+  onDemo?: () => void;
 }
-
-const Hero: React.FC<HeroProps> = ({ onStart }) => {
+export default function Hero({ onStart, onDemo }: Props) {
+  const [sampleStyle, setSampleStyle] = useState<'balanced' | 'minimal'>(
+    'balanced'
+  );
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Particle background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {PARTICLES.map((p) => (
-          <div
-            key={p.id}
-            className="particle bg-indigo-400"
-            style={{
-              width: p.size,
-              height: p.size,
-              left: `${p.left}%`,
-              animationDuration: `${p.duration}s`,
-              animationDelay: `${p.delay}s`,
-              opacity: p.opacity,
-            }}
+    <div className="landing">
+      <header className="site-nav">
+        <a className="brand" href="#" aria-label="GitFolio home">
+          <img
+            className="brand-mark"
+            src="/favicon.svg"
+            width={34}
+            height={34}
+            alt=""
           />
-        ))}
-        {/* bg glow blobs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-600/10 rounded-full blur-[100px]" />
-        <div className="absolute top-2/3 left-1/2 w-64 h-64 bg-cyan-600/8 rounded-full blur-[80px]" />
-      </div>
-
-      {/* Navbar */}
-      <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-5 border-b border-white/5">
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-mono font-bold gradient-text tracking-tight">GitFolio</span>
-          <span className="text-xs font-mono text-gray-600 bg-white/5 border border-white/8 px-2 py-0.5 rounded-full">v2</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="security-badge">🔒 Privacy First</span>
-        </div>
-      </nav>
-
-      {/* Hero Content */}
-      <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="inline-flex items-center gap-2 text-xs font-mono text-indigo-400 bg-indigo-500/10 border border-indigo-500/25 rounded-full px-4 py-1.5 mb-6">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-            Powered by Google Gemini AI · 100% Free
-          </div>
-
-          <h1 className="text-5xl md:text-7xl font-mono font-black tracking-tighter mb-5 leading-[0.95]">
-            Your GitHub Profile,
-            <br />
-            <span className="shimmer-text">Reimagined.</span>
-          </h1>
-
-          <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-sans">
-            Enter your GitHub username. AI analyzes your repos, writes your story,
-            and assembles a <span className="text-white font-semibold">stunning profile README</span> with{' '}
-            <span className="text-indigo-400">stats, animations, trophies,</span> and more.
-          </p>
-
-          {/* Example badges row */}
-          <div className="flex flex-wrap justify-center gap-2 mb-10 opacity-60">
-            {EXAMPLE_BADGES.map((badge, i) => (
-              <img key={i} src={badge} alt="badge" className="h-7" />
-            ))}
-          </div>
-
-          <button
-            onClick={onStart}
-            className="btn-primary text-base px-10 py-4 rounded-2xl text-lg font-mono"
-            id="get-started-btn"
+          GitFolio
+        </a>
+        <nav className="nav-links" aria-label="Main navigation">
+          <a href="#how-it-works">How it works</a>
+          <a href="#privacy">Privacy</a>
+          <a
+            className="nav-source"
+            href="https://github.com/Prudhvicharan/gitfolio"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Generate My Profile ✨
-          </button>
-
-          <p className="text-xs text-gray-600 mt-4 font-mono">
-            Free · No login required · Takes ~30 seconds
-          </p>
-        </motion.div>
-
-        {/* Feature grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-20 max-w-4xl w-full"
-        >
-          {FEATURES.map((f, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 + i * 0.1 }}
-              className="glass rounded-2xl p-5 text-left"
-            >
-              <div className="text-2xl mb-3">{f.icon}</div>
-              <div className="text-sm font-mono font-bold text-white mb-1">{f.title}</div>
-              <div className="text-xs text-gray-500 leading-relaxed">{f.desc}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Stats row */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="flex items-center gap-8 md:gap-12 mt-12 text-center opacity-50"
-        >
-          {[
-            { num: '13+', label: 'Components' },
-            { num: '7', label: 'Themes' },
-            { num: '5', label: 'Header Styles' },
-            { num: '1500', label: 'AI Req/Day Free' },
-          ].map((s, i) => (
-            <div key={i}>
-              <div className="text-xl font-mono font-black gradient-text">{s.num}</div>
-              <div className="text-xs text-gray-600 font-mono">{s.label}</div>
+            Source ↗
+          </a>
+        </nav>
+      </header>
+      <main className="landing-main" id="main-content" tabIndex={-1}>
+        <section className="hero-grid" aria-labelledby="hero-title">
+          <div className="hero-copy">
+            <span className="hero-eyebrow">
+              <Code size={14} /> BUILT FOR YOUR NEXT CHAPTER
+            </span>
+            <h1 id="hero-title">
+              Your GitHub Profile,
+              <br />
+              <span>Reimagined.</span>
+            </h1>
+            <p>
+              Turn your repositories into a profile README that tells your
+              story. Choose your projects, find your style, and make every word
+              yours.
+            </p>
+            <div className="hero-actions">
+              <button className="btn-primary" onClick={onStart}>
+                Generate my profile <ArrowRight size={17} />
+              </button>
+              <button className="btn-secondary" onClick={onDemo}>
+                Explore a demo <EyeIcon />
+              </button>
             </div>
-          ))}
-        </motion.div>
-      </div>
+            <p className="hero-fine">
+              <strong>Free builder. No GitFolio account.</strong>
+              <br />
+              Optional AI uses your own Gemini API key. Google’s limits and
+              billing apply.
+            </p>
+          </div>
+          <div className="hero-demo">
+            <div className="demo-mode-row" aria-label="Sample README style">
+              <button
+                aria-pressed={sampleStyle === 'balanced'}
+                onClick={() => setSampleStyle('balanced')}
+              >
+                Balanced
+              </button>
+              <button
+                aria-pressed={sampleStyle === 'minimal'}
+                onClick={() => setSampleStyle('minimal')}
+              >
+                Minimal
+              </button>
+            </div>
+            <div className="demo-window">
+              <div className="demo-toolbar">
+                <span className="demo-dot" />
+                <span className="demo-dot" />
+                <span className="demo-dot" />
+                <span>alex / README.md</span>
+              </div>
+              <div className="demo-content">
+                <div className="demo-heading">
+                  <div className="demo-avatar" aria-hidden="true">
+                    am
+                  </div>
+                  <div>
+                    <h2>Hi, I’m Alex Morgan.</h2>
+                    <small>Building useful things, thoughtfully.</small>
+                  </div>
+                </div>
+                <p>
+                  I build accessible web experiences and tools that make
+                  everyday development a little easier.
+                </p>
+                {sampleStyle === 'balanced' && (
+                  <div className="demo-skills">
+                    <span>TypeScript</span>
+                    <span>React</span>
+                    <span>Python</span>
+                  </div>
+                )}
+                <h3 className="demo-section-title">Selected projects</h3>
+                <div className="demo-project">
+                  <strong>accessible-ui</strong>
+                  <p>A collection of keyboard-friendly interface components.</p>
+                  <small>
+                    <span className="language-dot" /> TypeScript
+                  </small>
+                </div>
+                {sampleStyle === 'balanced' && (
+                  <div className="demo-project">
+                    <strong>tiny-tools</strong>
+                    <p>Small utilities for everyday development tasks.</p>
+                    <small>
+                      <span className="language-dot" /> Python
+                    </small>
+                  </div>
+                )}
+              </div>
+            </div>
+            <p className="demo-caption">
+              ILLUSTRATIVE PREVIEW · FICTIONAL SAMPLE PROFILE
+            </p>
+          </div>
+        </section>
+        <div className="proof-strip">
+          <div className="proof-item">
+            <SlidersHorizontal size={20} />
+            <div>
+              <strong>Your profile, your choices</strong>
+              <p>Curated projects. Editable content. Flexible styles.</p>
+            </div>
+          </div>
+          <div className="proof-item">
+            <LockKeyhole size={20} />
+            <div>
+              <strong>You control your data</strong>
+              <p>No account. Optional local drafts. Keys stay unsaved.</p>
+            </div>
+          </div>
+          <div className="proof-item">
+            <FileText size={20} />
+            <div>
+              <strong>Plain Markdown. Yours to keep.</strong>
+              <p>Copy or download. Publish directly on GitHub.</p>
+            </div>
+          </div>
+        </div>
+        <section
+          className="landing-section"
+          id="how-it-works"
+          aria-labelledby="how-title"
+        >
+          <span className="eyebrow">FROM REPOSITORIES TO README</span>
+          <h2 id="how-title">A better introduction, in three steps.</h2>
+          <p className="section-subtitle">
+            Start with what you’ve built. Finish with a profile you’re proud to
+            share.
+          </p>
+          <div className="how-grid">
+            <article className="how-card">
+              <span className="how-number">01 / IMPORT</span>
+              <h3>Bring your work.</h3>
+              <p>
+                Enter your GitHub username. Pick the public repositories that
+                best represent you, including forks you want to highlight.
+              </p>
+            </article>
+            <article className="how-card">
+              <span className="how-number">02 / CUSTOMIZE</span>
+              <h3>Find your expression.</h3>
+              <p>
+                Go Minimal, Balanced, or Animated. Choose your sections, seven
+                stats themes, and five header shapes.
+              </p>
+            </article>
+            <article className="how-card">
+              <span className="how-number">03 / MAKE IT YOURS</span>
+              <h3>Review. Export. Introduce yourself.</h3>
+              <p>
+                Write your bio or ask AI for a draft. Review every claim, then
+                copy your Markdown and follow the publishing checklist.
+              </p>
+            </article>
+          </div>
+        </section>
+        <section
+          className="landing-section privacy-section"
+          id="privacy"
+          aria-labelledby="privacy-title"
+        >
+          <div>
+            <span className="eyebrow">CLEAR BY DESIGN</span>
+            <h2 id="privacy-title">
+              Your keys.
+              <br />
+              Your words.
+              <br />
+              Your call.
+            </h2>
+            <p className="section-subtitle">
+              A useful profile shouldn’t require guessing what happens to your
+              data.
+            </p>
+            <a
+              className="text-button"
+              href="https://github.com/Prudhvicharan/gitfolio"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Inspect the source <ArrowRight size={15} />
+            </a>
+          </div>
+          <div className="privacy-list">
+            <div className="privacy-item">
+              <Check size={18} />
+              <div>
+                <strong>Direct connections, explained.</strong>
+                <p>
+                  Public profile data is fetched from GitHub. Only when you
+                  request AI, your key and selected profile metadata go directly
+                  to Google. They are not sent to a GitFolio application server.
+                </p>
+              </div>
+            </div>
+            <div className="privacy-item">
+              <Check size={18} />
+              <div>
+                <strong>Your API key is never saved.</strong>
+                <p>
+                  It is held in this browser tab’s memory and cleared when you
+                  leave the AI review step. Saved keys from earlier GitFolio
+                  versions are removed when you open the builder.
+                </p>
+              </div>
+            </div>
+            <div className="privacy-item">
+              <Check size={18} />
+              <div>
+                <strong>Draft saving is your choice.</strong>
+                <p>
+                  Opt in to save profile content and entered links on this
+                  device. Turn saving off or reset the builder to delete that
+                  saved copy. Drafts never contain API keys.
+                </p>
+              </div>
+            </div>
+            <div className="privacy-item">
+              <Check size={18} />
+              <div>
+                <strong>External services stay visible.</strong>
+                <p>
+                  Optional widgets contact their image providers and may share
+                  your username and request details. Google’s data-use terms
+                  apply to AI requests. GitFolio adds no analytics or
+                  advertising trackers; the hosting provider may keep standard
+                  request logs.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          className="landing-section faq-section"
+          id="faq"
+          aria-labelledby="faq-title"
+        >
+          <span className="eyebrow">A FEW GOOD QUESTIONS</span>
+          <h2 id="faq-title">Before you get started.</h2>
+          <details className="disclosure">
+            <summary>Can I use GitFolio without AI?</summary>
+            <p>
+              Yes. Import your GitHub profile, choose your projects, and edit
+              your content yourself. Copy and download work without a Gemini
+              key.
+            </p>
+          </details>
+          <details className="disclosure">
+            <summary>Is it free?</summary>
+            <p>
+              The GitFolio builder is free. Optional AI uses your Google
+              project, whose quotas, billing, and data-use policies apply. Check{' '}
+              <a
+                href="https://ai.google.dev/gemini-api/docs/pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Google’s current pricing ↗
+              </a>{' '}
+              before generating.
+            </p>
+          </details>
+          <details className="disclosure">
+            <summary>Will it change my GitHub account?</summary>
+            <p>
+              No. GitFolio reads public data and creates a Markdown file. It
+              does not sign in to GitHub or write to your repositories. You
+              review and publish the file yourself.
+            </p>
+          </details>
+          <details className="disclosure">
+            <summary>Why might a widget fail to load?</summary>
+            <p>
+              Stats and animation providers can be unavailable or rate-limited.
+              Retry the widget or remove it from your README. A contribution
+              snake needs a GitHub Actions workflow; the builder supplies the
+              file and instructions.
+            </p>
+          </details>
+          <details className="disclosure">
+            <summary>How do I publish my profile README?</summary>
+            <p>
+              Create a public repository whose name matches your GitHub
+              username, then add a README.md file at its root. The builder
+              includes a step-by-step checklist and reminds you to back up
+              existing content first.
+            </p>
+          </details>
+        </section>
+        <section className="closing-cta">
+          <Sparkles
+            size={22}
+            aria-hidden="true"
+            style={{ margin: '0 auto 16px', color: '#c4b5fd' }}
+          />
+          <h2>
+            You’ve done the work.
+            <br />
+            Give it a good introduction.
+          </h2>
+          <p>Build a profile that feels like you.</p>
+          <button className="btn-primary" onClick={onStart}>
+            Generate my profile <ArrowRight size={17} />
+          </button>
+        </section>
+      </main>
+      <footer className="site-footer">
+        <span>GitFolio · Made for developers.</span>
+        <div>
+          <a href="#privacy">Privacy & data</a>
+          <a
+            href="https://github.com/Prudhvicharan/gitfolio"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Source ↗
+          </a>
+          <a
+            href="https://github.com/Prudhvicharan/gitfolio/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Report an issue ↗
+          </a>
+        </div>
+      </footer>
     </div>
   );
-};
-
-export default Hero;
+}
+function EyeIcon() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      aria-hidden="true"
+    >
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}

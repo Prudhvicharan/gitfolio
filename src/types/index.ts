@@ -28,8 +28,16 @@ export interface GithubRepo {
   topics: string[];
 }
 
-export type ThemeId = 'radical' | 'tokyonight' | 'dracula' | 'github_dark' | 'onedark' | 'nord' | 'catppuccin_mocha';
+export type ThemeId =
+  | 'radical'
+  | 'tokyonight'
+  | 'dracula'
+  | 'github_dark'
+  | 'onedark'
+  | 'nord'
+  | 'catppuccin_mocha';
 export type HeaderStyle = 'wave' | 'venom' | 'slice' | 'cylinder' | 'shark';
+export type LayoutId = 'editorial' | 'studio' | 'aurora';
 
 export interface SocialLinks {
   linkedin?: string;
@@ -63,6 +71,11 @@ export interface AIContent {
   dreamProject: string;
   currentlyLearning: string;
   typingLines: string[];
+  focusAreas: string[];
+  workingStyle: string[];
+  currentGoals: string[];
+  projectStories: string[];
+  collaborationPitch: string;
 }
 
 export interface GeneratorConfig {
@@ -79,4 +92,8 @@ export interface GeneratorConfig {
    *  changes in Step 2 don't scramble them. User can explicitly refresh via
    *  "Try Different Style" button. */
   creativeSeed?: number;
+  openToWork?: boolean;
+  snakeReady?: boolean;
+  disabledWidgetUrls?: string[];
+  layout?: LayoutId;
 }

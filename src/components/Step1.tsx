@@ -1,156 +1,200 @@
-import { motion } from 'framer-motion';
-import { FaGithub, FaLinkedin, FaTwitter, FaGlobe, FaEnvelope, FaBriefcase } from 'react-icons/fa';
+import { useId } from 'react';
+import { ArrowRight, UserRound, LoaderCircle } from 'lucide-react';
 import type { SocialLinks } from '../types';
-
-interface Step1Props {
+import { safeUrl } from '../utils/content';
+interface Props {
   username: string;
-  setUsername: (v: string) => void;
+  setUsername: (value: string) => void;
   jobTitle: string;
-  setJobTitle: (v: string) => void;
+  setJobTitle: (value: string) => void;
   socialLinks: SocialLinks;
-  setSocialLinks: (v: SocialLinks) => void;
+  setSocialLinks: (value: SocialLinks) => void;
   loading: boolean;
   error: string | null;
   onNext: () => void;
+  onDemo: () => void;
+  onCancel: () => void;
+  demo?: boolean;
+  onBuildProfile: () => void;
 }
-
-const InputRow: React.FC<{
-  icon: React.ReactNode;
+function Field({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = 'text',
+  required = false,
+  disabled = false,
+}: {
   label: string;
   value: string;
-  onChange: (v: string) => void;
+  onChange: (value: string) => void;
   placeholder: string;
-  required?: boolean;
   type?: string;
-}> = ({ icon, label, value, onChange, placeholder, required, type = 'text' }) => (
-  <div className="space-y-1.5">
-    <label className="text-xs font-mono text-gray-400 flex items-center gap-1.5">
-      {required && <span className="text-indigo-400">*</span>} {label}
-    </label>
-    <div className="relative">
-      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500">{icon}</span>
+  required?: boolean;
+  disabled?: boolean;
+}) {
+  const id = useId();
+  return (
+    <div className="field">
+      <label htmlFor={id}>
+        {label}
+        {required && <span> (required)</span>}
+      </label>
       <input
-        type={type}
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        type={type}
         required={required}
-        className="input-field with-icon"
-        style={{ paddingLeft: 44 }}
+        maxLength={300}
+        autoComplete="off"
+        spellCheck={false}
+        disabled={disabled}
       />
     </div>
-  </div>
-);
-
-const Step1: React.FC<Step1Props> = ({
-  username, setUsername, jobTitle, setJobTitle,
-  socialLinks, setSocialLinks, loading, error, onNext,
-}) => {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onNext();
-  };
-
-  return (
-    <motion.div
-      key="step1"
-      initial={{ opacity: 0, x: 40 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -40 }}
-      transition={{ duration: 0.35 }}
-      className="space-y-6"
-    >
-      <div>
-        <h2 className="text-xl font-mono font-bold text-white mb-1">
-          <span className="gradient-text">Who are you?</span>
-        </h2>
-        <p className="text-sm text-gray-500">We'll fetch your GitHub data and personalize everything.</p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <InputRow
-          icon={<FaGithub size={16} />}
-          label="GitHub Username"
-          value={username}
-          onChange={setUsername}
-          placeholder="e.g. Prudhvicharan"
-          required
-        />
-
-        <InputRow
-          icon={<FaBriefcase size={14} />}
-          label="Job Title / Focus Area"
-          value={jobTitle}
-          onChange={setJobTitle}
-          placeholder="e.g. Full Stack Engineer · ML Enthusiast"
-        />
-
-        <div className="border-t border-white/5 pt-4">
-          <p className="text-xs font-mono text-gray-500 mb-3">Social Links <span className="text-gray-700">(optional — all appear as badges)</span></p>
-          <div className="space-y-3">
-            <InputRow
-              icon={<FaLinkedin size={15} />}
-              label="LinkedIn URL"
-              value={socialLinks.linkedin || ''}
-              onChange={(v) => setSocialLinks({ ...socialLinks, linkedin: v })}
-              placeholder="https://linkedin.com/in/username"
-            />
-            <InputRow
-              icon={<FaTwitter size={15} />}
-              label="Twitter / X URL"
-              value={socialLinks.twitter || ''}
-              onChange={(v) => setSocialLinks({ ...socialLinks, twitter: v })}
-              placeholder="https://twitter.com/username"
-            />
-            <InputRow
-              icon={<FaGlobe size={14} />}
-              label="Portfolio Website"
-              value={socialLinks.portfolio || ''}
-              onChange={(v) => setSocialLinks({ ...socialLinks, portfolio: v })}
-              placeholder="https://yourwebsite.com"
-            />
-            <InputRow
-              icon={<FaEnvelope size={14} />}
-              label="Email"
-              value={socialLinks.email || ''}
-              onChange={(v) => setSocialLinks({ ...socialLinks, email: v })}
-              placeholder="you@email.com"
-              type="email"
-            />
-          </div>
-        </div>
-
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-red-400 text-sm"
-          >
-            <span className="font-mono text-red-500 mt-0.5">✗</span>
-            {error}
-          </motion.div>
-        )}
-
-        <button
-          type="submit"
-          disabled={!username.trim() || loading}
-          className="btn-primary w-full flex items-center justify-center gap-2 mt-2"
-        >
-          {loading ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Fetching GitHub data...
-            </>
-          ) : (
-            <>
-              Fetch Profile & Continue
-              <span>→</span>
-            </>
-          )}
-        </button>
-      </form>
-    </motion.div>
   );
-};
-
-export default Step1;
+}
+export default function Step1(p: Props) {
+  const invalid = Object.entries(p.socialLinks).some(
+    ([key, value]) => key !== 'email' && value && !safeUrl(value)
+  );
+  return (
+    <section className="step-content" aria-labelledby="step-heading-1">
+      <div className="section-intro">
+        <span className="eyebrow">
+          {p.demo ? '01 / CURATED SAMPLE' : '01 / YOUR PROFILE'}
+        </span>
+        <h1 id="step-heading-1" tabIndex={-1}>
+          {p.demo ? 'Meet the fictional profile.' : 'Start with your GitHub.'}
+        </h1>
+        <p>
+          {p.demo
+            ? 'This identity is prefilled and locked so every demo step tells one consistent story.'
+            : 'Import public repositories, then choose what tells your story. No login required.'}
+        </p>
+      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!invalid) p.onNext();
+        }}
+        className="form-stack"
+        aria-busy={p.loading}
+      >
+        <Field
+          label="GitHub username"
+          value={p.username}
+          onChange={p.setUsername}
+          placeholder="e.g. octocat"
+          required={!p.demo}
+          disabled={p.demo}
+        />
+        <Field
+          label="Job title or focus"
+          value={p.jobTitle}
+          onChange={p.setJobTitle}
+          placeholder="e.g. Frontend engineer"
+          disabled={p.demo}
+        />
+        {!p.demo && (
+          <details className="disclosure">
+            <summary>
+              Social links <span>optional</span>
+            </summary>
+            <div className="form-stack">
+              {(['linkedin', 'twitter', 'portfolio', 'email'] as const).map(
+                (key) => (
+                  <Field
+                    key={key}
+                    label={
+                      {
+                        linkedin: 'LinkedIn URL',
+                        twitter: 'Twitter / X URL',
+                        portfolio: 'Portfolio URL',
+                        email: 'Email',
+                      }[key]
+                    }
+                    value={p.socialLinks[key] || ''}
+                    onChange={(value) =>
+                      p.setSocialLinks({ ...p.socialLinks, [key]: value })
+                    }
+                    placeholder={
+                      key === 'email' ? 'you@example.com' : 'https://…'
+                    }
+                    type={key === 'email' ? 'email' : 'text'}
+                  />
+                )
+              )}
+              <p className="help">
+                Only links you enter are published. URLs must use HTTP or
+                HTTPS.
+              </p>
+            </div>
+          </details>
+        )}
+        {p.demo && (
+          <div className="quiet-note demo-profile-note">
+            <strong>Sample identity locked</strong>
+            <span>
+              Alex Morgan · Product Engineer · four fictional repositories
+            </span>
+          </div>
+        )}
+        {invalid && (
+          <p className="notice error" role="alert">
+            Check your social links. Enter a website address such as
+            https://example.com.
+          </p>
+        )}
+        {p.error && (
+          <p className="notice error" role="alert">
+            {p.error}
+          </p>
+        )}
+        {!p.demo && (
+          <button
+            className="btn-primary full"
+            disabled={!p.username.trim() || p.loading || invalid}
+            type="submit"
+          >
+            {p.loading ? (
+              <>
+                <LoaderCircle size={18} className="spin" /> Importing profile…
+              </>
+            ) : (
+              <>
+                <UserRound size={18} /> Import profile <ArrowRight size={18} />
+              </>
+            )}
+          </button>
+        )}
+        {p.loading && (
+          <button className="btn-secondary" type="button" onClick={p.onCancel}>
+            Cancel import
+          </button>
+        )}
+      </form>
+      {p.demo ? (
+        <button className="btn-primary full" onClick={p.onBuildProfile}>
+          Build my profile <ArrowRight size={18} />
+        </button>
+      ) : (
+        <>
+          <button
+            className="text-button"
+            onClick={p.onDemo}
+            disabled={p.loading}
+          >
+            Just exploring? Try the sample profile <ArrowRight size={15} />
+          </button>
+          <div className="quiet-note">
+            Your public profile comes directly from GitHub. AI is optional and
+            requires your own Gemini API key.
+          </div>
+        </>
+      )}
+    </section>
+  );
+}

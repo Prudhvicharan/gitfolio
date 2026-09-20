@@ -150,13 +150,6 @@ export type AboutStyle =
   | 'markdown-table'    // Clean table layout
   | 'inline-prose';     // Prose with GIF beside
 
-// ─── STATS CARD THEMES (github-readme-stats) ────────────────
-export const STATS_THEMES = [
-  'radical', 'tokyonight', 'dracula', 'github_dark',
-  'onedark', 'nord', 'catppuccin_mocha', 'nightowl',
-  'aura', 'synthwave', 'merko', 'gruvbox_light',
-];
-
 // ─── DIVIDER STYLES ─────────────────────────────────────────
 export const DIVIDERS = {
   wave:     'https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png',
@@ -260,21 +253,12 @@ export const FOOTER_QUOTES = [
 ];
 
 // ─── METRICS / EXTRAS WIDGETS ───────────────────────────────
-// All URLs verified working as of 2025:
-// - github-readme-stats public vercel.app instance: UNRELIABLE (503s)
-//   → using eight-theta community instance which is stable
+// Optional remote enhancements. Core README sections never require these services.
 // - github-profile-trophy.vercel.app: UNRELIABLE (503s)
 //   → replaced with shields.io achievement badges
 // - streak-stats.demolab.com: WORKING ✓
 // - skillicons.dev: WORKING ✓
 export const EXTRA_WIDGETS = {
-  // Use the eight-theta community instance — stable, same API, same params
-  stats: (username: string, theme: string) =>
-    `https://github-readme-stats-eight-theta.vercel.app/api?username=${username}&show_icons=true&theme=${theme}&hide_border=true&bg_color=0D1117&include_all_commits=true&count_private=true&rank_icon=github`,
-  topLangs: (username: string, theme: string) =>
-    `https://github-readme-stats-eight-theta.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=${theme}&hide_border=true&bg_color=0D1117&langs_count=10&card_width=380`,
-  repoCard: (username: string, repo: string, theme: string) =>
-    `https://github-readme-stats-eight-theta.vercel.app/api/pin/?username=${username}&repo=${repo}&theme=${theme}&hide_border=true&bg_color=0D1117&title_color=6366f1&icon_color=a855f7`,
   streak: (username: string, theme: string) =>
     `https://streak-stats.demolab.com?user=${username}&theme=${theme}&hide_border=true&background=0D1117&stroke=6366f1&ring=a855f7&fire=22d3ee`,
   // Trophy service is down — use a link to the profile trophy page instead
@@ -285,8 +269,6 @@ export const EXTRA_WIDGETS = {
     `https://komarev.com/ghpvc/?username=${username}&label=Profile+Views&color=blueviolet&style=flat-square`,
   followers: (username: string) =>
     `https://img.shields.io/github/followers/${username}?label=Followers&style=flat-square&color=blue&labelColor=1a1a2e`,
-  activityGraph: (username: string) =>
-    `https://github-readme-activity-graph.vercel.app/graph?username=${username}&bg_color=0d1117&color=6366f1&line=a855f7&point=22d3ee&area=true&hide_border=true`,
   snake: (username: string) =>
     `https://raw.githubusercontent.com/${username}/${username}/output/github-snake-dark.svg`,
   skillIcons: (icons: string) =>

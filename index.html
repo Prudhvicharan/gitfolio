@@ -2,12 +2,63 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>app</title>
+    <link
+      rel="preload"
+      href="/fonts/ibm-plex-sans-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <meta name="theme-color" content="#09090b" />
+    <title>GitFolio — GitHub Profile README Generator</title>
+    <meta
+      name="description"
+      content="Create a GitHub profile README from your public repositories. Customize your style, review optional AI content, and export Markdown. No GitFolio account required."
+    />
+    <link rel="canonical" href="https://gitfolio-eight.vercel.app/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GitFolio" />
+    <meta
+      property="og:title"
+      content="Your GitHub Profile, Reimagined. — GitFolio"
+    />
+    <meta
+      property="og:description"
+      content="Choose your projects. Find your style. Build a profile README that tells your story."
+    />
+    <meta property="og:url" content="https://gitfolio-eight.vercel.app/" />
+    <meta
+      property="og:image"
+      content="https://gitfolio-eight.vercel.app/social-preview.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="GitFolio: Your GitHub Profile, Reimagined. Free README builder with optional AI."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="GitFolio — GitHub Profile README Generator"
+    />
+    <meta
+      name="twitter:description"
+      content="A profile README that tells your story. Customize, review, and export."
+    />
+    <meta
+      name="twitter:image"
+      content="https://gitfolio-eight.vercel.app/social-preview.png"
+    />
   </head>
   <body>
     <div id="root"></div>
+    <noscript
+      >GitFolio’s interactive builder needs JavaScript. Enable it to import your
+      profile, customize your README, and export Markdown.</noscript
+    >
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
