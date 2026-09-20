@@ -59,6 +59,7 @@ export interface SectionToggles {
   skillIcons: boolean;
   topRepos: boolean;
   snake: boolean;
+  contribution3d: boolean;
   funFacts: boolean;
 }
 
@@ -94,6 +95,7 @@ export interface GeneratorConfig {
   creativeSeed?: number;
   openToWork?: boolean;
   snakeReady?: boolean;
+  contribution3dReady?: boolean;
   disabledWidgetUrls?: string[];
   layout?: LayoutId;
 }

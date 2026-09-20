@@ -14,6 +14,7 @@ export const SECTION_LABELS: Record<keyof SectionToggles, string> = {
   activityGraph: 'Public work snapshot',
   topRepos: 'Selected projects',
   snake: 'Contribution snake',
+  contribution3d: '3D contribution landscape',
 };
 const base = Object.fromEntries(
   Object.keys(SECTION_LABELS).map((key) => [key, false])
@@ -155,5 +156,6 @@ export function widgetSection(url: string): keyof SectionToggles | null {
   if (url.includes('skillicons.dev/')) return 'skillIcons';
   if (url.includes('streak-stats.demolab.com')) return 'streak';
   if (url.includes('github-snake')) return 'snake';
+  if (url.includes('/profile-3d-contrib/')) return 'contribution3d';
   return null;
 }

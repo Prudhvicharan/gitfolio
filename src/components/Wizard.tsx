@@ -34,6 +34,7 @@ const initialConfig = (): GeneratorConfig => ({
   creativeSeed: 0.5,
   openToWork: false,
   snakeReady: false,
+  contribution3dReady: false,
   disabledWidgetUrls: [],
   layout: 'studio',
 });
@@ -199,6 +200,9 @@ export default function Wizard({
           aiContent: same ? previous.aiContent : null,
           openToWork: same ? previous.openToWork : false,
           snakeReady: same ? previous.snakeReady : false,
+          contribution3dReady: same
+            ? previous.contribution3dReady
+            : false,
           disabledWidgetUrls: same ? previous.disabledWidgetUrls : [],
           creativeSeed: same ? previous.creativeSeed : Math.random(),
         };

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  generateContribution3dWorkflow,
   generateReadme,
   generateSnakeWorkflow,
 } from '../src/utils/generateMarkdown.ts';
@@ -101,6 +102,42 @@ test('snake is opt-in and its workflow is portable and free of personal data', (
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /branches:\n      - main/);
   assert.doesNotMatch(workflow, /example|Prudhvicharan|@gmail|BEGIN [A-Z ]*KEY/);
+});
+
+test('3D contributions are gated behind a verified portable workflow', () => {
+  const pending = generateReadme({
+    ...config,
+    sections: { ...config.sections, contribution3d: true },
+  });
+  assert.doesNotMatch(pending, /profile-3d-contrib/);
+
+  const ready = generateReadme({
+    ...config,
+    sections: { ...config.sections, contribution3d: true },
+    contribution3dReady: true,
+  });
+  assert.match(ready, /Contribution landscape/);
+  assert.match(
+    ready,
+    /raw\.githubusercontent\.com\/example\/example\/HEAD\/profile-3d-contrib\/profile-night-rainbow\.svg/
+  );
+
+  const workflow = generateContribution3dWorkflow();
+  assert.match(workflow, /yoshi389111\/github-profile-3d-contrib@v0\.9\.2/);
+  assert.match(workflow, /USERNAME: \$\{\{ github\.repository_owner \}\}/);
+  assert.match(workflow, /contents: write/);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /example|Prudhvicharan|BEGIN [A-Z ]*KEY/);
+});
+
+test('profile facts include resilient live GitHub signals', () => {
+  const md = generateReadme({
+    ...config,
+    sections: { ...config.sections, trophies: true },
+  });
+  assert.match(md, /img\.shields\.io\/github\/followers\/example/);
+  assert.match(md, /img\.shields\.io\/github\/stars\/example\?affiliations=OWNER/);
+  assert.match(md, /PUBLIC REPOSITORIES/);
 });
 test('username normalization rejects path and query injection', () => {
   assert.equal(normalizeUsername(' @octocat '), 'octocat');

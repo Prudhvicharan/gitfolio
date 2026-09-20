@@ -47,6 +47,45 @@ jobs:
 `;
 }
 
+export function generateContribution3dWorkflow(): string {
+  return `name: GitHub Profile 3D Contributions
+
+on:
+  schedule:
+    - cron: "20 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Generate 3D contribution landscape
+        uses: yoshi389111/github-profile-3d-contrib@v0.9.2
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          USERNAME: \${{ github.repository_owner }}
+
+      - name: Commit generated assets
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add profile-3d-contrib
+          if git diff --cached --quiet; then
+            echo "Contribution assets are already current."
+          else
+            git commit -m "chore: refresh 3D contribution profile [skip ci]"
+            git push
+          fi
+`;
+}
+
 export const generateReadme = (config: GeneratorConfig): string => {
   const {
     userData: user,
@@ -215,8 +254,12 @@ export const generateReadme = (config: GeneratorConfig): string => {
   if (sections.trophies) {
     const stars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
     const forks = repos.reduce((sum, repo) => sum + (repo.forks_count || 0), 0);
+    const liveSignals = [
+      image(EXTRA_WIDGETS.followers(user.login), 'Live GitHub follower count'),
+      image(EXTRA_WIDGETS.ownedStars(user.login), 'Live stars across owned repositories'),
+    ].filter(Boolean);
     add(
-      `${title('At a glance', '◆')}\n\n<table><tr><td align="center"><strong>${user.public_repos}</strong><br/><sub>PUBLIC REPOSITORIES</sub></td><td align="center"><strong>${user.followers}</strong><br/><sub>FOLLOWERS</sub></td><td align="center"><strong>${stars}</strong><br/><sub>SELECTED REPO STARS</sub></td><td align="center"><strong>${forks}</strong><br/><sub>SELECTED REPO FORKS</sub></td></tr></table>`
+      `${title('At a glance', '◆')}\n\n<table><tr><td align="center"><strong>${user.public_repos}</strong><br/><sub>PUBLIC REPOSITORIES</sub></td><td align="center"><strong>${user.followers}</strong><br/><sub>FOLLOWERS</sub></td><td align="center"><strong>${stars}</strong><br/><sub>SELECTED REPO STARS</sub></td><td align="center"><strong>${forks}</strong><br/><sub>SELECTED REPO FORKS</sub></td></tr></table>${liveSignals.length ? `\n\n<p align="${layout === 'editorial' ? 'left' : 'center'}">${liveSignals.join(' ')}</p>` : ''}`
     );
   }
   if (sections.stats) {
@@ -291,6 +334,16 @@ export const generateReadme = (config: GeneratorConfig): string => {
       'width="100%"'
     );
     if (snake) add(`## Contribution snake\n\n${snake}`);
+  }
+  if (sections.contribution3d && config.contribution3dReady) {
+    const contributionLandscape = image(
+      `https://raw.githubusercontent.com/${encodeURIComponent(user.login)}/${encodeURIComponent(user.login)}/HEAD/profile-3d-contrib/profile-night-rainbow.svg`,
+      '3D GitHub contribution calendar',
+      'width="100%"'
+    );
+    add(
+      `${title('Contribution landscape', '◫')}\n\n${contributionLandscape}`
+    );
   }
   if (layout !== 'editorial' && parts.length) {
     add(`<div align="center">\n<br/>\n<strong>${text(content?.collaborationPitch || content?.quote || 'Thanks for visiting — let’s build something meaningful.')}</strong>\n<br/><br/>\n<a href="https://github.com/${encodeURIComponent(user.login)}">Explore my work on GitHub →</a>\n</div>`);

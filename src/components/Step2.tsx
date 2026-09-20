@@ -108,8 +108,8 @@ const SECTION_GROUPS: {
   },
   {
     title: 'Live widgets',
-    description: 'Optional third-party cards. Availability can vary.',
-    keys: ['streak', 'snake'],
+    description: 'Optional activity visuals. Workflow assets are generated in your repository.',
+    keys: ['streak', 'contribution3d', 'snake'],
   },
 ];
 
@@ -289,14 +289,14 @@ export default function Step2({
                     <input
                       type="checkbox"
                       checked={config.sections[key]}
-                      disabled={demo && key === 'snake'}
+                      disabled={demo && (key === 'snake' || key === 'contribution3d')}
                       onChange={(event) =>
                         setSection(key, event.target.checked)
                       }
                     />
                     <span>
                       {SECTION_LABELS[key]}
-                      {key === 'snake' && (
+                      {(key === 'snake' || key === 'contribution3d') && (
                         <small>
                           {demo
                             ? 'Available after importing your profile'
