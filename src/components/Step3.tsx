@@ -153,6 +153,15 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
           <label className="check-option"><input type="checkbox" checked={!!config.openToWork} onChange={(event) => onChange({ openToWork: event.target.checked })} /><span>Add “Open to work” to the About section</span></label>
 
           <details className="disclosure" open={mode === 'manual'}>
+            <summary>Professional depth <span>turn a bio into a story</span></summary>
+            <div className="form-stack">
+              <div className="field"><label htmlFor="focus-areas">What I build <span>one focus area per line</span></label><textarea id="focus-areas" rows={3} maxLength={1200} placeholder={'Accessible product interfaces\nDeveloper tools and automation\nData-informed web applications'} value={draft.focusAreas.join('\n')} onChange={(event) => update({ focusAreas: event.target.value.split('\n') }, 'aboutCode')} /></div>
+              <div className="field"><label htmlFor="working-style">How I work <span>one principle per line</span></label><textarea id="working-style" rows={3} maxLength={1200} placeholder={'Start with the user problem\nKeep systems understandable\nTest the behavior that matters'} value={draft.workingStyle.join('\n')} onChange={(event) => update({ workingStyle: event.target.value.split('\n') }, 'funFacts')} /></div>
+              <div className="field"><label htmlFor="current-goals">Current goals <span>one goal per line</span></label><textarea id="current-goals" rows={3} maxLength={1200} placeholder={'Ship a meaningful open-source tool\nContribute to accessibility projects'} value={draft.currentGoals.join('\n')} onChange={(event) => update({ currentGoals: event.target.value.split('\n') }, 'funFacts')} /></div>
+            </div>
+          </details>
+
+          <details className="disclosure" open={mode === 'manual'}>
             <summary>Personality and motion <span>make it memorable</span></summary>
             <div className="form-stack">
               <div className="field"><label htmlFor="notes">Personal notes <span>one memorable point per line</span></label><textarea id="notes" rows={3} maxLength={1500} placeholder={'I care about accessible interfaces\nI enjoy turning repetitive work into tools'} value={draft.funFacts.join('\n')} onChange={(event) => update({ funFacts: event.target.value.split('\n') }, 'funFacts')} /></div>

@@ -35,6 +35,7 @@ const initialConfig = (): GeneratorConfig => ({
   openToWork: false,
   snakeReady: false,
   disabledWidgetUrls: [],
+  layout: 'studio',
 });
 interface Props {
   step: number;

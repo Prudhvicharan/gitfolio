@@ -160,6 +160,11 @@ export default function Step2({
                 const style = STYLE_PRESETS[name];
                 onChange({
                   sections: { ...PRESETS[name] },
+                  layout: {
+                    minimal: 'editorial',
+                    balanced: 'studio',
+                    animated: 'aurora',
+                  }[name] as GeneratorConfig['layout'],
                   theme: style.theme,
                   headerStyle: style.headerStyle,
                   headerColor: style.headerColor,

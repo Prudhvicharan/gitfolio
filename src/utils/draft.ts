@@ -104,6 +104,9 @@ export function parseDraft(raw: string | null): Draft | null {
         disabledWidgetUrls: Array.isArray(c.disabledWidgetUrls)
           ? c.disabledWidgetUrls.filter((v: unknown) => typeof v === 'string')
           : [],
+        layout: ['editorial', 'studio', 'aurora'].includes(c.layout)
+          ? c.layout
+          : 'studio',
       },
       availableRepos: value.availableRepos,
     };

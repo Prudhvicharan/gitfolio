@@ -32,6 +32,9 @@ export const generateReadme = (config: GeneratorConfig): string => {
     if (value.trim()) parts.push(value);
   };
   const skills = content ? content.skills : extractLanguages(repos);
+  const layout = config.layout ?? 'studio';
+  const title = (label: string, symbol: string) =>
+    `## ${layout === 'aurora' ? `${symbol} ` : ''}${label}`;
   const seed = Math.abs(Math.floor((config.creativeSeed ?? 0.5) * 10000));
   if (sections.header) {
     const styles = {
@@ -77,7 +80,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
     if (typing) add(`<div align="center">\n${typing}\n</div>`);
   }
   if (sections.aboutCode) {
-    const about = [sections.header ? '## About me' : `<div align="center">\n<h1>Hi, I'm ${text(name)}</h1>${content?.tagline ? `\n<p><strong>${text(content.tagline)}</strong></p>` : ''}\n</div>`];
+    const about = [sections.header ? title(layout === 'aurora' ? 'The developer behind the code' : 'About me', '✦') : `<div align="center">\n<h1>Hi, I'm ${text(name)}</h1>${content?.tagline ? `\n<p><strong>${text(content.tagline)}</strong></p>` : ''}\n</div>`];
     if (sections.header && content?.tagline) about.push(`### ${text(content.tagline)}`);
     const bio = content ? content.aboutMe : user.bio;
     if (bio) about.push(text(bio));
@@ -90,6 +93,31 @@ export const generateReadme = (config: GeneratorConfig): string => {
     if (config.openToWork) about.push('**Open to work:** Yes');
     if (content?.quote) about.push(`> ${text(content.quote)}`);
     add(about.join('\n\n'));
+    if (layout === 'aurora' && content) {
+      const safeCode = (value: string) => value.replace(/[`\r\n]/g, ' ').trim();
+      const profile = [
+        '```ts',
+        'const developer = {',
+        `  name: ${JSON.stringify(safeCode(name))},`,
+        jobTitle ? `  role: ${JSON.stringify(safeCode(jobTitle))},` : '',
+        content.focusAreas.length
+          ? `  focus: ${JSON.stringify(content.focusAreas.map(safeCode))},`
+          : '',
+        skills.length
+          ? `  toolkit: ${JSON.stringify(skills.slice(0, 8).map(safeCode))},`
+          : '',
+        content.currentlyLearning
+          ? `  exploring: ${JSON.stringify(safeCode(content.currentlyLearning))},`
+          : '',
+        `  principle: ${JSON.stringify(safeCode(content.quote || 'Build with clarity and care.'))}`,
+        '};',
+        '```',
+      ].filter(Boolean);
+      add(profile.join('\n'));
+    }
+    if (content?.focusAreas.length) {
+      add(`${title('What I build', '◈')}\n\n${content.focusAreas.map((area) => `- ${text(area)}`).join('\n')}`);
+    }
   }
   if (sections.socialBadges) {
     const badge = (label: string, url: string, logo: string, color: string) =>
@@ -109,26 +137,30 @@ export const generateReadme = (config: GeneratorConfig): string => {
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(socialLinks.email)
     )
       links.push(badge('Email', `mailto:${encodeURIComponent(socialLinks.email)}`, 'gmail', 'B91C1C'));
-    add(`## Connect\n\n<p align="left">${links.join(' ')}</p>`);
+    add(`${title('Connect', '◎')}\n\n<p align="${layout === 'editorial' ? 'left' : 'center'}">${links.join(' ')}</p>`);
   }
   if (sections.skillIcons) {
     const keys = skillsToIconKeys(skills);
     const widget = keys
       ? image(EXTRA_WIDGETS.skillIcons(keys), `Skills: ${skills.join(', ')}`)
       : '';
-    if (widget) add(`## Skills\n\n${widget}`);
+    if (widget) add(`${title(layout === 'aurora' ? 'Technology constellation' : 'Tools & technologies', '⌘')}\n\n${layout === 'editorial' ? widget : `<p align="center">${widget}</p>`}`);
   }
   if (sections.funFacts && content) {
     const notes = content.funFacts.map((fact) => `- ${text(fact)}`);
     if (content.dreamProject)
       notes.push(`- **I'd like to build:** ${text(content.dreamProject)}`);
-    if (notes.length) add(`## Personal notes\n\n${notes.join('\n')}`);
+    if (notes.length) add(`${title(layout === 'aurora' ? 'Beyond the code' : 'Personal notes', '◇')}\n\n${notes.join('\n')}`);
+    if (content.workingStyle.length)
+      add(`${title('How I work', '→')}\n\n${content.workingStyle.map((item) => `- ${text(item)}`).join('\n')}`);
+    if (content.currentGoals.length)
+      add(`${title('Now and next', '↗')}\n\n${content.currentGoals.map((item) => `- ${text(item)}`).join('\n')}`);
   }
   if (sections.trophies) {
     const stars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
     const forks = repos.reduce((sum, repo) => sum + (repo.forks_count || 0), 0);
     add(
-      `## At a glance\n\n<table><tr><td align="center"><strong>${user.public_repos}</strong><br/><sub>PUBLIC REPOSITORIES</sub></td><td align="center"><strong>${user.followers}</strong><br/><sub>FOLLOWERS</sub></td><td align="center"><strong>${stars}</strong><br/><sub>SELECTED REPO STARS</sub></td><td align="center"><strong>${forks}</strong><br/><sub>SELECTED REPO FORKS</sub></td></tr></table>`
+      `${title('At a glance', '◆')}\n\n<table><tr><td align="center"><strong>${user.public_repos}</strong><br/><sub>PUBLIC REPOSITORIES</sub></td><td align="center"><strong>${user.followers}</strong><br/><sub>FOLLOWERS</sub></td><td align="center"><strong>${stars}</strong><br/><sub>SELECTED REPO STARS</sub></td><td align="center"><strong>${forks}</strong><br/><sub>SELECTED REPO FORKS</sub></td></tr></table>`
     );
   }
   const stats: string[] = [];
@@ -157,7 +189,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
       )
     );
   if (stats.some(Boolean))
-    add(`## GitHub statistics\n\n${stats.filter(Boolean).join('\n')}`);
+    add(`${title('GitHub analytics', '◫')}\n\n${stats.filter(Boolean).join('\n')}`);
   if (sections.activityGraph) {
     const languages = extractLanguages(repos).slice(0, 5);
     const originals = repos.filter((repo) => !repo.fork).length;
@@ -166,18 +198,25 @@ export const generateReadme = (config: GeneratorConfig): string => {
       `**${originals}** original projects`,
       languages.length ? `Working across **${languages.map(text).join(', ')}**` : '',
     ].filter(Boolean);
-    add(`## Public work snapshot\n\n${summary.join(' · ')}`);
+    add(`${title('Public work snapshot', '◉')}\n\n${summary.join(' · ')}`);
   }
   if (sections.topRepos && repos.length) {
-    const cells = repos.map((repo) => {
+    if (layout === 'editorial') {
+      add(`${title('Selected work', '◆')}\n\n${repos.map((repo) => {
+        const url = `https://github.com/${encodeURIComponent(user.login)}/${encodeURIComponent(repo.name)}`;
+        return `### [${text(repo.name)}](${url})\n\n${text(repo.description || 'Explore the repository and its source code.')}\n\n<sub>${text([repo.language, `${repo.stargazers_count} ★`].filter(Boolean).join(' · '))}</sub>`;
+      }).join('\n\n---\n\n')}`);
+    } else {
+      const cells = repos.map((repo) => {
       const url = `https://github.com/${encodeURIComponent(user.login)}/${encodeURIComponent(repo.name)}`;
       const meta = [repo.language, `${repo.stargazers_count} ★`, repo.fork ? 'Fork' : null].filter(Boolean).join(' · ');
       return `<td width="50%" valign="top"><h3><a href="${htmlAttribute(url)}">${htmlAttribute(repo.name)}</a></h3><p>${htmlAttribute(repo.description || 'Explore the repository and its source code.')}</p><sub>${htmlAttribute(meta)}</sub></td>`;
-    });
-    const rows: string[] = [];
-    for (let index = 0; index < cells.length; index += 2)
-      rows.push(`<tr>${cells[index]}${cells[index + 1] || '<td></td>'}</tr>`);
-    add(`## Selected work\n\n<table>${rows.join('')}</table>`);
+      });
+      const rows: string[] = [];
+      for (let index = 0; index < cells.length; index += 2)
+        rows.push(`<tr>${cells[index]}${cells[index + 1] || '<td></td>'}</tr>`);
+      add(`${title(layout === 'aurora' ? 'Featured builds' : 'Selected work', '🚀')}\n\n<table>${rows.join('')}</table>`);
+    }
   }
   if (sections.snake && config.snakeReady) {
     const snake = image(
@@ -186,6 +225,9 @@ export const generateReadme = (config: GeneratorConfig): string => {
       'width="100%"'
     );
     if (snake) add(`## Contribution snake\n\n${snake}`);
+  }
+  if (layout !== 'editorial' && parts.length) {
+    add(`<div align="center">\n<br/>\n<strong>${text(content?.quote || 'Thanks for visiting — let’s build something meaningful.')}</strong>\n<br/><br/>\n<a href="https://github.com/${encodeURIComponent(user.login)}">Explore my work on GitHub →</a>\n</div>`);
   }
   return parts.length ? `${parts.join('\n\n')}\n` : '';
 };

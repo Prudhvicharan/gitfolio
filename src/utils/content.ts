@@ -25,10 +25,14 @@ export const PRESETS: Record<
   minimal: { ...base, aboutCode: true, socialBadges: true, topRepos: true },
   balanced: {
     ...base,
+    header: true,
     aboutCode: true,
     socialBadges: true,
     topRepos: true,
     trophies: true,
+    skillIcons: true,
+    funFacts: true,
+    activityGraph: true,
   },
   animated: {
     ...base,
@@ -52,6 +56,9 @@ export const EMPTY_CONTENT: AIContent = {
   dreamProject: '',
   currentlyLearning: '',
   typingLines: [],
+  focusAreas: [],
+  workingStyle: [],
+  currentGoals: [],
 };
 
 export function safeUrl(value: string | null | undefined): string | null {
@@ -110,11 +117,19 @@ export function validateAIContent(value: unknown): AIContent {
       );
     result[key] = data[key].trim();
   }
-  for (const key of ['funFacts', 'skills', 'typingLines'] as const) {
+  for (const key of [
+    'funFacts',
+    'skills',
+    'typingLines',
+    'focusAreas',
+    'workingStyle',
+    'currentGoals',
+  ] as const) {
+    const input = data[key] ?? [];
     if (
-      !Array.isArray(data[key]) ||
-      data[key].length > 35 ||
-      !data[key].every((item) => typeof item === 'string' && item.length <= 300)
+      !Array.isArray(input) ||
+      input.length > 35 ||
+      !input.every((item) => typeof item === 'string' && item.length <= 300)
     ) {
       throw new Error(
         `AI returned an invalid ${key} list. Your existing content is unchanged.`
@@ -122,7 +137,7 @@ export function validateAIContent(value: unknown): AIContent {
     }
     result[key] = [
       ...new Set(
-        (data[key] as string[]).map((item) => item.trim()).filter(Boolean)
+        (input as string[]).map((item) => item.trim()).filter(Boolean)
       ),
     ];
   }

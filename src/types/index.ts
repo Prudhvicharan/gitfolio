@@ -37,6 +37,7 @@ export type ThemeId =
   | 'nord'
   | 'catppuccin_mocha';
 export type HeaderStyle = 'wave' | 'venom' | 'slice' | 'cylinder' | 'shark';
+export type LayoutId = 'editorial' | 'studio' | 'aurora';
 
 export interface SocialLinks {
   linkedin?: string;
@@ -70,6 +71,9 @@ export interface AIContent {
   dreamProject: string;
   currentlyLearning: string;
   typingLines: string[];
+  focusAreas: string[];
+  workingStyle: string[];
+  currentGoals: string[];
 }
 
 export interface GeneratorConfig {
@@ -89,4 +93,5 @@ export interface GeneratorConfig {
   openToWork?: boolean;
   snakeReady?: boolean;
   disabledWidgetUrls?: string[];
+  layout?: LayoutId;
 }

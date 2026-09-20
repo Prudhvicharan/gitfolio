@@ -171,6 +171,31 @@ test('review content, centered animation, and native work snapshot reach the exp
   assert.doesNotMatch(md, /github-profile-summary-cards\.vercel\.app/);
 });
 
+test('visual directions generate genuinely different compositions', () => {
+  const content = {
+    ...EMPTY_CONTENT,
+    aboutMe: 'I build useful software.',
+    skills: ['TypeScript', 'Python'],
+    focusAreas: ['Developer tools', 'Accessible interfaces'],
+    workingStyle: ['Start with the user problem'],
+    currentGoals: ['Ship an open-source tool'],
+  };
+  const editorial = generateReadme({ ...config, layout: 'editorial', aiContent: content });
+  const aurora = generateReadme({ ...config, layout: 'aurora', aiContent: content });
+  assert.doesNotMatch(editorial, /const developer/);
+  assert.match(aurora, /const developer/);
+  assert.match(aurora, /Technology constellation/);
+  assert.notEqual(editorial, aurora);
+});
+
+test('content security policy permits every current remote image provider', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const policy = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8')).headers[0].headers[0].value;
+  assert.match(policy, /https:\/\/github-readme-stats\.vercel\.app/);
+  assert.match(policy, /https:\/\/img\.shields\.io/);
+  assert.doesNotMatch(policy, /eight-theta|activity-graph|summary-cards/);
+});
+
 test('widget checks include only distinct HTTPS image URLs and decode query separators', async () => {
   const { widgetUrls } = await import('../src/utils/checkWidgets.ts');
   assert.deepEqual(
