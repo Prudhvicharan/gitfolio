@@ -24,9 +24,12 @@ security headers; the development server intentionally serves the interactive de
 1. **Landing:** review the headline, example styles, AI prerequisite, FAQ, and privacy
    disclosure. Inspect the [desktop screenshot](./docs/review/home-desktop.png) and
    [mobile screenshot](./docs/review/home-mobile.png).
-2. **Demo:** explore the fictional sample without an account. Switch presets and
-   verify Editorial, Studio, and Aurora change the actual README composition. Aurora
-   must include its code-profile motif; Editorial must remain linear and text-led.
+2. **Demo:** explore the fictional sample without an account. Confirm it is clearly
+   labeled, starts with a complete fictional profile, and offers only safe visual
+   exploration. Credentials, repository editing, Markdown, copy/download, saving,
+   widget checks, publishing, and snake setup must not be available. Switch presets
+   and verify Editorial, Studio, and Aurora change the actual README composition.
+   Use **Exit demo** or **Build with my GitHub** to return to profile import.
 3. **Real profile:** import your username, choose repositories (including forks if
    desired), and inspect the sample-size and partial-error messages.
 4. **Content review:** choose either AI creation or guided manual writing. Confirm the
@@ -80,7 +83,7 @@ artifacts go to `/tmp/gitfolio-qa/artifacts`.
 
 ## Verified results
 
-- Production build, TypeScript, lint, and 17 regression tests pass.
+- Production build, TypeScript, lint, and 18 regression tests pass.
 - 15 end-to-end flows and 14 failure-path/keyboard/layout checks pass in Chromium.
 - Automated WCAG A/AA checks pass for the homepage at 320/375/768/1024/1440px, and
   for the profile/style/review/mobile-preview flows tested; no horizontal overflow.
@@ -115,8 +118,12 @@ artifacts go to `/tmp/gitfolio-qa/artifacts`.
 - Lighthouse numbers are local lab measurements, not field Core Web Vitals. Recheck
   the deployed build and security headers before promoting it.
 - Optional image providers and Google model availability remain external dependencies.
-- The deployed CSP must allow the current Shields and GitHub Stats hosts. A blocked
-  provider appears as an unsupported widget even when its URL works outside GitFolio.
+- The latest demo presentation needs a short manual desktop/mobile visual pass; the
+  in-app browser connection was unavailable for this final local review, and the
+  existing screenshots predate this demo-only refinement.
+- The deployed CSP must allow the current optional banner, typing, badge, skill-icon,
+  and streak providers. A blocked provider appears unavailable even when its URL works
+  outside GitFolio.
 - Public work and profile metrics now use native Markdown/HTML and must render without
   any image service. Use the widget check only for optional banners, icons, and cards.
 

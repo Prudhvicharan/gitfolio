@@ -221,3 +221,21 @@ Implementation completed in four logical commits; see REVIEW.md for the release 
   and direct repository links.
 - The README includes the snake only after the user confirms a successful workflow run
   and verifies both SVG files in the output branch.
+
+## Chunk 10 — curated demo and builder refinement
+
+- Turned demo mode into a clearly labeled, fictional showroom. It starts with a
+  complete profile, four project narratives, and a selected Aurora composition.
+- Removed misleading demo actions: no API-key UI, manual editing, repository changes,
+  draft persistence, raw Markdown, copy/download, publishing guide, widget checks, or
+  workflow setup. Layout, section, header, and palette controls remain interactive so
+  visitors can safely compare the visual system.
+- Added a dedicated read-only Review step that explains what is prefilled and routes
+  directly to Style or real GitHub import. Demo links and failed-image controls are
+  inert, and the header now says **Exit demo** instead of **Reset all**.
+- Refined the builder with restrained ambient depth, a clearer active-step treatment,
+  a focused section rail, stronger preview framing, and dedicated demo cards and
+  notices. Existing typography and violet/cyan identity remain intact.
+- Verification: 18 regression tests, lint, TypeScript, client/SSR builds, and landing
+  prerender pass. The final demo-only visual pass remains a manual review item because
+  the in-app browser connection was unavailable in this environment.
