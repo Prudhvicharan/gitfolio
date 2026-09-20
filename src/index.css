@@ -622,6 +622,20 @@ textarea {
 .demo-banner span {
   display: block;
 }
+.demo-profile-note {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-color: #3d5363;
+  background: linear-gradient(135deg, #102028, #151520);
+}
+.demo-profile-note strong {
+  color: #eefbff;
+  font-size: 12px;
+}
+.demo-profile-note span {
+  color: #aab7c8;
+}
 .demo-banner strong {
   margin-bottom: 4px;
   font-size: 12px;

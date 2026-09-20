@@ -53,6 +53,8 @@ interface Props {
   step: number;
   onStep: (step: number) => void;
   onHome: () => void;
+  onStartDemo: () => void;
+  onExitDemo: () => void;
   startDemo: boolean;
   active: boolean;
 }
@@ -60,6 +62,8 @@ export default function Wizard({
   step,
   onStep,
   onHome,
+  onStartDemo,
+  onExitDemo,
   startDemo,
   active,
 }: Props) {
@@ -124,13 +128,6 @@ export default function Wizard({
     return () => window.removeEventListener('beforeunload', warn);
   }, [pending]);
   const go = (next: number) => {
-    if (isDemo && next === 1) {
-      setConfig(initialConfig());
-      setRepos([]);
-      setUsername('');
-      setPending(false);
-      setStatus('Demo closed. Import your GitHub profile to begin.');
-    }
     if (pending && next !== 3) {
       setError('Apply or discard your content edits before leaving Review.');
       return;
@@ -223,7 +220,7 @@ export default function Wizard({
     setWarning(null);
     setPending(false);
     setStatus('Exploring a fictional sample. No account or API key needed.');
-    onStep(2);
+    onStartDemo();
   };
   const generate = async (key: string): Promise<AIContent | null> => {
     if (!config.userData) return null;
@@ -339,7 +336,7 @@ export default function Wizard({
         <div className="header-actions">
           <button
             className="text-button"
-            onClick={() => (isDemo ? go(1) : reset())}
+            onClick={() => (isDemo ? onExitDemo() : reset())}
           >
             {isDemo ? (
               <>
@@ -416,6 +413,8 @@ export default function Wizard({
                 onCancel={() => {
                   githubRequest.current?.abort();
                 }}
+                demo={isDemo}
+                onExitDemo={onExitDemo}
               />
             </div>
             {config.userData && (
@@ -447,7 +446,7 @@ export default function Wizard({
                     active={active && step === 3}
                     onPending={setPending}
                     demo={isDemo}
-                    onUseOwnProfile={() => go(1)}
+                    onUseOwnProfile={onExitDemo}
                   />
                 </div>
               </>
