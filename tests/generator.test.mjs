@@ -188,12 +188,33 @@ test('visual directions generate genuinely different compositions', () => {
   assert.notEqual(editorial, aurora);
 });
 
-test('content security policy permits every current remote image provider', async () => {
+test('content security policy permits current providers and excludes unreliable stats hosts', async () => {
   const { readFile } = await import('node:fs/promises');
   const policy = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8')).headers[0].headers[0].value;
-  assert.match(policy, /https:\/\/github-readme-stats\.vercel\.app/);
   assert.match(policy, /https:\/\/img\.shields\.io/);
-  assert.doesNotMatch(policy, /eight-theta|activity-graph|summary-cards/);
+  assert.doesNotMatch(policy, /github-readme-stats|eight-theta|activity-graph|summary-cards/);
+});
+
+test('statistics and language mix render without remote image services', () => {
+  const repo = {
+    id: 1,
+    name: 'native-profile',
+    description: 'A profile project',
+    language: 'TypeScript',
+    stargazers_count: 3,
+    forks_count: 2,
+    fork: false,
+    topics: ['accessibility', 'developer-tools'],
+  };
+  const md = generateReadme({
+    ...config,
+    repos: [repo],
+    sections: { ...config.sections, stats: true, languages: true, streak: false },
+  });
+  assert.match(md, /Engineering footprint/);
+  assert.match(md, /Language mix/);
+  assert.match(md, /TypeScript/);
+  assert.doesNotMatch(md, /github-readme-stats/);
 });
 
 test('widget checks include only distinct HTTPS image URLs and decode query separators', async () => {

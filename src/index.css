@@ -786,6 +786,17 @@ textarea {
   font-size: 11px;
   margin: 4px 0 0;
 }
+.project-story-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #343747;
+  border-radius: 11px;
+  background: #0d0e14;
+}
+.project-story-fields > strong { font-size: 13px; }
+.project-story-fields > .help { margin: -8px 0 2px; }
 .ai-workspace-heading {
   display: flex;
   gap: 12px;

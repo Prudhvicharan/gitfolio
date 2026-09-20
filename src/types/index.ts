@@ -74,6 +74,8 @@ export interface AIContent {
   focusAreas: string[];
   workingStyle: string[];
   currentGoals: string[];
+  projectStories: string[];
+  collaborationPitch: string;
 }
 
 export interface GeneratorConfig {

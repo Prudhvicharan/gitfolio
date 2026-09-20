@@ -103,12 +103,12 @@ const SECTION_GROUPS: {
   {
     title: 'Proof',
     description: 'Show useful evidence without relying on a fragile activity image.',
-    keys: ['trophies', 'activityGraph', 'topRepos'],
+    keys: ['trophies', 'stats', 'languages', 'activityGraph', 'topRepos'],
   },
   {
     title: 'Live widgets',
     description: 'Optional third-party cards. Availability can vary.',
-    keys: ['stats', 'streak', 'languages', 'snake'],
+    keys: ['streak', 'snake'],
   },
 ];
 
@@ -261,33 +261,29 @@ export default function Step2({
           ))}
         </div>
       </fieldset>
-      {(config.sections.header ||
-        config.sections.stats ||
-        config.sections.streak ||
-        config.sections.languages) && (
+      {(config.sections.header || config.sections.streak) && (
         <details className="disclosure" open>
           <summary><Sparkles size={16} /> Refine the visual system <span>optional</span></summary>
           <div className="form-stack">
-            <fieldset>
-              <legend>Live card palette</legend>
-              <div className="theme-options">
-                {THEMES.map((t) => (
-                  <button
-                    className="theme-choice"
-                    key={t.id}
-                    aria-pressed={config.theme === t.id}
-                    onClick={() => onChange({ theme: t.id })}
-                  >
-                    <span
-                      className="swatch"
-                      style={{ background: t.colors[0] }}
-                    />
-                    {t.label}
-                    {config.theme === t.id && <Check size={14} />}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
+            {config.sections.streak && (
+              <fieldset>
+                <legend>Contribution card palette</legend>
+                <div className="theme-options">
+                  {THEMES.map((t) => (
+                    <button
+                      className="theme-choice"
+                      key={t.id}
+                      aria-pressed={config.theme === t.id}
+                      onClick={() => onChange({ theme: t.id })}
+                    >
+                      <span className="swatch" style={{ background: t.colors[0] }} />
+                      {t.label}
+                      {config.theme === t.id && <Check size={14} />}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
             {config.sections.header && (
               <>
                 <fieldset>

@@ -163,15 +163,30 @@ export const generateReadme = (config: GeneratorConfig): string => {
       `${title('At a glance', '◆')}\n\n<table><tr><td align="center"><strong>${user.public_repos}</strong><br/><sub>PUBLIC REPOSITORIES</sub></td><td align="center"><strong>${user.followers}</strong><br/><sub>FOLLOWERS</sub></td><td align="center"><strong>${stars}</strong><br/><sub>SELECTED REPO STARS</sub></td><td align="center"><strong>${forks}</strong><br/><sub>SELECTED REPO FORKS</sub></td></tr></table>`
     );
   }
+  if (sections.stats) {
+    const originals = repos.filter((repo) => !repo.fork).length;
+    const topics = [...new Set(repos.flatMap((repo) => repo.topics || []))].slice(0, 8);
+    add(`${title('Engineering footprint', '▦')}\n\n<table><tr><td align="center"><strong>${originals}</strong><br/><sub>ORIGINAL BUILDS</sub></td><td align="center"><strong>${repos.reduce((sum, repo) => sum + (repo.forks_count || 0), 0)}</strong><br/><sub>REPOSITORY FORKS</sub></td><td align="center"><strong>${extractLanguages(repos).length}</strong><br/><sub>PRIMARY LANGUAGES</sub></td><td align="center"><strong>${topics.length}</strong><br/><sub>PROJECT TOPICS</sub></td></tr></table>${topics.length ? `\n\n<sub>FOCUS SIGNALS</sub>\n\n${topics.map(text).join(' · ')}` : ''}`);
+  }
+  if (sections.languages && repos.length) {
+    const counts = new Map<string, number>();
+    repos.forEach((repo) => {
+      if (repo.language)
+        counts.set(repo.language, (counts.get(repo.language) || 0) + 1);
+    });
+    const total = [...counts.values()].reduce((sum, count) => sum + count, 0);
+    const rows = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([language, count]) => {
+        const percentage = Math.round((count / total) * 100);
+        const filled = Math.max(1, Math.round(percentage / 10));
+        return `<tr><td><strong>${htmlAttribute(language)}</strong></td><td><code>${'█'.repeat(filled)}${'░'.repeat(10 - filled)}</code></td><td align="right">${percentage}%</td></tr>`;
+      });
+    if (rows.length)
+      add(`${title('Language mix', '◒')}\n\n<table>${rows.join('')}</table>`);
+  }
   const stats: string[] = [];
-  if (sections.stats)
-    stats.push(
-      image(
-        EXTRA_WIDGETS.stats(user.login, theme),
-        'GitHub statistics',
-        'height="180"'
-      )
-    );
   if (sections.streak)
     stats.push(
       image(
@@ -180,16 +195,8 @@ export const generateReadme = (config: GeneratorConfig): string => {
         'height="180"'
       )
     );
-  if (sections.languages)
-    stats.push(
-      image(
-        EXTRA_WIDGETS.topLangs(user.login, theme),
-        'Repository language statistics',
-        'height="165"'
-      )
-    );
   if (stats.some(Boolean))
-    add(`${title('GitHub analytics', '◫')}\n\n${stats.filter(Boolean).join('\n')}`);
+    add(`${title('Contribution streak', '◫')}\n\n${stats.filter(Boolean).join('\n')}`);
   if (sections.activityGraph) {
     const languages = extractLanguages(repos).slice(0, 5);
     const originals = repos.filter((repo) => !repo.fork).length;
@@ -202,15 +209,18 @@ export const generateReadme = (config: GeneratorConfig): string => {
   }
   if (sections.topRepos && repos.length) {
     if (layout === 'editorial') {
-      add(`${title('Selected work', '◆')}\n\n${repos.map((repo) => {
+      add(`${title('Selected work', '◆')}\n\n${repos.map((repo, index) => {
         const url = `https://github.com/${encodeURIComponent(user.login)}/${encodeURIComponent(repo.name)}`;
-        return `### [${text(repo.name)}](${url})\n\n${text(repo.description || 'Explore the repository and its source code.')}\n\n<sub>${text([repo.language, `${repo.stargazers_count} ★`].filter(Boolean).join(' · '))}</sub>`;
+        const story = content?.projectStories[index] || repo.description || 'Explore the repository and its source code.';
+        return `### [${text(repo.name)}](${url})\n\n${text(story)}\n\n<sub>${text([repo.language, `${repo.stargazers_count} ★`].filter(Boolean).join(' · '))}</sub>`;
       }).join('\n\n---\n\n')}`);
     } else {
-      const cells = repos.map((repo) => {
+      const cells = repos.map((repo, index) => {
       const url = `https://github.com/${encodeURIComponent(user.login)}/${encodeURIComponent(repo.name)}`;
       const meta = [repo.language, `${repo.stargazers_count} ★`, repo.fork ? 'Fork' : null].filter(Boolean).join(' · ');
-      return `<td width="50%" valign="top"><h3><a href="${htmlAttribute(url)}">${htmlAttribute(repo.name)}</a></h3><p>${htmlAttribute(repo.description || 'Explore the repository and its source code.')}</p><sub>${htmlAttribute(meta)}</sub></td>`;
+      const story = content?.projectStories[index] || repo.description || 'Explore the repository and its source code.';
+      const topics = (repo.topics || []).slice(0, 3).join(' · ');
+      return `<td width="50%" valign="top"><h3><a href="${htmlAttribute(url)}">${htmlAttribute(repo.name)}</a></h3><p>${htmlAttribute(story)}</p>${topics ? `<p><sub>${htmlAttribute(topics)}</sub></p>` : ''}<sub>${htmlAttribute(meta)}</sub></td>`;
       });
       const rows: string[] = [];
       for (let index = 0; index < cells.length; index += 2)
@@ -227,7 +237,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
     if (snake) add(`## Contribution snake\n\n${snake}`);
   }
   if (layout !== 'editorial' && parts.length) {
-    add(`<div align="center">\n<br/>\n<strong>${text(content?.quote || 'Thanks for visiting — let’s build something meaningful.')}</strong>\n<br/><br/>\n<a href="https://github.com/${encodeURIComponent(user.login)}">Explore my work on GitHub →</a>\n</div>`);
+    add(`<div align="center">\n<br/>\n<strong>${text(content?.collaborationPitch || content?.quote || 'Thanks for visiting — let’s build something meaningful.')}</strong>\n<br/><br/>\n<a href="https://github.com/${encodeURIComponent(user.login)}">Explore my work on GitHub →</a>\n</div>`);
   }
   return parts.length ? `${parts.join('\n\n')}\n` : '';
 };

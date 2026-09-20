@@ -150,13 +150,6 @@ export type AboutStyle =
   | 'markdown-table'    // Clean table layout
   | 'inline-prose';     // Prose with GIF beside
 
-// ─── STATS CARD THEMES (github-readme-stats) ────────────────
-export const STATS_THEMES = [
-  'radical', 'tokyonight', 'dracula', 'github_dark',
-  'onedark', 'nord', 'catppuccin_mocha', 'nightowl',
-  'aura', 'synthwave', 'merko', 'gruvbox_light',
-];
-
 // ─── DIVIDER STYLES ─────────────────────────────────────────
 export const DIVIDERS = {
   wave:     'https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png',
@@ -266,12 +259,6 @@ export const FOOTER_QUOTES = [
 // - streak-stats.demolab.com: WORKING ✓
 // - skillicons.dev: WORKING ✓
 export const EXTRA_WIDGETS = {
-  stats: (username: string, theme: string) =>
-    `https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true&theme=${theme}&hide_border=true&bg_color=00000000&include_all_commits=true&rank_icon=github`,
-  topLangs: (username: string, theme: string) =>
-    `https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=${theme}&hide_border=true&bg_color=00000000&langs_count=8&card_width=380`,
-  repoCard: (username: string, repo: string, theme: string) =>
-    `https://github-readme-stats-eight-theta.vercel.app/api/pin/?username=${username}&repo=${repo}&theme=${theme}&hide_border=true&bg_color=0D1117&title_color=6366f1&icon_color=a855f7`,
   streak: (username: string, theme: string) =>
     `https://streak-stats.demolab.com?user=${username}&theme=${theme}&hide_border=true&background=0D1117&stroke=6366f1&ring=a855f7&fire=22d3ee`,
   // Trophy service is down — use a link to the profile trophy page instead

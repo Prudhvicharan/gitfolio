@@ -8,9 +8,9 @@ export const SECTION_LABELS: Record<keyof SectionToggles, string> = {
   skillIcons: 'Skill icons',
   funFacts: 'Personal notes',
   trophies: 'Profile facts',
-  stats: 'GitHub stats',
-  streak: 'Streak stats',
-  languages: 'Language card',
+  stats: 'Engineering footprint',
+  streak: 'Contribution streak',
+  languages: 'Language mix',
   activityGraph: 'Public work snapshot',
   topRepos: 'Selected projects',
   snake: 'Contribution snake',
@@ -59,6 +59,8 @@ export const EMPTY_CONTENT: AIContent = {
   focusAreas: [],
   workingStyle: [],
   currentGoals: [],
+  projectStories: [],
+  collaborationPitch: '',
 };
 
 export function safeUrl(value: string | null | undefined): string | null {
@@ -110,6 +112,7 @@ export function validateAIContent(value: unknown): AIContent {
     'quote',
     'dreamProject',
     'currentlyLearning',
+    'collaborationPitch',
   ] as const) {
     if (typeof data[key] !== 'string' || data[key].length > 4000)
       throw new Error(
@@ -124,6 +127,7 @@ export function validateAIContent(value: unknown): AIContent {
     'focusAreas',
     'workingStyle',
     'currentGoals',
+    'projectStories',
   ] as const) {
     const input = data[key] ?? [];
     if (
@@ -148,9 +152,6 @@ export function widgetSection(url: string): keyof SectionToggles | null {
   if (url.includes('capsule-render.vercel.app/')) return 'header';
   if (url.includes('readme-typing-svg.demolab.com')) return 'typing';
   if (url.includes('skillicons.dev/')) return 'skillIcons';
-  if (url.includes('/api/top-langs/')) return 'languages';
-  if (url.includes('github-readme-stats.vercel.app/api?'))
-    return 'stats';
   if (url.includes('streak-stats.demolab.com')) return 'streak';
   if (url.includes('github-snake')) return 'snake';
   return null;

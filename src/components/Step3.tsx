@@ -158,6 +158,21 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
               <div className="field"><label htmlFor="focus-areas">What I build <span>one focus area per line</span></label><textarea id="focus-areas" rows={3} maxLength={1200} placeholder={'Accessible product interfaces\nDeveloper tools and automation\nData-informed web applications'} value={draft.focusAreas.join('\n')} onChange={(event) => update({ focusAreas: event.target.value.split('\n') }, 'aboutCode')} /></div>
               <div className="field"><label htmlFor="working-style">How I work <span>one principle per line</span></label><textarea id="working-style" rows={3} maxLength={1200} placeholder={'Start with the user problem\nKeep systems understandable\nTest the behavior that matters'} value={draft.workingStyle.join('\n')} onChange={(event) => update({ workingStyle: event.target.value.split('\n') }, 'funFacts')} /></div>
               <div className="field"><label htmlFor="current-goals">Current goals <span>one goal per line</span></label><textarea id="current-goals" rows={3} maxLength={1200} placeholder={'Ship a meaningful open-source tool\nContribute to accessibility projects'} value={draft.currentGoals.join('\n')} onChange={(event) => update({ currentGoals: event.target.value.split('\n') }, 'funFacts')} /></div>
+              <div className="project-story-fields">
+                <strong>Project stories</strong>
+                <p className="help">Give each featured repository a useful one-sentence story.</p>
+                {config.repos.map((repo, index) => (
+                  <div className="field" key={repo.id}>
+                    <label htmlFor={`project-story-${repo.id}`}>{repo.name}</label>
+                    <textarea id={`project-story-${repo.id}`} rows={2} maxLength={500} placeholder={repo.description || `What problem does ${repo.name} explore, and what makes it interesting?`} value={draft.projectStories[index] || ''} onChange={(event) => {
+                      const projectStories = [...draft.projectStories];
+                      projectStories[index] = event.target.value;
+                      update({ projectStories });
+                    }} />
+                  </div>
+                ))}
+              </div>
+              <div className="field"><label htmlFor="collaboration-pitch">Closing invitation <span>end with a reason to connect</span></label><input id="collaboration-pitch" maxLength={300} placeholder="Have an ambitious idea? Let’s turn it into something useful." value={draft.collaborationPitch} onChange={(event) => update({ collaborationPitch: event.target.value })} /></div>
             </div>
           </details>
 
