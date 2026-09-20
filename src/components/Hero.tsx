@@ -5,9 +5,12 @@ import {
   Code,
   Eye,
   FileText,
+  GitBranch,
   LockKeyhole,
+  Palette,
   SlidersHorizontal,
   Sparkles,
+  WandSparkles,
 } from 'lucide-react';
 interface Props {
   onStart: () => void;
@@ -51,8 +54,39 @@ export default function Hero({ onStart, onDemo }: Props) {
     items.forEach((item) => observer.observe(item));
     return () => observer.disconnect();
   }, []);
+  useEffect(() => {
+    const root = landingRef.current;
+    if (
+      !root ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      window.matchMedia('(pointer: coarse)').matches
+    )
+      return;
+    let frame = 0;
+    const move = (event: PointerEvent) => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        root.style.setProperty('--pointer-x', `${event.clientX}px`);
+        root.style.setProperty('--pointer-y', `${event.clientY}px`);
+        root.style.setProperty(
+          '--pointer-rotate-y',
+          `${(event.clientX / window.innerWidth - 0.5) * 2.5}deg`
+        );
+        root.style.setProperty(
+          '--pointer-rotate-x',
+          `${(event.clientY / window.innerHeight - 0.5) * -2}deg`
+        );
+      });
+    };
+    window.addEventListener('pointermove', move, { passive: true });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('pointermove', move);
+    };
+  }, []);
   return (
     <div className="landing" ref={landingRef}>
+      <div className="landing-light" aria-hidden="true" />
       <header className="site-nav">
         <a className="brand" href="#" aria-label="GitFolio home">
           <img
@@ -109,6 +143,19 @@ export default function Hero({ onStart, onDemo }: Props) {
             </p>
           </div>
           <div className="hero-demo">
+            <div className="hero-orbit" aria-hidden="true">
+              <span className="orbit-ring orbit-ring-one" />
+              <span className="orbit-ring orbit-ring-two" />
+              <span className="orbit-node orbit-node-one" />
+              <span className="orbit-node orbit-node-two" />
+              <span className="orbit-node orbit-node-three" />
+            </div>
+            <div className="floating-signal signal-import" aria-hidden="true">
+              <GitBranch size={13} /> Public work
+            </div>
+            <div className="floating-signal signal-compose" aria-hidden="true">
+              <WandSparkles size={13} /> Story composed
+            </div>
             <div className="demo-mode-row" aria-label="Sample README style">
               <button
                 aria-pressed={sampleStyle === 'balanced'}
@@ -128,7 +175,8 @@ export default function Hero({ onStart, onDemo }: Props) {
                 <span className="demo-dot" />
                 <span className="demo-dot" />
                 <span className="demo-dot" />
-                <span>alex / README.md</span>
+                <span className="demo-file">alex / README.md</span>
+                <span className="demo-live"><i /> LIVE</span>
               </div>
               <div className="demo-content" key={sampleStyle}>
                 <div className="demo-heading">
@@ -175,6 +223,18 @@ export default function Hero({ onStart, onDemo }: Props) {
             </p>
           </div>
         </section>
+        <div className="signal-rail" aria-hidden="true">
+          <div className="signal-track">
+            {[0, 1].map((copy) => (
+              <div className="signal-sequence" key={copy}>
+                <span><GitBranch size={13} /> PUBLIC REPOSITORIES</span><i>→</i>
+                <span><WandSparkles size={13} /> AI NARRATIVE</span><i>→</i>
+                <span><Palette size={13} /> VISUAL DIRECTION</span><i>→</i>
+                <span><FileText size={13} /> README.MD</span><b>✦</b>
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="proof-strip">
           <div className="proof-item">
             <SlidersHorizontal size={20} />
@@ -211,6 +271,9 @@ export default function Hero({ onStart, onDemo }: Props) {
           </p>
           <div className="how-grid">
             <article className="how-card">
+              <div className="how-graphic how-graphic-import" aria-hidden="true">
+                <span /><span /><span />
+              </div>
               <span className="how-number">01 / IMPORT</span>
               <h3>Bring your work.</h3>
               <p>
@@ -219,6 +282,9 @@ export default function Hero({ onStart, onDemo }: Props) {
               </p>
             </article>
             <article className="how-card">
+              <div className="how-graphic how-graphic-style" aria-hidden="true">
+                <span /><span /><span />
+              </div>
               <span className="how-number">02 / CUSTOMIZE</span>
               <h3>Find your expression.</h3>
               <p>
@@ -227,12 +293,48 @@ export default function Hero({ onStart, onDemo }: Props) {
               </p>
             </article>
             <article className="how-card">
+              <div className="how-graphic how-graphic-export" aria-hidden="true">
+                <span /><span /><i />
+              </div>
               <span className="how-number">03 / MAKE IT YOURS</span>
               <h3>Review. Export. Introduce yourself.</h3>
               <p>
                 Write your bio or ask AI for a draft. Review every claim, then
                 copy your Markdown and follow the publishing checklist.
               </p>
+            </article>
+          </div>
+        </section>
+        <section className="landing-section direction-showcase" aria-labelledby="directions-title">
+          <div className="direction-copy">
+            <span className="eyebrow">ONE STORY · THREE SIGNATURES</span>
+            <h2 id="directions-title">Taste you can see before you publish.</h2>
+            <p className="section-subtitle">
+              Every direction reshapes the same work with a distinct rhythm,
+              hierarchy, and first impression.
+            </p>
+          </div>
+          <div className="direction-stage" aria-label="Editorial, Studio, and Aurora README previews">
+            <article className="direction-sheet direction-editorial">
+              <span className="sheet-kicker">EDITORIAL</span>
+              <strong>Alex Morgan</strong>
+              <p>Product engineer building calm tools.</p>
+              <div className="sheet-rule" />
+              <small>SELECTED WORK · 04</small>
+            </article>
+            <article className="direction-sheet direction-studio">
+              <span className="sheet-kicker">STUDIO</span>
+              <strong>Alex Morgan</strong>
+              <p>Ideas shaped into useful products.</p>
+              <div className="sheet-metrics"><i>12</i><i>48</i><i>06</i></div>
+              <small>DESIGN · CODE · SYSTEMS</small>
+            </article>
+            <article className="direction-sheet direction-aurora">
+              <span className="sheet-kicker">AURORA</span>
+              <strong>Alex Morgan</strong>
+              <p>Building what should exist next.</p>
+              <div className="sheet-wave" />
+              <small>MOTION · STORY · SIGNAL</small>
             </article>
           </div>
         </section>
