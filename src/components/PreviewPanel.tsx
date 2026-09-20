@@ -107,6 +107,7 @@ export default function PreviewPanel({
         <div className="export-toolbar">
           <button
             className="btn-secondary"
+            data-success={status === 'Markdown copied.' || undefined}
             disabled={!markdown || pending}
             onClick={copy}
           >

@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Check,
   Code,
+  Eye,
   FileText,
   LockKeyhole,
   SlidersHorizontal,
@@ -63,7 +64,7 @@ export default function Hero({ onStart, onDemo }: Props) {
                 Generate my profile <ArrowRight size={17} />
               </button>
               <button className="btn-secondary" onClick={onDemo}>
-                Explore a demo <EyeIcon />
+                Explore a demo <Eye size={17} />
               </button>
             </div>
             <p className="hero-fine">
@@ -95,7 +96,7 @@ export default function Hero({ onStart, onDemo }: Props) {
                 <span className="demo-dot" />
                 <span>alex / README.md</span>
               </div>
-              <div className="demo-content">
+              <div className="demo-content" key={sampleStyle}>
                 <div className="demo-heading">
                   <div className="demo-avatar" aria-hidden="true">
                     am
@@ -372,21 +373,5 @@ export default function Hero({ onStart, onDemo }: Props) {
         </div>
       </footer>
     </div>
-  );
-}
-function EyeIcon() {
-  return (
-    <svg
-      width="17"
-      height="17"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      aria-hidden="true"
-    >
-      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
   );
 }

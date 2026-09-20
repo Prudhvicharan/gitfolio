@@ -47,6 +47,9 @@
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-in: cubic-bezier(.4, 0, 1, 1);
   --ease-standard: cubic-bezier(.2, 0, 0, 1);
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-panel: 16px;
 }
 * {
   box-sizing: border-box;
@@ -84,11 +87,13 @@ a:hover {
 }
 button:focus-visible,
 a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
 summary:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 4px;
+}
+input[type='checkbox']:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
 }
 h1:focus,
 h2:focus {
@@ -399,6 +404,7 @@ textarea {
 }
 .field input:focus,
 .field textarea:focus {
+  outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-tint);
 }
@@ -542,6 +548,22 @@ textarea {
   gap: 12px;
   padding: 0;
   margin: 0;
+}
+.steps li {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.steps li:not(:last-child)::after {
+  content: '';
+  width: 12px;
+  height: 1px;
+  margin-left: 6px;
+  background: var(--line-strong);
+  transition: background-color 180ms var(--ease-standard);
+}
+.steps li[data-complete='true']::after {
+  background: #665db0;
 }
 .steps button {
   display: flex;
@@ -906,8 +928,8 @@ textarea {
 }
 .section-group {
   border: 1px solid var(--line);
-  background: #111219;
-  border-radius: 11px;
+  background: var(--surface);
+  border-radius: var(--radius-card);
   padding: 13px 14px 8px;
 }
 .section-group-heading {
@@ -952,9 +974,9 @@ textarea {
   gap: 7px;
   padding: 10px 12px;
   min-height: 44px;
-  background: #171923;
-  border: 1px solid #414455;
-  border-radius: 9px;
+  background: var(--surface-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
   color: #c8d0e0;
   font-size: 12px;
 }
@@ -965,23 +987,23 @@ textarea {
   display: inline-block;
 }
 .review-box {
-  background: #191b2a;
-  border: 1px solid #63577b;
-  border-radius: 12px;
+  background: var(--surface-raised);
+  border: 1px solid #4d4865;
+  border-radius: var(--radius-card);
   padding: 15px;
 }
 .review-box .btn-primary {
   margin-top: 10px;
 }
 .ai-disclosure {
-  border-color: #534171;
-  background: linear-gradient(120deg, #1c1729, #11131b);
+  border-color: #49455f;
+  background: var(--surface);
 }
 .ai-workspace {
-  border: 1px solid #7053a3;
-  border-radius: 14px;
+  border: 1px solid #57506f;
+  border-radius: var(--radius-card);
   padding: 18px;
-  background: linear-gradient(135deg, #20172f, #11131b 68%);
+  background: var(--surface-raised);
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.04);
 }
 .creation-paths {
@@ -998,18 +1020,18 @@ textarea {
   padding: 20px;
   text-align: left;
   color: #eef2ff;
-  background: linear-gradient(155deg, #171821, #101117);
-  border: 1px solid #414455;
-  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
 }
 .creation-path:first-child {
-  border-color: #7152a3;
-  background: linear-gradient(155deg, #231932, #11131b 75%);
+  border-color: #57506f;
+  background: #15141b;
 }
 .creation-path:hover {
-  border-color: #a78bfa;
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px #0005;
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 18px 38px #00000045;
 }
 .creation-path svg { color: #b99af8; }
 .creation-path strong { font-size: 16px; }
@@ -1174,6 +1196,20 @@ textarea {
   align-items: center;
   flex-wrap: wrap;
   padding: 12px 18px 0;
+}
+.export-toolbar .btn-secondary {
+  background: transparent;
+}
+.export-toolbar .btn-secondary:hover {
+  background: var(--surface-hover);
+}
+.export-toolbar .btn-secondary[data-success='true'] svg {
+  color: var(--success);
+  animation: confirm-icon 180ms var(--ease-out) both;
+}
+@keyframes confirm-icon {
+  from { opacity: 0; transform: scale(.7); }
+  to { opacity: 1; transform: scale(1); }
 }
 .export-toolbar .icon-button {
   margin-left: auto;
@@ -1397,11 +1433,11 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 15px;
+  padding: 12px 13px;
   margin: 12px 0;
-  border: 1px solid #8e6a36;
-  background: #272016;
-  border-radius: 9px;
+  border: 1px solid #6f5732;
+  background: #1d1912;
+  border-radius: var(--radius-control);
   color: #f4dcad;
   font-size: 12px;
 }
@@ -1590,6 +1626,11 @@ textarea {
 }
 .demo-content {
   padding: 26px;
+  animation: demo-content-enter 180ms var(--ease-out) both;
+}
+@keyframes demo-content-enter {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .demo-heading {
   display: flex;
