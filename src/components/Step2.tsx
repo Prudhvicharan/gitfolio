@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, Check, Sparkles, WandSparkles } from 'lucide-react';
+import type { CSSProperties } from 'react';
 import type {
   GithubRepo,
   HeaderStyle,
@@ -191,7 +192,18 @@ export default function Step2({
                 });
               }}
             >
-              <span className="signature-preview" style={{ background: `linear-gradient(135deg, ${STYLE_PRESETS[name].accent.join(', ')})` }} />
+              <span
+                className={`signature-preview signature-preview-${name}`}
+                style={{ '--signature-accent': STYLE_PRESETS[name].accent[0], '--signature-accent-soft': STYLE_PRESETS[name].accent[1] } as CSSProperties}
+                aria-hidden="true"
+              >
+                <span className="signature-preview-header" />
+                <span className="signature-preview-title" />
+                <span className="signature-preview-copy" />
+                <span className="signature-preview-detail">
+                  <i /><i /><i />
+                </span>
+              </span>
               <span className="signature-eyebrow">{STYLE_PRESETS[name].eyebrow}</span>
               <strong>{STYLE_PRESETS[name].name}</strong>
               <span>{STYLE_PRESETS[name].description}</span>
