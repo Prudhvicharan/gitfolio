@@ -1,91 +1,138 @@
-# GitFolio
+<div align="center">
+  <a href="https://gitfolio-eight.vercel.app/">
+    <img src="public/social-preview.png" alt="GitFolio — Your GitHub Profile, Reimagined" width="100%" />
+  </a>
 
-A free, browser-based GitHub profile README builder. Import public repositories,
-choose a style, review your content, and export Markdown. Optional Gemini assistance
-creates a draft for your approval; no GitFolio account is required.
+  <br />
 
-**Live site:** https://gitfolio-eight.vercel.app/
+  **Turn public GitHub work into a profile README that feels intentional.**
 
-## What it does
+  Import your repositories, shape the story, and export polished Markdown.
+  No GitFolio account. AI is optional.
 
-- Imports up to 500 recently updated public repositories and discloses partial data.
-- Lets you select up to 8 projects, including forks.
-- Offers Minimal, Balanced, and Animated presets, 7 stats themes, and 5 header shapes.
-- Supports editable biographies, skills, personal notes, social links, and explicit
-  opt-in “Open to work” status. It does not invent achievement badges or default skills.
-- Previews sanitized Markdown with clear widget failures and removal controls.
-- Copies or downloads `README.md`, with a GitHub publishing checklist.
-- Supplies an optional `snake.yml` workflow; the snake is exported only after setup.
-- Saves drafts on the current device only when you opt in. API keys are never saved.
+  [Open GitFolio](https://gitfolio-eight.vercel.app/) · [Explore the code](https://github.com/Prudhvicharan/gitfolio) · [Report an issue](https://github.com/Prudhvicharan/gitfolio/issues)
+</div>
 
-## Privacy and optional AI
+## From repositories to a profile worth reading
 
-The builder calls GitHub directly for public data. If you choose **Enhance with AI**,
-it sends your entered key, name, bio, focus, and selected repository metadata directly
-to Google. The key stays in tab memory and is cleared when you leave the Review step;
-it is not sent to a GitFolio application server. Legacy stored keys are deleted when
-the builder opens. Draft storage includes profile content and any contact links you
-enter, never API keys. Turn draft saving off or reset the builder to delete it.
+GitFolio turns scattered public profile data into a clear developer narrative.
+It keeps the fast parts automatic while leaving every published word under your
+control.
 
-Get a key from [Google AI Studio](https://aistudio.google.com/app/apikey). The current
-integration uses `gemini-2.5-flash`; Google project access, quotas, billing, and
-[data-use terms](https://ai.google.dev/gemini-api/docs/pricing) apply. There is no fixed
-free-request guarantee. AI output remains a draft until you review and apply it.
+1. **Import** a public GitHub profile and choose up to eight repositories.
+2. **Create** the story manually or ask Gemini for a complete first draft.
+3. **Style, review, and export** a ready-to-publish `README.md`.
 
-Optional widgets make requests to their image providers. The default Balanced preset
-uses text only; enable external widgets deliberately. Availability is not guaranteed.
-GitFolio adds no analytics or advertising trackers. Hosting providers may retain
-standard request logs.
+## Designed around the final README
 
-## Local development
+| | Experience |
+|---|---|
+| **Three real directions** | Editorial is restrained and text-led. Studio balances story and proof. Aurora adds motion and a more expressive composition. |
+| **Story before decoration** | Project narratives, focus areas, working principles, goals, skills, and personality form one coherent profile. |
+| **Reliable proof** | Repository metrics, language mix, topics, and featured work render from imported data instead of fragile statistics services. |
+| **Optional AI** | Gemini reduces typing, then returns the result to an editable review step. Nothing is published automatically. |
+| **Safe exploration** | A fictional, read-only demo shows the complete experience without credentials, exports, or misleading setup actions. |
 
-Requires Node **22.18+** (or a newer supported release).
+### What the builder includes
 
-```sh
+- Live sanitized Markdown preview and raw Markdown review.
+- Native profile facts, engineering footprint, language mix, and project cards.
+- Curated headers, palettes, skill icons, typing lines, social links, and personal notes.
+- Automatic refresh recovery plus optional longer-term device saving.
+- Copy and download actions with a concise GitHub publishing guide.
+- An opt-in contribution snake with a portable GitHub Actions workflow and setup checklist.
+- Clear failure states for GitHub imports, AI requests, storage, and optional image providers.
+
+## Run locally
+
+Requires Node.js **22.18 or newer**.
+
+```bash
+git clone https://github.com/Prudhvicharan/gitfolio.git
+cd gitfolio
 npm ci
 npm run dev
 ```
 
-## Checks and production preview
+Open `http://localhost:5173`. No environment file or server credential is required.
+Users who choose AI enter their own Gemini API key directly in the Review step.
 
-```sh
+### Verify a change
+
+```bash
 npm test
 npm run lint
 npm run build
 npm run preview -- --host 127.0.0.1
 ```
 
-`build` compiles TypeScript, builds the client and a temporary server-render bundle,
-then prerenders the landing page into `dist/index.html`. Hosting serves only `dist`;
-there is no runtime application server. Fonts are self-hosted with licenses in
-`public/fonts`. The wizard, Markdown renderer, and AI SDK load on demand.
+`npm run build` checks TypeScript, builds the client and SSR bundle, and prerenders
+the landing page. The production site serves static files from `dist`; GitFolio has
+no application server.
 
-The Node test suite covers generation accuracy, escaping/sanitization, draft
-validation, repository pagination, partial errors, and snake configuration. See
-[OVERHAUL.md](./OVERHAUL.md) for audit mapping and [REVIEW.md](./REVIEW.md) for branch
-review and browser verification instructions.
+## How it works
 
-## Deployment
+```text
+GitHub public API
+       ↓
+Repository selection
+       ↓
+Manual writing or optional Gemini draft
+       ↓
+Editorial · Studio · Aurora composition
+       ↓
+Sanitized preview → README.md
+```
 
-Deploy the `dist` directory with `npm run build`. `vercel.json` supplies CSP,
-anti-framing, MIME, referrer, and permissions headers. The local production preview
-uses the same headers. If you change the public domain, update the canonical and
-social URLs in `index.html`, `public/robots.txt`, and `public/sitemap.xml`.
+The wizard, Markdown renderer, and Gemini SDK load only when needed. Core profile
+insights use generated Markdown and HTML; optional artwork can use third-party image
+providers. Security headers live in `vercel.json`, and previewed HTML passes through
+an explicit sanitization schema.
 
-## Known boundaries
+## Privacy by design
 
-- Public data only; GitHub rate limits apply. A failed repository import is disclosed.
-- AI access must be verified with your own Google project. Never put a shared key in
-  source code, build-time environment variables exposed to the browser, or a draft.
-- GitHub and browser Markdown layouts may differ. Always check the published profile.
-- Snake setup requires enabling GitHub Actions in your profile repository and reviewing
-  its third-party actions/write permissions. GitFolio does not modify your account.
-- Automated accessibility scans complement, but do not replace, assistive-technology
-  and real-device testing.
+- GitFolio reads public GitHub data without asking for a GitHub login.
+- Gemini runs only after the user provides a key and consents to sending the displayed
+  profile and selected repository data to Google.
+- API keys stay in memory and are never written to drafts or browser storage.
+- Current-tab recovery uses session storage. Longer-term device saving is opt-in.
+- GitFolio includes no advertising or analytics tracker.
+- Nothing writes to GitHub. The user reviews and publishes the exported file.
+
+Google project access, quotas, billing, and
+[Gemini API data terms](https://ai.google.dev/gemini-api/docs/pricing) still apply.
+
+## Project map
+
+```text
+src/components/   Builder steps, preview, and publishing guide
+src/hooks/        GitHub and Gemini integrations
+src/utils/        README generation, drafts, routing, and validation
+tests/            Generation, security, storage, and navigation regressions
+scripts/          Static prerender and optional browser QA
+public/           Brand, metadata, and self-hosted font assets
+```
+
+For deeper review:
+
+- [REVIEW.md](./REVIEW.md) — runbook and release checklist.
+- [OVERHAUL.md](./OVERHAUL.md) — audit findings and implementation history.
+
+## Deploy
+
+Run `npm run build` and deploy `dist`. The included `vercel.json` configures the
+content security policy, anti-framing, MIME, referrer, and permissions headers.
+
+When changing the public domain, update canonical and social URLs in `index.html`,
+`public/robots.txt`, and `public/sitemap.xml`.
 
 ## Stack
 
-React 19, TypeScript, Vite, Tailwind CSS, Google GenAI, react-markdown, remark-gfm,
-rehype-raw, rehype-sanitize, and Lucide icons.
+React 19 · TypeScript · Vite · Tailwind CSS · Google GenAI · React Markdown ·
+Remark GFM · Rehype Sanitize · Lucide
 
-Issues and contributions: https://github.com/Prudhvicharan/gitfolio/issues
+---
+
+<div align="center">
+  Built for developers who want their profile to tell a story, not list a résumé.
+</div>
