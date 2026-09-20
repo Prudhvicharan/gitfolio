@@ -57,17 +57,42 @@ export default function PublishGuide({
         <div className="snake-setup">
           <h3>Set up the contribution snake</h3>
           <p>
-            This optional animation needs a GitHub Actions workflow. Download
-            it, save it as <code>.github/workflows/snake.yml</code> in your
-            profile repository, commit it, then run “Generate contribution
-            snake” from the Actions tab. The workflow writes an{' '}
-            <code>output</code> branch and runs daily.
+            GitHub must generate this animation inside your profile repository.
+            Complete every step below before adding it to your README.
           </p>
+          <ol className="snake-steps">
+            <li>
+              <strong>Download the workflow.</strong> Save it at exactly{' '}
+              <code>.github/workflows/snake.yml</code> inside{' '}
+              <code>{username || 'your-username'}/{username || 'your-username'}</code>.
+            </li>
+            <li>
+              <strong>Commit and push it to <code>main</code>.</strong> If your
+              default branch has another name, update the workflow’s push branch
+              before committing.
+            </li>
+            <li>
+              <strong>Allow the workflow to write.</strong> In the repository,
+              open <em>Settings → Actions → General → Workflow permissions</em>
+              and select <em>Read and write permissions</em> if it is not already enabled.
+            </li>
+            <li>
+              <strong>Run it once.</strong> Open the repository’s Actions tab,
+              select <em>GitHub Snake Game</em>, choose <em>Run workflow</em>, and
+              wait for the run to finish successfully.
+            </li>
+            <li>
+              <strong>Verify the result.</strong> Confirm that an{' '}
+              <code>output</code> branch now contains{' '}
+              <code>github-snake.svg</code> and{' '}
+              <code>github-snake-dark.svg</code>.
+            </li>
+          </ol>
           <button
             className="btn-secondary"
             onClick={() =>
               downloadFile(
-                generateSnakeWorkflow(username || ''),
+                generateSnakeWorkflow(),
                 'snake.yml',
                 'text/yaml'
               )
@@ -76,9 +101,16 @@ export default function PublishGuide({
             Download snake.yml
           </button>
           <p className="help">
-            Review the third-party actions and repository permissions before
-            enabling the workflow.
+            The file contains no username, email, token, or other personal data.
+            It uses GitHub’s repository-owner variable and automatic workflow token.
           </p>
+          {username && (
+            <p className="snake-links">
+              <a href={`https://github.com/${encodeURIComponent(username)}/${encodeURIComponent(username)}/actions`} target="_blank" rel="noopener noreferrer">Open Actions ↗</a>
+              {' · '}
+              <a href={`https://github.com/${encodeURIComponent(username)}/${encodeURIComponent(username)}/tree/output`} target="_blank" rel="noopener noreferrer">Check output branch ↗</a>
+            </p>
+          )}
           <label className="check-option">
             <input
               type="checkbox"
@@ -86,10 +118,16 @@ export default function PublishGuide({
               onChange={(e) => onChange({ snakeReady: e.target.checked })}
             />
             <span>
-              The workflow has run successfully; include its animation in my
-              README.
+              I verified a successful workflow run and the output branch files.
+              Include the snake in my README.
             </span>
           </label>
+          {!config.snakeReady && (
+            <p className="notice warning">
+              The snake will not appear in Preview or the downloaded README until
+              you complete the setup and confirm it above.
+            </p>
+          )}
         </div>
       )}
     </section>

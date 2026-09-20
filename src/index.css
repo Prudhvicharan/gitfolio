@@ -1078,6 +1078,21 @@ textarea {
   font-size: 16px;
   color: #f8fafc;
 }
+.snake-setup .snake-steps {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+  padding-left: 24px;
+}
+.snake-setup .snake-steps li {
+  margin: 0;
+  padding-left: 7px;
+  color: #cbd3e2;
+  line-height: 1.6;
+}
+.snake-setup .snake-steps strong { color: #f8fafc; }
+.snake-links { margin: 12px 0 4px; }
+.snake-setup .notice { margin: 10px 0 0; }
 .loading-screen {
   min-height: 65vh;
   display: grid;

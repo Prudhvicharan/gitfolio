@@ -71,7 +71,7 @@ test('malformed AI objects are rejected at the boundary', () => {
   assert.throws(() => validateAIContent({ ...EMPTY_CONTENT, skills: [42] }));
   assert.deepEqual(validateAIContent(EMPTY_CONTENT), EMPTY_CONTENT);
 });
-test('snake is opt-in and its workflow includes account and write permissions', () => {
+test('snake is opt-in and its workflow is portable and free of personal data', () => {
   assert.doesNotMatch(
     generateReadme({
       ...config,
@@ -79,10 +79,17 @@ test('snake is opt-in and its workflow includes account and write permissions', 
     }),
     /github-snake/
   );
-  const workflow = generateSnakeWorkflow('example');
-  assert.match(workflow, /github_user_name: example/);
+  const workflow = generateSnakeWorkflow();
+  assert.match(workflow, /github_user_name: \$\{\{ github\.repository_owner \}\}/);
   assert.match(workflow, /contents: write/);
   assert.match(workflow, /github_token:/);
+  assert.match(workflow, /actions\/checkout@v4/);
+  assert.match(workflow, /Platane\/snk@v3/);
+  assert.match(workflow, /peaceiris\/actions-gh-pages@v4/);
+  assert.match(workflow, /publish_branch: output/);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /branches:\n      - main/);
+  assert.doesNotMatch(workflow, /example|Prudhvicharan|@gmail|BEGIN [A-Z ]*KEY/);
 });
 test('username normalization rejects path and query injection', () => {
   assert.equal(normalizeUsername(' @octocat '), 'octocat');

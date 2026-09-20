@@ -3,9 +3,48 @@ import { extractLanguages, skillsToIconKeys } from '../hooks/useGithub';
 import { EXTRA_WIDGETS, TYPING_COLORS, TYPING_FONTS } from './creativeAssets';
 import { htmlAttribute, markdownText, safeUrl } from './content';
 
-export function generateSnakeWorkflow(username: string): string {
-  const login = username.replace(/[^a-zA-Z0-9-]/g, '');
-  return `name: Generate contribution snake\non:\n  schedule:\n    - cron: '0 0 * * *'\n  workflow_dispatch:\npermissions:\n  contents: write\njobs:\n  generate:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: Platane/snk@v3\n        with:\n          github_user_name: ${login}\n          github_token: \${{ secrets.GITHUB_TOKEN }}\n          outputs: |\n            dist/github-snake.svg\n            dist/github-snake-dark.svg?palette=github-dark\n      - uses: crazy-max/ghaction-github-pages@v4\n        with:\n          target_branch: output\n          build_dir: dist\n        env:\n          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}\n`;
+export function generateSnakeWorkflow(): string {
+  return `name: GitHub Snake Game
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate contribution snake animations
+        uses: Platane/snk@v3
+        with:
+          github_user_name: \${{ github.repository_owner }}
+          outputs: |
+            dist/github-snake.svg
+            dist/github-snake-dark.svg?palette=github-dark
+            dist/ocean.gif?color_snake=orange&color_dots=#bfd6f6,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to output branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: \${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: output
+          force_orphan: true
+          commit_message: "Update snake animation [skip ci]"
+`;
 }
 
 export const generateReadme = (config: GeneratorConfig): string => {
