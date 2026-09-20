@@ -40,6 +40,8 @@ security headers; the development server intentionally serves the interactive de
 6. **Export:** copy and download the README; inspect both raw Markdown and the visual
    preview. For image-based presets, use **Check widgets** to test loading and remove unavailable images. Follow the publishing checklist in a profile repository only when ready.
    Back up existing content before replacing it.
+   Engineering footprint and language mix must render even with network image requests
+   blocked; only explicitly labeled Live Widgets may depend on remote services.
 7. **Snake:** optionally download `snake.yml`, review its external actions and write
    permission, install/run it in your profile repository, then enable its image.
 8. **Drafts and refresh:** reload Profile, Style, and Review and verify the same step
@@ -76,7 +78,7 @@ artifacts go to `/tmp/gitfolio-qa/artifacts`.
 
 ## Verified results
 
-- Production build, TypeScript, lint, and 14 regression tests pass.
+- Production build, TypeScript, lint, and 17 regression tests pass.
 - 15 end-to-end flows and 14 failure-path/keyboard/layout checks pass in Chromium.
 - Automated WCAG A/AA checks pass for the homepage at 320/375/768/1024/1440px, and
   for the profile/style/review/mobile-preview flows tested; no horizontal overflow.

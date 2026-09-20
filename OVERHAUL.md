@@ -191,3 +191,19 @@ Implementation completed in four logical commits; see REVIEW.md for the release 
   Older saved drafts migrate safely with empty values for the new fields.
 - Fixed the preview CSP that was blocking Shields and the current GitHub Stats host;
   removed obsolete provider domains and added a regression test for the allowlist.
+
+## Chunk 8 — zero-outage insights and richer projects
+
+- Removed public GitHub Stats and language-card endpoints after their own project
+  documented that the shared service is best-effort and rate-limit prone.
+- Engineering footprint and language mix now render entirely from GitFolio's imported
+  repository data. They use native tables, topic signals, and text-based distribution
+  bars, so they work in Preview and on GitHub without a remote image request.
+- Moved native insights into Proof and left only the contribution streak and snake in
+  Live Widgets. The palette control appears only when the external streak is enabled.
+- AI now writes a grounded one-sentence story for every selected repository plus a
+  custom collaboration invitation. Manual mode exposes an editor for each project.
+- Featured-build cards now include those narratives and repository topics instead of
+  repeating generic “explore this repository” filler.
+- Verification: 17 regression tests, lint, TypeScript, client/SSR builds, and prerender
+  pass. CSP tests explicitly reject the removed unreliable statistics hosts.
