@@ -253,3 +253,16 @@ Implementation completed in four logical commits; see REVIEW.md for the release 
   URL while each demo step remains refresh-safe.
 - Verification: 20 regression tests pass, including demo-profile refresh routing and
   clean-home URL coverage. Lint, TypeScript, client/SSR builds, and prerender pass.
+
+## Chunk 12 — single-purpose demo exits
+
+- Reduced the demo Review action area to one **Build my profile** button. Style remains
+  available through the existing step navigation, so a duplicate “Explore styles”
+  button no longer competes with the main action.
+- **Exit demo** now returns to the clean homepage. **Build my profile** creates a fresh
+  non-demo builder session at the editable Profile step.
+- Draft validation now rejects the fictional zero-ID demo profile. Old browser storage
+  can therefore never reopen Alex Morgan as a locked real-profile draft, while valid
+  user drafts still restore normally.
+- Verification: 21 regression tests, lint, TypeScript, client/SSR builds, and prerender
+  pass. The new regression explicitly rejects fictional demo data at the draft boundary.

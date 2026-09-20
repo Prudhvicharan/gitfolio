@@ -30,8 +30,9 @@ security headers; the development server intentionally serves the interactive de
    widget checks, publishing, and snake setup must not be available. Switch presets
    and verify Editorial, Studio, and Aurora change the actual README composition.
    Visit Profile, Style, and Review in either order and refresh each one; the same
-   locked Alex Morgan sample must remain visible. Use **Exit demo** or **Build with my
-   GitHub** to return to an empty real-profile import.
+   locked Alex Morgan sample must remain visible. **Exit demo** must return to the
+   homepage. **Build my profile** must open an editable real-profile import and must
+   never restore the fictional profile as a draft.
 3. **Real profile:** import your username, choose repositories (including forks if
    desired), and inspect the sample-size and partial-error messages.
 4. **Content review:** choose either AI creation or guided manual writing. Confirm the
@@ -85,7 +86,7 @@ artifacts go to `/tmp/gitfolio-qa/artifacts`.
 
 ## Verified results
 
-- Production build, TypeScript, lint, and 20 regression tests pass.
+- Production build, TypeScript, lint, and 21 regression tests pass.
 - 15 end-to-end flows and 14 failure-path/keyboard/layout checks pass in Chromium.
 - Automated WCAG A/AA checks pass for the homepage at 320/375/768/1024/1440px, and
   for the profile/style/review/mobile-preview flows tested; no horizontal overflow.
