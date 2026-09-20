@@ -13,10 +13,8 @@ const routeFromUrl = (): AppRoute =>
     : routeFromHref(window.location.href);
 export default function App() {
   const [route, setRoute] = useState<AppRoute>(routeFromUrl);
-  const [started, setStarted] = useState(() => routeFromUrl().page === 'builder');
-  const [demo, setDemo] = useState(() => routeFromUrl().demo);
   const [sessionVersion, setSessionVersion] = useState(0);
-  const demoRef = useRef(demo);
+  const routeRef = useRef(route);
   useEffect(() => {
     const initial = routeFromUrl();
     history.replaceState(
@@ -28,13 +26,13 @@ export default function App() {
       const saved = event.state?.gitfolio;
       const next =
         saved && [1, 2, 3].includes(saved.step) ? saved : routeFromUrl();
-      if (next.page === 'builder') {
-        setStarted(true);
-        if (demoRef.current !== next.demo)
-          setSessionVersion((value) => value + 1);
-        demoRef.current = next.demo;
-        setDemo(next.demo);
-      }
+      if (
+        next.page === 'builder' &&
+        routeRef.current.page === 'builder' &&
+        routeRef.current.demo !== next.demo
+      )
+        setSessionVersion((value) => value + 1);
+      routeRef.current = next;
       setRoute(next);
     };
     window.addEventListener('popstate', pop);
@@ -46,22 +44,11 @@ export default function App() {
       '',
       urlForRoute(next, location.href)
     );
+    routeRef.current = next;
     setRoute(next);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
   const start = (sample = false) => {
-    if (sample && started) {
-      if (
-        !window.confirm(
-          'Open a fresh sample profile? Your saved draft will be kept, but unsaved session changes will be replaced.'
-        )
-      )
-        return;
-    }
-    if (started) setSessionVersion((value) => value + 1);
-    demoRef.current = sample;
-    setDemo(sample);
-    setStarted(true);
     navigate({ page: 'builder', step: sample ? 2 : 1, demo: sample });
   };
   return (
@@ -72,42 +59,31 @@ export default function App() {
       {route.page === 'home' && (
         <Hero onStart={() => start()} onDemo={() => start(true)} />
       )}
-      {started && (
-        <div hidden={route.page !== 'builder'}>
-          <Suspense
-            fallback={
-              <main id="main-content" className="loading-screen" role="status">
-                Loading your profile builder…
-              </main>
+      {route.page === 'builder' && (
+        <Suspense
+          fallback={
+            <main id="main-content" className="loading-screen" role="status">
+              Loading your profile builder…
+            </main>
+          }
+        >
+          <Wizard
+            key={sessionVersion}
+            step={route.step}
+            onStep={(step) => navigate({ ...route, step })}
+            onHome={() => navigate(HOME_ROUTE)}
+            onStartDemo={() =>
+              navigate({ page: 'builder', step: 2, demo: true })
             }
-          >
-            <Wizard
-              key={sessionVersion}
-              step={route.step}
-              onStep={(step) => navigate({ ...route, page: 'builder', step })}
-              onHome={() => navigate(HOME_ROUTE)}
-              onStartDemo={() => {
-                demoRef.current = true;
-                setDemo(true);
-                navigate({ page: 'builder', step: 2, demo: true });
-              }}
-              onExitDemo={() => {
-                demoRef.current = false;
-                setDemo(false);
-                setSessionVersion((value) => value + 1);
-                navigate(HOME_ROUTE);
-              }}
-              onBuildProfile={() => {
-                demoRef.current = false;
-                setDemo(false);
-                setSessionVersion((value) => value + 1);
-                navigate({ page: 'builder', step: 1, demo: false });
-              }}
-              startDemo={demo}
-              active={route.page === 'builder'}
-            />
-          </Suspense>
-        </div>
+            onExitDemo={() => navigate(HOME_ROUTE)}
+            onBuildProfile={() => {
+              setSessionVersion((value) => value + 1);
+              navigate({ page: 'builder', step: 1, demo: false });
+            }}
+            startDemo={route.demo}
+            active
+          />
+        </Suspense>
       )}
     </>
   );
