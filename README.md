@@ -109,14 +109,9 @@ src/components/   Builder steps, preview, and publishing guide
 src/hooks/        GitHub and Gemini integrations
 src/utils/        README generation, drafts, routing, and validation
 tests/            Generation, security, storage, and navigation regressions
-scripts/          Static prerender and optional browser QA
+scripts/          Static landing-page prerender
 public/           Brand, metadata, and self-hosted font assets
 ```
-
-For deeper review:
-
-- [REVIEW.md](./REVIEW.md) — runbook and release checklist.
-- [OVERHAUL.md](./OVERHAUL.md) — audit findings and implementation history.
 
 ## Deploy
 
