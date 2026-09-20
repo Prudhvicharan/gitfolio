@@ -239,3 +239,17 @@ Implementation completed in four logical commits; see REVIEW.md for the release 
 - Verification: 18 regression tests, lint, TypeScript, client/SSR builds, and landing
   prerender pass. The final demo-only visual pass remains a manual review item because
   the in-app browser connection was unavailable in this environment.
+
+## Chunk 11 — demo navigation consistency
+
+- Kept demo mode active while moving freely among Profile, Style, and Review. Profile
+  now shows the same prefilled Alex Morgan identity with locked fields instead of
+  silently clearing the sample until refresh.
+- Separated step navigation from leaving the demo. Only **Exit demo** and **Build with
+  my GitHub** create a fresh real-profile session; browser back/forward transitions
+  also remount when the route changes between demo and real modes.
+- Centralized route parsing and URL generation. App navigation now removes stale
+  `#how-it-works`, builder, and demo state, so returning home produces the clean root
+  URL while each demo step remains refresh-safe.
+- Verification: 20 regression tests pass, including demo-profile refresh routing and
+  clean-home URL coverage. Lint, TypeScript, client/SSR builds, and prerender pass.
