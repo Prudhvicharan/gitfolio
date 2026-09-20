@@ -58,3 +58,22 @@ Implementation in progress.
   updates resolved all 12 reported advisories without a framework/major upgrade.
 - Judgment: cap repository import at 500 and disclose incompleteness; preserve forks
   for explicit selection. No achievement badge is emitted without verified data.
+
+### Chunk 2 — accessible editor and export workflow
+- A2–4/A14–15: Three clearly named steps, semantic forms/toggles, mobile Edit/Preview,
+  visible focus, higher-contrast design tokens, reduced motion, browser-history steps.
+- A5/A10: Editable content review; apply/discard controls and export lock for pending
+  edits. Explicit opt-in employment availability; drafts never auto-publish AI text.
+- A8/A17: Profile-bound requests, cancellation/timeouts, memory-only key with clear
+  control and data-transfer consent. Old stored credentials are removed, never read.
+- A9/New: Up to eight user-selected repositories; no silent removal of reviewed bio
+  when project selection changes. Repository coverage warning remains visible.
+- A4/New: Opt-in versioned draft recovery; malformed drafts rejected and unknown fields
+  dropped. Reset-all confirmation; home navigation retains the in-session draft.
+- A6/A7/New: Sanitized lazy preview, honest retry/removal, retained image attributes,
+  copy error fallback, download, publishing checklist, explicit snake readiness.
+- A13: Wizard, Markdown preview, and AI SDK are separate asynchronous chunks.
+- Judgment: Balanced defaults to readable content without external image requests;
+  Animated remains available. No API key persistence option is offered.
+- Verification: 11 regression tests, lint and production build pass. In-app browser
+  bootstrap still fails before connection; isolated browser QA is being prepared.

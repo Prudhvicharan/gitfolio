@@ -1,215 +1,50 @@
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff, Sparkles, RefreshCw } from 'lucide-react';
-import type { GithubUser, GithubRepo, AIContent } from '../types';
-
-interface TerminalLine {
-  text: string;
-  type: string;
-  id: number;
+import { useState } from 'react';
+import { ArrowLeft, Check, Eye, EyeOff, LoaderCircle, Sparkles } from 'lucide-react';
+import type { AIContent, GeneratorConfig } from '../types';
+import { EMPTY_CONTENT } from '../utils/content';
+import { extractLanguages } from '../hooks/useGithub';
+import { AI_MODEL } from '../hooks/useGemini';
+interface Props { config:GeneratorConfig; onChange:(patch:Partial<GeneratorConfig>)=>void; onGenerate:(key:string)=>Promise<AIContent|null>; generating:boolean; onCancel:()=>void; onBack:()=>void; onFinish:()=>void; active:boolean; onPending:(pending:boolean)=>void; }
+export default function Step3({config,onChange,onGenerate,generating,onCancel,onBack,onFinish,active,onPending}:Props) {
+ const [apiKey,setApiKey]=useState('');
+ const [showKey,setShowKey]=useState(false);
+ const [consent,setConsent]=useState(false);
+ const [draft,setDraft]=useState<AIContent>(()=>config.aiContent??{...EMPTY_CONTENT,aboutMe:config.userData?.bio||'',skills:extractLanguages(config.repos)});
+ const [dirty,setDirty]=useState(false);
+ const [reviewed,setReviewed]=useState(false);
+ const [message,setMessage]=useState('');
+ const [wasActive,setWasActive]=useState(active);
+ if(wasActive!==active){setWasActive(active);if(!active){setApiKey('');setConsent(false);}}
+ const edit=(patch:Partial<AIContent>)=>{setDraft({...draft,...patch});setDirty(true);onPending(true);setReviewed(false);setMessage('');};
+ const generate=async()=>{setMessage('');const value=await onGenerate(apiKey);if(value){setDraft(value);setDirty(true);onPending(true);setReviewed(false);setMessage('AI draft ready. Check and edit the content below before applying it.');}};
+ const apply=()=>{onChange({aiContent:draft});setDirty(false);onPending(false);setMessage('Reviewed content applied to your README.');};
+ return <section className="step-content" aria-labelledby="step-heading-3">
+  <div className="section-intro"><span className="eyebrow">03 / TELL YOUR STORY</span><h1 id="step-heading-3" tabIndex={-1}>Make every word yours.</h1><p>Edit your profile below. AI can help with a draft, but you decide what gets published.</p></div>
+  <details className="disclosure ai-disclosure"><summary><Sparkles size={17}/> Enhance with AI <span>optional</span></summary><div className="form-stack">
+   <p className="help">Uses {AI_MODEL}. Your key is held in memory only, sent directly to Google, and cleared when you leave this step. Google’s project limits and billing apply.</p>
+   <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Get a Gemini API key <span className="sr-only">(opens a new tab)</span>↗</a>
+   <div className="field"><label htmlFor="gemini-key">Gemini API key</label><div className="input-action"><input id="gemini-key" type={showKey?'text':'password'} value={apiKey} onChange={e=>setApiKey(e.target.value)} placeholder="Paste your key" autoComplete="off" spellCheck={false}/><button type="button" aria-label={showKey?'Hide API key':'Show API key'} aria-pressed={showKey} onClick={()=>setShowKey(!showKey)}>{showKey?<EyeOff size={18}/>:<Eye size={18}/>}</button></div></div>
+   <button className="text-button" onClick={()=>{setApiKey('');setConsent(false);setMessage('API key cleared from this step.');}}>Clear key</button>
+   <label className="check-option"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/><span>Send my name, bio, focus, and selected repository metadata to Google to generate a draft.</span></label>
+   <div className="button-row"><button className="btn-primary" disabled={!apiKey.trim()||!consent||generating||config.userData?.id===0} onClick={generate}>{generating?<><LoaderCircle className="spin" size={17}/> Drafting…</>:<><Sparkles size={17}/> Generate AI draft</>}</button>{generating&&<button className="btn-secondary" onClick={onCancel}>Cancel</button>}</div>
+   {config.userData?.id===0&&<p className="help">The sample is fictional. Import your own profile to use AI.</p>}
+   <p className="help"><a href="https://ai.google.dev/gemini-api/docs/rate-limits" target="_blank" rel="noopener noreferrer">Google quotas ↗</a> · <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener noreferrer">Google pricing & data use ↗</a></p>
+  </div></details>
+  <div className="form-stack">
+   <div className="field"><label htmlFor="bio">About me</label><textarea id="bio" rows={5} maxLength={4000} value={draft.aboutMe} onChange={e=>edit({aboutMe:e.target.value})}/></div>
+   <div className="field"><label htmlFor="skills">Skills <span>comma separated</span></label><input id="skills" value={draft.skills.join(', ')} onChange={e=>edit({skills:e.target.value.split(',').map(s=>s.trim())})} maxLength={1000}/><p className="help">Include only technologies you are comfortable claiming.</p></div>
+   <div className="field"><label htmlFor="learning">Currently learning <span>optional</span></label><input id="learning" value={draft.currentlyLearning} onChange={e=>edit({currentlyLearning:e.target.value})} maxLength={300}/></div>
+   <details className="disclosure"><summary>Personal notes & animation text <span>optional</span></summary><div className="form-stack">
+    <div className="field"><label htmlFor="notes">Personal notes <span>one per line</span></label><textarea id="notes" rows={3} value={draft.funFacts.join('\n')} onChange={e=>edit({funFacts:e.target.value.split('\n')})} maxLength={1500}/></div>
+    <div className="field"><label htmlFor="dream">A project you would like to build</label><textarea id="dream" rows={2} value={draft.dreamProject} onChange={e=>edit({dreamProject:e.target.value})} maxLength={500}/></div>
+    <div className="field"><label htmlFor="quote">Your own quote or philosophy</label><input id="quote" value={draft.quote} onChange={e=>edit({quote:e.target.value})} maxLength={300}/></div>
+    <div className="field"><label htmlFor="typing">Typing animation lines <span>one per line, up to 45 characters each</span></label><textarea id="typing" rows={3} value={draft.typingLines.join('\n')} onChange={e=>edit({typingLines:e.target.value.split('\n')})} maxLength={300}/></div>
+   </div></details>
+   <label className="check-option"><input type="checkbox" checked={!!config.openToWork} onChange={e=>onChange({openToWork:e.target.checked})}/><span>Include “Open to work” in my About section</span></label>
+   {dirty&&<div className="review-box"><label className="check-option"><input type="checkbox" checked={reviewed} onChange={e=>setReviewed(e.target.checked)}/><span>I’ve reviewed this draft and its claims accurately describe me.</span></label><button className="btn-primary" disabled={!reviewed} onClick={apply}><Check size={17}/> Apply reviewed content</button><button className="text-button" onClick={()=>{setDraft(config.aiContent??{...EMPTY_CONTENT,aboutMe:config.userData?.bio||'',skills:extractLanguages(config.repos)});setDirty(false);onPending(false);setReviewed(false);}}>Discard unapplied edits</button><p className="help">Your preview keeps the previous content until you apply these edits.</p></div>}
+   <p role="status" className="status-message">{message}</p>
+  </div>
+  <div className="button-row"><button className="btn-secondary" onClick={onBack} disabled={generating}><ArrowLeft size={16}/> Style</button><button className="btn-primary" onClick={onFinish} disabled={dirty||generating}>Review & export <Check size={17}/></button></div>
+  {dirty&&<p className="help">Apply your reviewed edits to continue.</p>}
+ </section>;
 }
-
-interface Step3Props {
-  user: GithubUser;
-  repos: GithubRepo[];
-  jobTitle: string;
-  aiContent: AIContent | null;
-  onGenerate: (apiKey: string) => Promise<void>;
-  onBack: () => void;
-  onFinish: () => void;
-  generating: boolean;
-  terminalLines: TerminalLine[];
-}
-
-const Step3: React.FC<Step3Props> = ({
-  user, repos, aiContent, onGenerate, onBack, onFinish, generating, terminalLines,
-}) => {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('gitfolio_gemini_key') || '');
-  const [showKey, setShowKey] = useState(false);
-  const terminalRef = useRef<HTMLDivElement>(null);
-
-  const handleGenerate = async () => {
-    if (!apiKey.trim()) return;
-    localStorage.setItem('gitfolio_gemini_key', apiKey);
-    await onGenerate(apiKey);
-  };
-
-  const handleSkip = () => onFinish();
-
-  return (
-    <motion.div
-      key="step3"
-      initial={{ opacity: 0, x: 40 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -40 }}
-      transition={{ duration: 0.35 }}
-      className="space-y-5"
-    >
-      <div>
-        <h2 className="text-xl font-mono font-bold text-white mb-1">
-          <span className="gradient-text">AI Magic ✨</span>
-        </h2>
-        <p className="text-sm text-gray-500">
-          Let Gemini AI craft a personalized bio, tagline, and fun facts from your GitHub data.
-        </p>
-      </div>
-
-      {/* User card preview */}
-      <div className="glass rounded-xl p-4 flex items-center gap-4">
-        <img
-          src={user.avatar_url}
-          alt={user.login}
-          className="w-14 h-14 rounded-full border-2 border-indigo-500/40 ring-2 ring-purple-500/20"
-        />
-        <div>
-          <p className="font-mono font-bold text-white">{user.name || user.login}</p>
-          <p className="text-xs text-gray-500 font-mono">@{user.login}</p>
-          <p className="text-xs text-gray-500 mt-0.5">{repos.length} repos analyzed · {user.followers} followers</p>
-        </div>
-      </div>
-
-      {/* Security notice */}
-      <div className="flex items-start gap-3 bg-emerald-500/8 border border-emerald-500/25 rounded-xl p-3.5">
-        <span className="text-emerald-400 text-lg mt-0.5">🔒</span>
-        <div>
-          <p className="text-xs font-mono font-semibold text-emerald-400 mb-0.5">Your key never leaves your browser</p>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            Stored in <span className="text-gray-400 font-mono">localStorage</span>. API calls go directly from your browser to Google — our code never sees your key.
-            Get a free key at{' '}
-            <a
-              href="https://aistudio.google.com/app/apikey"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-cyan-400 underline hover:text-cyan-300"
-            >
-              aistudio.google.com
-            </a>
-            {' '}(1,500 free requests/day).
-          </p>
-        </div>
-      </div>
-
-      {/* API Key Input */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-mono text-gray-400">GEMINI API KEY</label>
-        <div className="relative">
-          <input
-            type={showKey ? 'text' : 'password'}
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="AIza..."
-            className="input-field pr-11 font-mono text-sm"
-          />
-          <button
-            type="button"
-            onClick={() => setShowKey(!showKey)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
-          >
-            {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
-        </div>
-      </div>
-
-      {/* Terminal log */}
-      <AnimatePresence>
-        {(generating || terminalLines.length > 0) && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="terminal-log"
-            ref={terminalRef}
-          >
-            <div className="flex items-center gap-2 mb-2 text-xs text-gray-600 font-mono border-b border-white/5 pb-1.5">
-              <div className="flex gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-red-500/60" />
-                <span className="w-2 h-2 rounded-full bg-yellow-500/60" />
-                <span className="w-2 h-2 rounded-full bg-green-500/60" />
-              </div>
-              gitfolio — gemini-1.5-flash
-            </div>
-            {terminalLines.map(({ id, text, type }) => (
-              <motion.div
-                key={id}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                className={`terminal-line ${type}`}
-              >
-                <span className="text-gray-700 select-none">$ </span>
-                {text}
-                {id === terminalLines[terminalLines.length - 1].id && generating && (
-                  <span className="inline-block w-1.5 h-3.5 bg-cyan-400 ml-1 animate-pulse" />
-                )}
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Already has AI content */}
-      {aiContent && !generating && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="bg-emerald-500/8 border border-emerald-500/25 rounded-xl p-3 flex items-center gap-2"
-        >
-          <span className="text-emerald-400">✓</span>
-          <span className="text-xs font-mono text-emerald-400">AI content generated! Tagline: "{aiContent.tagline}"</span>
-        </motion.div>
-      )}
-
-      {!aiContent ? (
-        /* Pre-generation: Back + Enhance side by side */
-        <div className="flex gap-3">
-          <button onClick={onBack} className="btn-secondary min-w-[80px]">← Back</button>
-          <button
-            onClick={handleGenerate}
-            disabled={!apiKey.trim() || generating}
-            className="btn-primary flex-1 flex items-center justify-center gap-2"
-          >
-            {generating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles size={15} />
-                Enhance with AI
-              </>
-            )}
-          </button>
-        </div>
-      ) : (
-        /* Post-generation: stacks on mobile, row on sm+ */
-        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-          <div className="flex gap-2">
-            <button onClick={onBack} className="btn-secondary flex-1 sm:flex-none sm:min-w-[80px]">
-              ← Back
-            </button>
-            <button
-              onClick={handleGenerate}
-              disabled={!apiKey.trim() || generating}
-              className="btn-secondary flex-1 flex items-center justify-center gap-1.5"
-            >
-              <RefreshCw size={13} />
-              Regenerate
-            </button>
-          </div>
-          <button onClick={onFinish} className="btn-primary w-full sm:flex-1">
-            Generate README →
-          </button>
-        </div>
-      )}
-
-      <button
-        onClick={handleSkip}
-        className="text-xs text-gray-600 hover:text-gray-400 transition-colors text-center w-full font-mono py-1"
-      >
-        Skip AI — Generate without personalization
-      </button>
-    </motion.div>
-  );
-};
-
-export default Step3;

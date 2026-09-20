@@ -26,6 +26,7 @@ const FEATURES = [
 
 interface HeroProps {
   onStart: () => void;
+  onDemo?: () => void;
 }
 
 const Hero: React.FC<HeroProps> = ({ onStart }) => {

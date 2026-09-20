@@ -46,3 +46,8 @@ test('pagination retains older repositories and forks for user selection',async(
   try {const result=await fetchProfile('example');assert.equal(calls,3);assert.equal(result.repos.length,101);assert.equal(result.repos[0].name,'older');}
   finally {globalThis.fetch=original;}
 });
+
+test('removed widgets stay out of exported Markdown',()=>{
+ const md=generateReadme(config);const src=md.match(/src="([^"]+)"/)[1].replaceAll('&amp;','&');
+ assert.ok(!generateReadme({...config,disabledWidgetUrls:[src]}).includes(src.split('&')[0]));
+});
