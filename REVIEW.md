@@ -42,8 +42,10 @@ security headers; the development server intentionally serves the interactive de
    Back up existing content before replacing it.
    Engineering footprint and language mix must render even with network image requests
    blocked; only explicitly labeled Live Widgets may depend on remote services.
-7. **Snake:** optionally download `snake.yml`, review its external actions and write
-   permission, install/run it in your profile repository, then enable its image.
+7. **Snake:** optionally download `snake.yml`, save it at
+   `.github/workflows/snake.yml`, commit it to `main`, allow read/write workflow
+   permissions, run **GitHub Snake Game**, and verify both SVGs in the `output` branch.
+   Only then confirm the setup and enable the image.
 8. **Drafts and refresh:** reload Profile, Style, and Review and verify the same step
    and current-tab progress return. Enable long-term saving to continue after closing
    the browser. Reset-all requires confirmation and clears both saved copies.

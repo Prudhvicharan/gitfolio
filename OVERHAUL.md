@@ -207,3 +207,17 @@ Implementation completed in four logical commits; see REVIEW.md for the release 
   repeating generic “explore this repository” filler.
 - Verification: 17 regression tests, lint, TypeScript, client/SSR builds, and prerender
   pass. CSP tests explicitly reject the removed unreliable statistics hosts.
+
+## Chunk 9 — contribution snake handoff
+
+- Replaced the downloaded workflow with a portable GitHub Snake Game workflow using
+  `github.repository_owner`; it contains no username, email, token, or repository name.
+- The workflow uses current major releases of checkout, Platane/snk, and
+  peaceiris/actions-gh-pages. It creates light/dark SVGs plus the requested ocean GIF,
+  publishes a clean `output` branch, runs daily, supports manual dispatch, and runs when
+  first pushed to `main`.
+- Added a five-step setup guide with the exact `.github/workflows/snake.yml` path,
+  workflow permission setting, manual-run instructions, output-branch verification,
+  and direct repository links.
+- The README includes the snake only after the user confirms a successful workflow run
+  and verifies both SVG files in the output branch.
