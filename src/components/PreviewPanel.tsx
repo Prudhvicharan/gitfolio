@@ -6,7 +6,6 @@ import {
   Download,
   Eye,
   FileText,
-  Shuffle,
 } from 'lucide-react';
 import { checkWidgets, widgetUrls } from '../utils/checkWidgets';
 import { downloadFile } from '../utils/download';
@@ -14,7 +13,6 @@ const MarkdownPreview = lazy(() => import('./MarkdownPreview'));
 interface Props {
   markdown: string;
   onRemoveWidget: (url: string) => void;
-  onRegenerateStyle: () => void;
   onPublish: () => void;
   demo: boolean;
   pending: boolean;
@@ -23,7 +21,6 @@ interface Props {
 export default function PreviewPanel({
   markdown,
   onRemoveWidget,
-  onRegenerateStyle,
   onPublish,
   demo,
   pending,
@@ -107,15 +104,6 @@ export default function PreviewPanel({
           }}
         >
           <Download size={16} /> Download
-        </button>
-        <button
-          className="icon-button"
-          aria-label="Vary typing animation font and color"
-          title="Vary typing animation font and color"
-          disabled={!markdown || pending}
-          onClick={onRegenerateStyle}
-        >
-          <Shuffle size={17} />
         </button>
       </div>
       {urls.length > 0 && (

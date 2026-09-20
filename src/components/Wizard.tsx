@@ -4,9 +4,12 @@ import type { GeneratorConfig, GithubRepo, AIContent } from '../types';
 import { PRESETS, widgetSection } from '../utils/content';
 import {
   clearDraft,
+  clearPersistentDraft,
   clearLegacyKey,
+  hasPersistentDraft,
   readDraft,
   writeDraft,
+  writeSessionDraft,
 } from '../utils/draft';
 import { DEMO_USER, DEMO_REPOS } from '../utils/demo';
 import { fetchProfile } from '../hooks/useGithub';
@@ -57,9 +60,9 @@ export default function Wizard({
     startDemo ? DEMO_REPOS : (saved?.availableRepos ?? [])
   );
   const [username, setUsername] = useState(() => config.userData?.login || '');
-  const [save, setSave] = useState(!!saved && !startDemo);
+  const [save, setSave] = useState(() => hasPersistentDraft() && !startDemo);
   const [status, setStatus] = useState(
-    saved && !startDemo ? 'Your saved draft was restored.' : ''
+    saved && !startDemo ? 'Your progress was restored at this step.' : ''
   );
   const [error, setError] = useState<string | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
@@ -86,14 +89,11 @@ export default function Wizard({
     };
   }, []);
   useEffect(() => {
-    if (
-      save &&
-      config.userData &&
-      !writeDraft({ config, availableRepos: repos })
-    )
-      setStatus(
-        'This browser could not save your draft. Download your README before leaving.'
-      );
+    if (!config.userData) return;
+    const draft = { config, availableRepos: repos };
+    const savedNow = save ? writeDraft(draft) : writeSessionDraft(draft);
+    if (!savedNow)
+      setStatus('This browser could not save your progress. Download your README before leaving.');
   }, [config, repos, save]);
   useEffect(() => {
     if (active) document.getElementById('step-heading-' + step)?.focus();
@@ -428,9 +428,9 @@ export default function Wizard({
                   onChange={(e) => {
                     setSave(e.target.checked);
                     if (!e.target.checked) {
-                      clearDraft();
+                      clearPersistentDraft();
                       setStatus(
-                        'Draft saving is off. The current session is unchanged.'
+                        'This tab still recovers after refresh. Long-term device saving is off.'
                       );
                     } else
                       setStatus(
@@ -438,11 +438,11 @@ export default function Wizard({
                       );
                   }}
                 />
-                <span>Save my draft on this device</span>
+                <span>Keep this draft after I close the browser</span>
               </label>
               <p className="help">
-                Includes profile content and entered contact links. Never
-                includes API keys. Turn off to delete the saved copy.
+                Refresh recovery is automatic in this tab. Turn this on to
+                continue another day. API keys are never saved.
               </p>
               <p role="status" className="help">
                 {status}
@@ -472,7 +472,6 @@ export default function Wizard({
                     : previous.sections,
                 }))
               }
-              onRegenerateStyle={() => patch({ creativeSeed: Math.random() })}
               onPublish={publish}
               demo={config.userData?.id === 0}
               pending={pending}

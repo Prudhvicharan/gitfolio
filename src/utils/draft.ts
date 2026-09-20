@@ -1,13 +1,17 @@
 import type { AIContent, GeneratorConfig, GithubRepo } from '../types';
 import { PRESETS, validateAIContent } from './content';
 export const DRAFT_KEY = 'gitfolio_draft_v1';
+export const SESSION_DRAFT_KEY = 'gitfolio_session_draft_v1';
 export interface Draft {
   config: GeneratorConfig;
   availableRepos: GithubRepo[];
 }
 export function readDraft(): Draft | null {
   try {
-    return parseDraft(localStorage.getItem(DRAFT_KEY));
+    return (
+      parseDraft(sessionStorage.getItem(SESSION_DRAFT_KEY)) ??
+      parseDraft(localStorage.getItem(DRAFT_KEY))
+    );
   } catch {
     return null;
   }
@@ -109,15 +113,43 @@ export function parseDraft(raw: string | null): Draft | null {
 }
 export function writeDraft(draft: Draft): boolean {
   try {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, ...draft }));
+    const value = JSON.stringify({ version: 1, ...draft });
+    sessionStorage.setItem(SESSION_DRAFT_KEY, value);
+    localStorage.setItem(DRAFT_KEY, value);
     return true;
   } catch {
     return false;
   }
 }
+export function writeSessionDraft(draft: Draft): boolean {
+  try {
+    sessionStorage.setItem(
+      SESSION_DRAFT_KEY,
+      JSON.stringify({ version: 1, ...draft })
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+export function hasPersistentDraft(): boolean {
+  try {
+    return !!parseDraft(localStorage.getItem(DRAFT_KEY));
+  } catch {
+    return false;
+  }
+}
+export function clearPersistentDraft(): void {
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch {
+    /* Storage can be unavailable. */
+  }
+}
 export function clearDraft(): void {
   try {
     localStorage.removeItem(DRAFT_KEY);
+    sessionStorage.removeItem(SESSION_DRAFT_KEY);
   } catch {
     /* Storage can be unavailable. */
   }

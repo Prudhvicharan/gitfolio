@@ -7,22 +7,60 @@ interface Route {
   demo: boolean;
 }
 const home: Route = { page: 'home', step: 1, demo: false };
+const stepNames = ['profile', 'style', 'review'] as const;
+const routeFromUrl = (): Route => {
+  if (typeof window === 'undefined') return home;
+  const value = new URLSearchParams(location.search).get('builder');
+  const step = stepNames.indexOf(value as (typeof stepNames)[number]) + 1;
+  return step
+    ? {
+        page: 'builder',
+        step,
+        demo: new URLSearchParams(location.search).get('demo') === '1',
+      }
+    : home;
+};
+const urlForRoute = (route: Route) => {
+  const url = new URL(location.href);
+  url.searchParams.delete('builder');
+  url.searchParams.delete('demo');
+  if (route.page === 'builder') {
+    url.searchParams.set('builder', stepNames[route.step - 1]);
+    if (route.demo) url.searchParams.set('demo', '1');
+  }
+  return `${url.pathname}${url.search}${url.hash}`;
+};
 export default function App() {
-  const [route, setRoute] = useState<Route>(home);
-  const [started, setStarted] = useState(false);
-  const [demo, setDemo] = useState(false);
+  const [route, setRoute] = useState<Route>(routeFromUrl);
+  const [started, setStarted] = useState(() => routeFromUrl().page === 'builder');
+  const [demo, setDemo] = useState(() => routeFromUrl().demo);
   const [sessionVersion, setSessionVersion] = useState(0);
   useEffect(() => {
-    history.replaceState({ ...history.state, gitfolio: home }, '');
+    const initial = routeFromUrl();
+    history.replaceState(
+      { ...history.state, gitfolio: initial },
+      '',
+      urlForRoute(initial)
+    );
     const pop = (event: PopStateEvent) => {
-      const next = event.state?.gitfolio;
-      setRoute(next && [1, 2, 3].includes(next.step) ? next : home);
+      const saved = event.state?.gitfolio;
+      const next =
+        saved && [1, 2, 3].includes(saved.step) ? saved : routeFromUrl();
+      if (next.page === 'builder') {
+        setStarted(true);
+        setDemo(next.demo);
+      }
+      setRoute(next);
     };
     window.addEventListener('popstate', pop);
     return () => window.removeEventListener('popstate', pop);
   }, []);
   const navigate = (next: Route) => {
-    history.pushState({ ...history.state, gitfolio: next }, '');
+    history.pushState(
+      { ...history.state, gitfolio: next },
+      '',
+      urlForRoute(next)
+    );
     setRoute(next);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
