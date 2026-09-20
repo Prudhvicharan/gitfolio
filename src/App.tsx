@@ -89,8 +89,8 @@ function App() {
         setStep(2);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    } catch (err: any) {
-      setGithubError(err.message || 'Failed to fetch GitHub profile');
+    } catch (err: unknown) {
+      setGithubError(err instanceof Error ? err.message : 'Failed to fetch GitHub profile');
     } finally {
       setFetchingGithub(false);
     }
@@ -103,8 +103,8 @@ function App() {
     try {
       const content = await generateAIContent(apiKey, githubUser, githubRepos, jobTitle, addLog);
       setAiContent(content);
-    } catch (err: any) {
-      addLog(`Error: ${err.message}`, 'warning');
+    } catch (err: unknown) {
+      addLog(`Error: ${err instanceof Error ? err.message : 'Generation failed'}`, 'warning');
     } finally {
       setGenerating(false);
     }

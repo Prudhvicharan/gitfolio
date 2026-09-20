@@ -4,6 +4,8 @@ import { Copy, Download, Check, Eye, Code, RefreshCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
+import { markdownSchema } from '../utils/markdownSchema';
 
 // Stateful image component — prevents duplicate placeholders on re-render.
 // DOM manipulation in onError creates orphaned nodes each time React unmounts/remounts
@@ -176,7 +178,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown, onReset, onRegene
 
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeRaw]}
+                rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSchema]]}
                 components={{
                   img: ({ src, alt }) => <PreviewImage src={src} alt={alt} />,
                   a: ({ href, children }) => (

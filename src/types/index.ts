@@ -79,4 +79,7 @@ export interface GeneratorConfig {
    *  changes in Step 2 don't scramble them. User can explicitly refresh via
    *  "Try Different Style" button. */
   creativeSeed?: number;
+  openToWork?: boolean;
+  snakeReady?: boolean;
+  disabledWidgetUrls?: string[];
 }
