@@ -29,10 +29,10 @@ security headers; the development server intentionally serves the interactive de
    external image requests by default.
 3. **Real profile:** import your username, choose repositories (including forks if
    desired), and inspect the sample-size and partial-error messages.
-4. **Content review:** generate or edit the profile content and confirm every field
-   updates the preview immediately. Personal notes and animated lines explain where
-   they appear and warn when their Style section is disabled. Approve the content
-   once before export. Availability appears only after selecting “Open to work.”
+4. **Content review:** choose either AI creation or guided manual writing. Confirm the
+   selected path reveals only the controls it needs, every edited field updates the
+   preview immediately, and notes/animation enable their destination automatically.
+   Approve the content once before export.
 5. **AI (credential-dependent):** enter your own key directly in the app, consent to
    sending metadata to Google, and request a complete draft. Verify every generated
    field is plausible, approve it, then leave and return to Review: the key field should be empty.
@@ -111,8 +111,8 @@ artifacts go to `/tmp/gitfolio-qa/artifacts`.
 - Lighthouse numbers are local lab measurements, not field Core Web Vitals. Recheck
   the deployed build and security headers before promoting it.
 - Optional image providers and Google model availability remain external dependencies.
-- The contribution overview now uses GitHub Profile Summary Cards; confirm this
-  third-party image on the deployed site and keep the built-in widget check available.
+- Public work and profile metrics now use native Markdown/HTML and must render without
+  any image service. Use the widget check only for optional banners, icons, and cards.
 
 Beyond the original audit, consider adding the existing checks to CI, maintaining a
 small dependency/model-availability review schedule, and collecting consent-based
