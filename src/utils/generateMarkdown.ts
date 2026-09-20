@@ -337,7 +337,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
   }
   if (sections.contribution3d && config.contribution3dReady) {
     const contributionLandscape = image(
-      `https://raw.githubusercontent.com/${encodeURIComponent(user.login)}/${encodeURIComponent(user.login)}/HEAD/profile-3d-contrib/profile-night-rainbow.svg`,
+      './profile-3d-contrib/profile-night-rainbow.svg',
       '3D GitHub contribution calendar',
       'width="100%"'
     );

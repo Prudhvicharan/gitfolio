@@ -11,7 +11,7 @@ test('preview rejects active HTML but preserves supported image layout', () => {
     React.createElement(
       ReactMarkdown,
       { rehypePlugins: [rehypeRaw, [rehypeSanitize, markdownSchema]] },
-      '<iframe src="https://evil.test"></iframe><script>alert(1)</script><form action="https://evil.test"><input></form><img src="https://example.com/a.svg" width="260" align="right" onerror="alert(1)"><a href="javascript:alert(1)">bad link</a>'
+      '<iframe src="https://evil.test"></iframe><script>alert(1)</script><form action="https://evil.test"><input></form><img src="https://example.com/a.svg" width="260" align="right" onerror="alert(1)"><img src="./profile-3d-contrib/profile-night-rainbow.svg" alt="relative asset"><a href="javascript:alert(1)">bad link</a>'
     )
   );
   assert.doesNotMatch(
@@ -20,4 +20,8 @@ test('preview rejects active HTML but preserves supported image layout', () => {
   );
   assert.match(output, /width="260"/);
   assert.match(output, /align="right"/);
+  assert.match(
+    output,
+    /src="\.\/profile-3d-contrib\/profile-night-rainbow\.svg"/
+  );
 });

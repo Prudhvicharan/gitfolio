@@ -119,7 +119,7 @@ test('3D contributions are gated behind a verified portable workflow', () => {
   assert.match(ready, /Contribution landscape/);
   assert.match(
     ready,
-    /raw\.githubusercontent\.com\/example\/example\/HEAD\/profile-3d-contrib\/profile-night-rainbow\.svg/
+    /\.\/profile-3d-contrib\/profile-night-rainbow\.svg/
   );
 
   const workflow = generateContribution3dWorkflow();

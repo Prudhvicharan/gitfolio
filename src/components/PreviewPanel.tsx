@@ -17,6 +17,7 @@ interface Props {
   demo: boolean;
   pending: boolean;
   hasProfile: boolean;
+  profileUsername?: string;
 }
 export default function PreviewPanel({
   markdown,
@@ -25,6 +26,7 @@ export default function PreviewPanel({
   demo,
   pending,
   hasProfile,
+  profileUsername,
 }: Props) {
   const [mode, setMode] = useState<'preview' | 'code'>('preview');
   const [status, setStatus] = useState('');
@@ -205,6 +207,7 @@ export default function PreviewPanel({
               markdown={renderedMarkdown}
               onRemove={onRemoveWidget}
               readOnly={demo}
+              profileUsername={profileUsername}
             />
           </Suspense>
         )}

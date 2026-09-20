@@ -570,6 +570,7 @@ export default function Wizard({
               demo={isDemo}
               pending={pending}
               hasProfile={!!config.userData}
+              profileUsername={config.userData?.login}
             />
             {config.userData && !isDemo && (
               <PublishGuide config={config} onChange={patch} />
