@@ -65,8 +65,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
     )
       .map((line) => encodeURIComponent(line.slice(0, 45)))
       .join(';');
-    add(
-      image(
+    const typing = image(
         EXTRA_WIDGETS.typingSvg(
           lines,
           TYPING_FONTS[seed % TYPING_FONTS.length],
@@ -74,11 +73,12 @@ export const generateReadme = (config: GeneratorConfig): string => {
         ),
         'Animated profile introduction',
         'width="600" height="50"'
-      )
-    );
+      );
+    if (typing) add(`<div align="center">\n${typing}\n</div>`);
   }
   if (sections.aboutCode) {
     const about = [`# Hi, I'm ${text(name)}`];
+    if (content?.tagline) about.push(`### ${text(content.tagline)}`);
     const bio = content ? content.aboutMe : user.bio;
     if (bio) about.push(text(bio));
     if (jobTitle) about.push(`**Focus:** ${text(jobTitle)}`);
@@ -164,7 +164,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
       'Public contribution activity',
       'width="100%"'
     );
-    if (graph) add(`## Contribution activity\n\n${graph}`);
+    if (graph) add(`## Contribution overview\n\n${graph}`);
   }
   if (sections.topRepos && repos.length) {
     add(

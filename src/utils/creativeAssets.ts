@@ -286,7 +286,7 @@ export const EXTRA_WIDGETS = {
   followers: (username: string) =>
     `https://img.shields.io/github/followers/${username}?label=Followers&style=flat-square&color=blue&labelColor=1a1a2e`,
   activityGraph: (username: string) =>
-    `https://github-readme-activity-graph.vercel.app/graph?username=${username}&bg_color=0d1117&color=6366f1&line=a855f7&point=22d3ee&area=true&hide_border=true`,
+    `https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=${username}&theme=radical`,
   snake: (username: string) =>
     `https://raw.githubusercontent.com/${username}/${username}/output/github-snake-dark.svg`,
   skillIcons: (icons: string) =>

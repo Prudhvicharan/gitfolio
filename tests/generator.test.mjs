@@ -147,6 +147,29 @@ test('custom header gradients use the provider syntax without a random-color pre
   assert.doesNotMatch(md, /color=auto:/);
 });
 
+test('review content, centered animation, and contribution overview reach the export', () => {
+  const md = generateReadme({
+    ...config,
+    sections: { ...config.sections, funFacts: true, typing: true, activityGraph: true },
+    aiContent: {
+      ...EMPTY_CONTENT,
+      tagline: 'Building useful things',
+      aboutMe: 'I build practical software.',
+      quote: 'Make it useful.',
+      funFacts: ['I enjoy small tools.'],
+      dreamProject: 'An accessible developer assistant.',
+      currentlyLearning: 'Accessibility testing',
+      skills: ['TypeScript'],
+      typingLines: ['Builder', 'Problem solver'],
+    },
+  });
+  assert.match(md, /<div align="center">[\s\S]*readme-typing-svg/);
+  assert.match(md, /Building useful things/);
+  assert.match(md, /I enjoy small tools/);
+  assert.match(md, /An accessible developer assistant/);
+  assert.match(md, /github-profile-summary-cards\.vercel\.app/);
+});
+
 test('widget checks include only distinct HTTPS image URLs and decode query separators', async () => {
   const { widgetUrls } = await import('../src/utils/checkWidgets.ts');
   assert.deepEqual(

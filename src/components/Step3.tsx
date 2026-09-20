@@ -1,16 +1,10 @@
 import { useState } from 'react';
-import {
-  ArrowLeft,
-  Check,
-  Eye,
-  EyeOff,
-  LoaderCircle,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowLeft, Check, Eye, EyeOff, LoaderCircle, Sparkles } from 'lucide-react';
 import type { AIContent, GeneratorConfig } from '../types';
 import { EMPTY_CONTENT, validateAIContent } from '../utils/content';
 import { extractLanguages } from '../hooks/useGithub';
 import { AI_MODEL } from '../hooks/useGemini';
+
 interface Props {
   config: GeneratorConfig;
   onChange: (patch: Partial<GeneratorConfig>) => void;
@@ -22,32 +16,17 @@ interface Props {
   active: boolean;
   onPending: (pending: boolean) => void;
 }
-export default function Step3({
-  config,
-  onChange,
-  onGenerate,
-  generating,
-  onCancel,
-  onBack,
-  onFinish,
-  active,
-  onPending,
-}: Props) {
+
+export default function Step3({ config, onChange, onGenerate, generating, onCancel, onBack, onFinish, active, onPending }: Props) {
+  const fallback = { ...EMPTY_CONTENT, aboutMe: config.userData?.bio || '', skills: extractLanguages(config.repos) };
+  const [draft, setDraft] = useState<AIContent>(() => config.aiContent ?? fallback);
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [consent, setConsent] = useState(false);
-  const [draft, setDraft] = useState<AIContent>(
-    () =>
-      config.aiContent ?? {
-        ...EMPTY_CONTENT,
-        aboutMe: config.userData?.bio || '',
-        skills: extractLanguages(config.repos),
-      }
-  );
-  const [dirty, setDirty] = useState(false);
-  const [reviewed, setReviewed] = useState(false);
+  const [needsApproval, setNeedsApproval] = useState(false);
   const [message, setMessage] = useState('');
   const [wasActive, setWasActive] = useState(active);
+
   if (wasActive !== active) {
     setWasActive(active);
     if (!active) {
@@ -55,331 +34,110 @@ export default function Step3({
       setConsent(false);
     }
   }
-  const edit = (patch: Partial<AIContent>) => {
-    setDraft({ ...draft, ...patch });
-    setDirty(true);
+
+  const update = (patch: Partial<AIContent>) => {
+    const next = { ...draft, ...patch };
+    setDraft(next);
+    onChange({ aiContent: next });
+    setNeedsApproval(true);
     onPending(true);
-    setReviewed(false);
-    setMessage('');
+    setMessage('Preview updated. Approve the content when it reads like you.');
   };
+
   const generate = async () => {
     setMessage('');
     const value = await onGenerate(apiKey);
-    if (value) {
-      setDraft(value);
-      setDirty(true);
-      onPending(true);
-      setReviewed(false);
-      setMessage(
-        'AI draft ready. Check and edit the content below before applying it.'
-      );
-    }
+    if (!value) return;
+    setDraft(value);
+    onChange({ aiContent: value });
+    setNeedsApproval(true);
+    onPending(true);
+    setMessage('Your complete AI draft is in the preview. Fine-tune it or approve it.');
   };
-  const apply = () => {
+
+  const approve = () => {
     try {
-      const content = validateAIContent({
-        ...draft,
-        skills: draft.skills.filter((value) => value.trim()),
-        funFacts: draft.funFacts.filter((value) => value.trim()),
-        typingLines: draft.typingLines.filter((value) => value.trim()),
-      });
+      const content = validateAIContent(draft);
+      setDraft(content);
       onChange({ aiContent: content });
+      setNeedsApproval(false);
+      onPending(false);
+      setMessage('Content approved. Your README is ready to review and export.');
     } catch {
-      setMessage(
-        'Please use at most 35 entries per list and keep each entry under 300 characters.'
-      );
-      return;
+      setMessage('Shorten the lists or entries before approving this content.');
     }
-    setDirty(false);
-    onPending(false);
-    setMessage('Reviewed content applied to your README.');
   };
+
   return (
     <section className="step-content" aria-labelledby="step-heading-3">
       <div className="section-intro">
-        <span className="eyebrow">03 / TELL YOUR STORY</span>
-        <h1 id="step-heading-3" tabIndex={-1}>
-          Make every word yours.
-        </h1>
-        <p>
-          Edit your profile below. AI can help with a draft, but you decide what
-          gets published.
-        </p>
+        <span className="eyebrow">03 / CREATE YOUR STORY</span>
+        <h1 id="step-heading-3" tabIndex={-1}>Let AI do the first draft.</h1>
+        <p>Generate a complete profile from your selected repositories, then change only what you want.</p>
       </div>
-      <details className="disclosure ai-disclosure">
-        <summary>
-          <Sparkles size={17} /> Enhance with AI <span>optional</span>
-        </summary>
+
+      <section className="ai-workspace" aria-labelledby="ai-draft-heading">
+        <div className="ai-workspace-heading">
+          <Sparkles size={20} />
+          <div>
+            <h2 id="ai-draft-heading">Generate my README content</h2>
+            <p>Creates your intro, skills, profile lines, notes, project idea, and developer philosophy in one pass.</p>
+          </div>
+        </div>
         <div className="form-stack">
-          <p className="help">
-            Uses {AI_MODEL}. Your key is held in memory only, sent directly to
-            Google, and cleared when you leave this step. Google’s project
-            limits and billing apply.
-          </p>
-          <a
-            href="https://aistudio.google.com/app/apikey"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Get a Gemini API key{' '}
-            <span className="sr-only">(opens a new tab)</span>↗
-          </a>
           <div className="field">
             <label htmlFor="gemini-key">Gemini API key</label>
             <div className="input-action">
-              <input
-                id="gemini-key"
-                type={showKey ? 'text' : 'password'}
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Paste your key"
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <button
-                type="button"
-                aria-label={showKey ? 'Hide API key' : 'Show API key'}
-                aria-pressed={showKey}
-                onClick={() => setShowKey(!showKey)}
-              >
+              <input id="gemini-key" type={showKey ? 'text' : 'password'} value={apiKey} onChange={(event) => setApiKey(event.target.value)} placeholder="Paste your key to generate" autoComplete="off" spellCheck={false} />
+              <button type="button" aria-label={showKey ? 'Hide API key' : 'Show API key'} onClick={() => setShowKey(!showKey)}>
                 {showKey ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
-          <button
-            className="text-button"
-            onClick={() => {
-              setApiKey('');
-              setConsent(false);
-              setMessage('API key cleared from this step.');
-            }}
-          >
-            Clear key
-          </button>
           <label className="check-option">
-            <input
-              type="checkbox"
-              checked={consent}
-              onChange={(e) => setConsent(e.target.checked)}
-            />
-            <span>
-              Send my name, bio, focus, and selected repository metadata to
-              Google to generate a draft.
-            </span>
+            <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />
+            <span>Send my public profile and selected repository details to Google for this draft. The key stays in memory and is never saved.</span>
           </label>
           <div className="button-row">
-            <button
-              className="btn-primary"
-              disabled={
-                !apiKey.trim() ||
-                !consent ||
-                generating ||
-                config.userData?.id === 0
-              }
-              onClick={generate}
-            >
-              {generating ? (
-                <>
-                  <LoaderCircle className="spin" size={17} /> Drafting…
-                </>
-              ) : (
-                <>
-                  <Sparkles size={17} /> Generate AI draft
-                </>
-              )}
+            <button className="btn-primary" disabled={!apiKey.trim() || !consent || generating || config.userData?.id === 0} onClick={generate}>
+              {generating ? <><LoaderCircle className="spin" size={17} /> Writing your README…</> : <><Sparkles size={17} /> Generate complete draft</>}
             </button>
-            {generating && (
-              <button className="btn-secondary" onClick={onCancel}>
-                Cancel
-              </button>
-            )}
+            {generating && <button className="btn-secondary" onClick={onCancel}>Cancel</button>}
           </div>
-          {config.userData?.id === 0 && (
-            <p className="help">
-              The sample is fictional. Import your own profile to use AI.
-            </p>
-          )}
-          <p className="help">
-            <a
-              href="https://ai.google.dev/gemini-api/docs/rate-limits"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Google quotas ↗
-            </a>{' '}
-            ·{' '}
-            <a
-              href="https://ai.google.dev/gemini-api/docs/pricing"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Google pricing & data use ↗
-            </a>
-          </p>
+          <p className="help">Uses {AI_MODEL}. <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Get a Gemini API key ↗</a>{' · '}<a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener noreferrer">Pricing & data use ↗</a></p>
+          {config.userData?.id === 0 && <p className="help">Import your own profile to use AI. The sample remains editable by hand.</p>}
+        </div>
+      </section>
+
+      <details className="disclosure content-editor" open={!config.aiContent}>
+        <summary>Fine-tune the generated content <span>{config.aiContent ? 'optional' : 'or write it yourself'}</span></summary>
+        <div className="form-stack">
+          <div className="field"><label htmlFor="bio">About me <span>your main introduction</span></label><textarea id="bio" rows={5} maxLength={4000} value={draft.aboutMe} onChange={(event) => update({ aboutMe: event.target.value })} /></div>
+          <div className="field"><label htmlFor="tagline">Short tagline <span>shown below your name</span></label><input id="tagline" maxLength={300} value={draft.tagline} onChange={(event) => update({ tagline: event.target.value })} /></div>
+          <div className="field"><label htmlFor="skills">Skills <span>comma separated</span></label><input id="skills" maxLength={1000} value={draft.skills.join(', ')} onChange={(event) => update({ skills: event.target.value.split(',').map((value) => value.trim()) })} /></div>
+          <div className="field"><label htmlFor="learning">Currently learning <span>leave blank if it does not apply</span></label><input id="learning" maxLength={300} value={draft.currentlyLearning} onChange={(event) => update({ currentlyLearning: event.target.value })} /></div>
+          <label className="check-option"><input type="checkbox" checked={!!config.openToWork} onChange={(event) => onChange({ openToWork: event.target.checked })} /><span>Add “Open to work” to the About section</span></label>
+
+          <details className="disclosure">
+            <summary>Personality and animation <span>each field has a clear destination</span></summary>
+            <div className="form-stack">
+              <div className="field"><label htmlFor="notes">Personal notes <span>bullet points in “Personal notes”</span></label><textarea id="notes" rows={3} maxLength={1500} value={draft.funFacts.join('\n')} onChange={(event) => update({ funFacts: event.target.value.split('\n') })} /></div>
+              <div className="field"><label htmlFor="dream">A project you would like to build <span>added to “Personal notes”</span></label><textarea id="dream" rows={2} maxLength={500} value={draft.dreamProject} onChange={(event) => update({ dreamProject: event.target.value })} /></div>
+              <div className="field"><label htmlFor="quote">Your philosophy <span>shown as a quote in “About me”</span></label><input id="quote" maxLength={300} value={draft.quote} onChange={(event) => update({ quote: event.target.value })} /></div>
+              <div className="field"><label htmlFor="typing">Animated intro lines <span>one per line, shown above “About me”</span></label><textarea id="typing" rows={3} maxLength={300} value={draft.typingLines.join('\n')} onChange={(event) => update({ typingLines: event.target.value.split('\n') })} /></div>
+              {!config.sections.funFacts && (draft.funFacts.some(Boolean) || draft.dreamProject) && <p className="notice warning">Personal notes are filled in but hidden. Turn on “Personal notes” in Style to include them.</p>}
+              {!config.sections.typing && draft.typingLines.some(Boolean) && <p className="notice warning">Animated lines are filled in but hidden. Turn on “Typing animation” in Style to include them.</p>}
+            </div>
+          </details>
         </div>
       </details>
-      <div className="form-stack">
-        <div className="field">
-          <label htmlFor="bio">About me</label>
-          <textarea
-            id="bio"
-            rows={5}
-            maxLength={4000}
-            value={draft.aboutMe}
-            onChange={(e) => edit({ aboutMe: e.target.value })}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="skills">
-            Skills <span>comma separated</span>
-          </label>
-          <input
-            id="skills"
-            value={draft.skills.join(', ')}
-            onChange={(e) =>
-              edit({ skills: e.target.value.split(',').map((s) => s.trim()) })
-            }
-            maxLength={1000}
-          />
-          <p className="help">
-            Include only technologies you are comfortable claiming.
-          </p>
-        </div>
-        <div className="field">
-          <label htmlFor="learning">
-            Currently learning <span>optional</span>
-          </label>
-          <input
-            id="learning"
-            value={draft.currentlyLearning}
-            onChange={(e) => edit({ currentlyLearning: e.target.value })}
-            maxLength={300}
-          />
-        </div>
-        <details className="disclosure">
-          <summary>
-            Personal notes & animation text <span>optional</span>
-          </summary>
-          <div className="form-stack">
-            <div className="field">
-              <label htmlFor="notes">
-                Personal notes <span>one per line</span>
-              </label>
-              <textarea
-                id="notes"
-                rows={3}
-                value={draft.funFacts.join('\n')}
-                onChange={(e) => edit({ funFacts: e.target.value.split('\n') })}
-                maxLength={1500}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="dream">A project you would like to build</label>
-              <textarea
-                id="dream"
-                rows={2}
-                value={draft.dreamProject}
-                onChange={(e) => edit({ dreamProject: e.target.value })}
-                maxLength={500}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="quote">Your own quote or philosophy</label>
-              <input
-                id="quote"
-                value={draft.quote}
-                onChange={(e) => edit({ quote: e.target.value })}
-                maxLength={300}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="typing">
-                Typing animation lines{' '}
-                <span>one per line, up to 45 characters each</span>
-              </label>
-              <textarea
-                id="typing"
-                rows={3}
-                value={draft.typingLines.join('\n')}
-                onChange={(e) =>
-                  edit({ typingLines: e.target.value.split('\n') })
-                }
-                maxLength={300}
-              />
-            </div>
-          </div>
-        </details>
-        <label className="check-option">
-          <input
-            type="checkbox"
-            checked={!!config.openToWork}
-            onChange={(e) => onChange({ openToWork: e.target.checked })}
-          />
-          <span>Include “Open to work” in my About section</span>
-        </label>
-        {dirty && (
-          <div className="review-box">
-            <label className="check-option">
-              <input
-                type="checkbox"
-                checked={reviewed}
-                onChange={(e) => setReviewed(e.target.checked)}
-              />
-              <span>
-                I’ve reviewed this draft and its claims accurately describe me.
-              </span>
-            </label>
-            <button
-              className="btn-primary"
-              disabled={!reviewed}
-              onClick={apply}
-            >
-              <Check size={17} /> Apply reviewed content
-            </button>
-            <button
-              className="text-button"
-              onClick={() => {
-                setDraft(
-                  config.aiContent ?? {
-                    ...EMPTY_CONTENT,
-                    aboutMe: config.userData?.bio || '',
-                    skills: extractLanguages(config.repos),
-                  }
-                );
-                setDirty(false);
-                onPending(false);
-                setReviewed(false);
-              }}
-            >
-              Discard unapplied edits
-            </button>
-            <p className="help">
-              Your preview keeps the previous content until you apply these
-              edits.
-            </p>
-          </div>
-        )}
-        <p role="status" className="status-message">
-          {message}
-        </p>
-      </div>
+
+      <p role="status" className="status-message">{message}</p>
+      {needsApproval && <div className="review-box"><h2>One final check</h2><p>Read the live preview, correct anything that does not sound like you, then approve it for export.</p><button className="btn-primary" onClick={approve}><Check size={17} /> Approve this content</button></div>}
       <div className="button-row">
-        <button
-          className="btn-secondary"
-          onClick={onBack}
-          disabled={generating}
-        >
-          <ArrowLeft size={16} /> Style
-        </button>
-        <button
-          className="btn-primary"
-          onClick={onFinish}
-          disabled={dirty || generating}
-        >
-          Review & export <Check size={17} />
-        </button>
+        <button className="btn-secondary" onClick={onBack} disabled={generating}><ArrowLeft size={16} /> Style</button>
+        <button className="btn-primary" onClick={onFinish} disabled={needsApproval || generating}>Review & export <Check size={17} /></button>
       </div>
-      {dirty && <p className="help">Apply your reviewed edits to continue.</p>}
     </section>
   );
 }

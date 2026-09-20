@@ -11,7 +11,7 @@ export const SECTION_LABELS: Record<keyof SectionToggles, string> = {
   stats: 'GitHub stats',
   streak: 'Streak stats',
   languages: 'Language card',
-  activityGraph: 'Activity graph',
+  activityGraph: 'Contribution overview',
   topRepos: 'Selected projects',
   snake: 'Contribution snake',
 };
@@ -136,7 +136,7 @@ export function widgetSection(url: string): keyof SectionToggles | null {
   if (url.includes('github-readme-stats-eight-theta.vercel.app/api?'))
     return 'stats';
   if (url.includes('streak-stats.demolab.com')) return 'streak';
-  if (url.includes('github-readme-activity-graph.vercel.app'))
+  if (url.includes('github-profile-summary-cards.vercel.app'))
     return 'activityGraph';
   if (url.includes('github-snake')) return 'snake';
   return null;
