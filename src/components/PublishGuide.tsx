@@ -1,5 +1,8 @@
 import type { GeneratorConfig } from '../types';
-import { generateSnakeWorkflow } from '../utils/generateMarkdown';
+import {
+  generateContribution3dWorkflow,
+  generateSnakeWorkflow,
+} from '../utils/generateMarkdown';
 import { downloadFile } from '../utils/download';
 export default function PublishGuide({
   config,
@@ -53,8 +56,10 @@ export default function PublishGuide({
           </p>
         </li>
       </ol>
-      {config.sections.snake && (
-        <div className="snake-setup">
+      {(config.sections.snake || config.sections.contribution3d) && (
+        <div className="workflow-stack">
+          {config.sections.snake && (
+            <div className="snake-setup">
           <h3>Set up the contribution snake</h3>
           <p>
             GitHub must generate this animation inside your profile repository.
@@ -127,6 +132,85 @@ export default function PublishGuide({
               The snake will not appear in Preview or the downloaded README until
               you complete the setup and confirm it above.
             </p>
+          )}
+            </div>
+          )}
+          {config.sections.contribution3d && (
+            <div className="snake-setup">
+          <h3>Set up the 3D contribution landscape</h3>
+          <p>
+            Generate the contribution visual in your own profile repository so
+            it remains independent of a public stats-card server.
+          </p>
+          <ol className="snake-steps">
+            <li>
+              <strong>Download the workflow.</strong> Save it at exactly{' '}
+              <code>.github/workflows/profile-3d.yml</code> inside{' '}
+              <code>{username || 'your-username'}/{username || 'your-username'}</code>.
+            </li>
+            <li>
+              <strong>Commit and push it.</strong> The workflow uses GitHub’s
+              automatic repository token; you do not need to create a secret.
+            </li>
+            <li>
+              <strong>Allow repository writes.</strong> In{' '}
+              <em>Settings → Actions → General → Workflow permissions</em>,
+              select <em>Read and write permissions</em>.
+            </li>
+            <li>
+              <strong>Run it once.</strong> In Actions, open{' '}
+              <em>GitHub Profile 3D Contributions</em>, select{' '}
+              <em>Run workflow</em>, and wait for a successful run.
+            </li>
+            <li>
+              <strong>Verify the asset.</strong> Confirm that{' '}
+              <code>profile-3d-contrib/profile-night-rainbow.svg</code> exists
+              on your default branch.
+            </li>
+          </ol>
+          <button
+            className="btn-secondary"
+            onClick={() =>
+              downloadFile(
+                generateContribution3dWorkflow(),
+                'profile-3d.yml',
+                'text/yaml'
+              )
+            }
+          >
+            Download profile-3d.yml
+          </button>
+          <p className="help">
+            The workflow contains no username, email, API key, or personal
+            token. It uses the repository owner and GitHub’s automatic token.
+          </p>
+          {username && (
+            <p className="snake-links">
+              <a href={`https://github.com/${encodeURIComponent(username)}/${encodeURIComponent(username)}/actions`} target="_blank" rel="noopener noreferrer">Open Actions ↗</a>
+              {' · '}
+              <a href={`https://github.com/${encodeURIComponent(username)}/${encodeURIComponent(username)}/tree/HEAD/profile-3d-contrib`} target="_blank" rel="noopener noreferrer">Check generated assets ↗</a>
+            </p>
+          )}
+          <label className="check-option">
+            <input
+              type="checkbox"
+              checked={!!config.contribution3dReady}
+              onChange={(e) =>
+                onChange({ contribution3dReady: e.target.checked })
+              }
+            />
+            <span>
+              I verified a successful run and the generated SVG. Include the
+              3D landscape in my README.
+            </span>
+          </label>
+          {!config.contribution3dReady && (
+            <p className="notice warning">
+              The landscape will not appear in Preview or the downloaded README
+              until you complete the setup and confirm it above.
+            </p>
+          )}
+            </div>
           )}
         </div>
       )}

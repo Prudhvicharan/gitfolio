@@ -47,7 +47,49 @@ jobs:
 `;
 }
 
-export const generateReadme = (config: GeneratorConfig): string => {
+export function generateContribution3dWorkflow(): string {
+  return `name: GitHub Profile 3D Contributions
+
+on:
+  schedule:
+    - cron: "20 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Generate 3D contribution landscape
+        uses: yoshi389111/github-profile-3d-contrib@v0.9.2
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          USERNAME: \${{ github.repository_owner }}
+
+      - name: Commit generated assets
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add profile-3d-contrib
+          if git diff --cached --quiet; then
+            echo "Contribution assets are already current."
+          else
+            git commit -m "chore: refresh 3D contribution profile [skip ci]"
+            git push
+          fi
+`;
+}
+
+export const generateReadme = (
+  config: GeneratorConfig,
+  portfolioRepos: GeneratorConfig['repos'] = config.repos
+): string => {
   const {
     userData: user,
     repos,
@@ -70,8 +112,24 @@ export const generateReadme = (config: GeneratorConfig): string => {
   const add = (value: string) => {
     if (value.trim()) parts.push(value);
   };
-  const skills = content ? content.skills : extractLanguages(repos);
   const layout = config.layout ?? 'studio';
+  const portfolioLanguages = extractLanguages(portfolioRepos);
+  const visual = (value: string) =>
+    layout === 'editorial'
+      ? value
+      : `<div align="center">\n${value}\n</div>`;
+  const skills = [
+    ...(content?.skills || []),
+    ...portfolioLanguages,
+  ].reduce<string[]>((all, skill) => {
+    const value = skill.trim();
+    if (
+      value &&
+      !all.some((existing) => existing.toLowerCase() === value.toLowerCase())
+    )
+      all.push(value);
+    return all;
+  }, []);
   const title = (label: string, symbol: string) =>
     `## ${layout === 'aurora' ? `${symbol} ` : ''}${label}`;
   const seed = Math.abs(Math.floor((config.creativeSeed ?? 0.5) * 10000));
@@ -83,7 +141,11 @@ export const generateReadme = (config: GeneratorConfig): string => {
       cylinder: 'cylinder',
       shark: 'shark',
     };
-    const color = headerColor.replace('#', '');
+    const color = (
+      headerColor === '#0D1117'
+        ? '0:05070B,50:111827,100:312E81'
+        : headerColor
+    ).replace('#', '');
     add(
       image(
         EXTRA_WIDGETS.capsuleHeader(
@@ -143,7 +205,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
           ? `  focus: ${JSON.stringify(content.focusAreas.map(safeCode))},`
           : '',
         skills.length
-          ? `  toolkit: ${JSON.stringify(skills.slice(0, 8).map(safeCode))},`
+          ? `  toolkit: ${JSON.stringify(skills.map(safeCode))},`
           : '',
         content.currentlyLearning
           ? `  exploring: ${JSON.stringify(safeCode(content.currentlyLearning))},`
@@ -183,7 +245,13 @@ export const generateReadme = (config: GeneratorConfig): string => {
     const widget = keys
       ? image(EXTRA_WIDGETS.skillIcons(keys), `Skills: ${skills.join(', ')}`)
       : '';
-    if (widget) add(`${title(layout === 'aurora' ? 'Technology constellation' : 'Tools & technologies', '⌘')}\n\n${layout === 'editorial' ? widget : `<p align="center">${widget}</p>`}`);
+    const labels = skills
+      .map((skill) => `<code>${htmlAttribute(skill)}</code>`)
+      .join(' ');
+    if (widget || labels)
+      add(
+        `${title(layout === 'aurora' ? 'Technology constellation' : 'Tools & technologies', '⌘')}\n\n${widget ? (layout === 'editorial' ? widget : `<p align="center">${widget}</p>`) : ''}${widget && labels ? '\n\n' : ''}${labels ? `<p align="${layout === 'editorial' ? 'left' : 'center'}">${labels}</p>` : ''}`
+      );
   }
   if (sections.funFacts && content) {
     const notes = content.funFacts.map((fact) => `- ${text(fact)}`);
@@ -198,32 +266,35 @@ export const generateReadme = (config: GeneratorConfig): string => {
   if (sections.trophies) {
     const stars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
     const forks = repos.reduce((sum, repo) => sum + (repo.forks_count || 0), 0);
+    const liveSignals = [
+      image(EXTRA_WIDGETS.followers(user.login), 'Live GitHub follower count'),
+      image(EXTRA_WIDGETS.ownedStars(user.login), 'Live stars across owned repositories'),
+    ].filter(Boolean);
     add(
-      `${title('At a glance', '◆')}\n\n<table><tr><td align="center"><strong>${user.public_repos}</strong><br/><sub>PUBLIC REPOSITORIES</sub></td><td align="center"><strong>${user.followers}</strong><br/><sub>FOLLOWERS</sub></td><td align="center"><strong>${stars}</strong><br/><sub>SELECTED REPO STARS</sub></td><td align="center"><strong>${forks}</strong><br/><sub>SELECTED REPO FORKS</sub></td></tr></table>`
+      `${title('At a glance', '◆')}\n\n${visual(`<table><tr><td align="center"><strong>${user.public_repos}</strong><br/><sub>PUBLIC REPOSITORIES</sub></td><td align="center"><strong>${user.followers}</strong><br/><sub>FOLLOWERS</sub></td><td align="center"><strong>${stars}</strong><br/><sub>SELECTED REPO STARS</sub></td><td align="center"><strong>${forks}</strong><br/><sub>SELECTED REPO FORKS</sub></td></tr></table>${liveSignals.length ? `\n<p>${liveSignals.join(' ')}</p>` : ''}`)}`
     );
   }
   if (sections.stats) {
     const originals = repos.filter((repo) => !repo.fork).length;
-    const topics = [...new Set(repos.flatMap((repo) => repo.topics || []))].slice(0, 8);
-    add(`${title('Engineering footprint', '▦')}\n\n<table><tr><td align="center"><strong>${originals}</strong><br/><sub>ORIGINAL BUILDS</sub></td><td align="center"><strong>${repos.reduce((sum, repo) => sum + (repo.forks_count || 0), 0)}</strong><br/><sub>REPOSITORY FORKS</sub></td><td align="center"><strong>${extractLanguages(repos).length}</strong><br/><sub>PRIMARY LANGUAGES</sub></td><td align="center"><strong>${topics.length}</strong><br/><sub>PROJECT TOPICS</sub></td></tr></table>${topics.length ? `\n\n<sub>FOCUS SIGNALS</sub>\n\n${topics.map(text).join(' · ')}` : ''}`);
+    const topics = [...new Set(repos.flatMap((repo) => repo.topics || []))];
+    add(`${title('Engineering footprint', '▦')}\n\n${visual(`<table><tr><td align="center"><strong>${originals}</strong><br/><sub>ORIGINAL BUILDS</sub></td><td align="center"><strong>${repos.reduce((sum, repo) => sum + (repo.forks_count || 0), 0)}</strong><br/><sub>REPOSITORY FORKS</sub></td><td align="center"><strong>${portfolioLanguages.length}</strong><br/><sub>PORTFOLIO LANGUAGES</sub></td><td align="center"><strong>${topics.length}</strong><br/><sub>PROJECT TOPICS</sub></td></tr></table>${topics.length ? `\n<p><sub>FOCUS SIGNALS</sub><br/>${topics.map(htmlAttribute).join(' · ')}</p>` : ''}`)}`);
   }
-  if (sections.languages && repos.length) {
+  if (sections.languages && portfolioRepos.length) {
     const counts = new Map<string, number>();
-    repos.forEach((repo) => {
+    portfolioRepos.forEach((repo) => {
       if (repo.language)
         counts.set(repo.language, (counts.get(repo.language) || 0) + 1);
     });
     const total = [...counts.values()].reduce((sum, count) => sum + count, 0);
     const rows = [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
       .map(([language, count]) => {
         const percentage = Math.round((count / total) * 100);
         const filled = Math.max(1, Math.round(percentage / 10));
         return `<tr><td><strong>${htmlAttribute(language)}</strong></td><td><code>${'█'.repeat(filled)}${'░'.repeat(10 - filled)}</code></td><td align="right">${percentage}%</td></tr>`;
       });
     if (rows.length)
-      add(`${title('Language mix', '◒')}\n\n<table>${rows.join('')}</table>`);
+      add(`${title('Language mix', '◒')}\n\n${visual(`<table>${rows.join('')}</table>\n<p><sub>PRIMARY LANGUAGES ACROSS ${portfolioRepos.length} IMPORTED PUBLIC REPOSITORIES</sub></p>`)}`);
   }
   const stats: string[] = [];
   if (sections.streak)
@@ -235,16 +306,18 @@ export const generateReadme = (config: GeneratorConfig): string => {
       )
     );
   if (stats.some(Boolean))
-    add(`${title('Contribution streak', '◫')}\n\n${stats.filter(Boolean).join('\n')}`);
+    add(`${title('Contribution streak', '◫')}\n\n${visual(stats.filter(Boolean).join('\n'))}`);
   if (sections.activityGraph) {
-    const languages = extractLanguages(repos).slice(0, 5);
+    const languages = portfolioLanguages;
     const originals = repos.filter((repo) => !repo.fork).length;
     const summary = [
-      `**${repos.length}** featured repositories`,
-      `**${originals}** original projects`,
-      languages.length ? `Working across **${languages.map(text).join(', ')}**` : '',
+      `<strong>${repos.length}</strong> featured repositories`,
+      `<strong>${originals}</strong> original projects`,
+      languages.length
+        ? `Working across <strong>${languages.map(htmlAttribute).join(', ')}</strong>`
+        : '',
     ].filter(Boolean);
-    add(`${title('Public work snapshot', '◉')}\n\n${summary.join(' · ')}`);
+    add(`${title('Public work snapshot', '◉')}\n\n${visual(`<p>${summary.join(' · ')}</p>`)}`);
   }
   if (sections.topRepos && repos.length) {
     if (layout === 'editorial') {
@@ -258,7 +331,7 @@ export const generateReadme = (config: GeneratorConfig): string => {
       const url = `https://github.com/${encodeURIComponent(user.login)}/${encodeURIComponent(repo.name)}`;
       const meta = [repo.language, `${repo.stargazers_count} ★`, repo.fork ? 'Fork' : null].filter(Boolean).join(' · ');
       const story = content?.projectStories[index] || repo.description || 'Explore the repository and its source code.';
-      const topics = (repo.topics || []).slice(0, 3).join(' · ');
+      const topics = (repo.topics || []).join(' · ');
       return `<td width="50%" valign="top"><h3><a href="${htmlAttribute(url)}">${htmlAttribute(repo.name)}</a></h3><p>${htmlAttribute(story)}</p>${topics ? `<p><sub>${htmlAttribute(topics)}</sub></p>` : ''}<sub>${htmlAttribute(meta)}</sub></td>`;
       });
       const rows: string[] = [];
@@ -274,6 +347,16 @@ export const generateReadme = (config: GeneratorConfig): string => {
       'width="100%"'
     );
     if (snake) add(`## Contribution snake\n\n${snake}`);
+  }
+  if (sections.contribution3d && config.contribution3dReady) {
+    const contributionLandscape = image(
+      './profile-3d-contrib/profile-night-rainbow.svg',
+      '3D GitHub contribution calendar',
+      'width="100%"'
+    );
+    add(
+      `${title('Contribution landscape', '◫')}\n\n${contributionLandscape}`
+    );
   }
   if (layout !== 'editorial' && parts.length) {
     add(`<div align="center">\n<br/>\n<strong>${text(content?.collaborationPitch || content?.quote || 'Thanks for visiting — let’s build something meaningful.')}</strong>\n<br/><br/>\n<a href="https://github.com/${encodeURIComponent(user.login)}">Explore my work on GitHub →</a>\n</div>`);

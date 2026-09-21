@@ -269,6 +269,8 @@ export const EXTRA_WIDGETS = {
     `https://komarev.com/ghpvc/?username=${username}&label=Profile+Views&color=blueviolet&style=flat-square`,
   followers: (username: string) =>
     `https://img.shields.io/github/followers/${username}?label=Followers&style=flat-square&color=blue&labelColor=1a1a2e`,
+  ownedStars: (username: string) =>
+    `https://img.shields.io/github/stars/${username}?affiliations=OWNER&label=Owned%20stars&style=flat-square&logo=github&color=8b5cf6&labelColor=17151f`,
   snake: (username: string) =>
     `https://raw.githubusercontent.com/${username}/${username}/output/github-snake-dark.svg`,
   skillIcons: (icons: string) =>

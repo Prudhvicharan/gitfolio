@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, Check, Eye, EyeOff, FilePenLine, LoaderCircle, Sparkles } from 'lucide-react';
 import type { AIContent, GeneratorConfig } from '../types';
 import { EMPTY_CONTENT, validateAIContent } from '../utils/content';
@@ -28,7 +28,24 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
   const [mode, setMode] = useState<'ai' | 'manual' | null>(null);
   const [needsApproval, setNeedsApproval] = useState(false);
   const [message, setMessage] = useState('');
+  const [generationMessage, setGenerationMessage] = useState('Preparing your selected public work');
   const [wasActive, setWasActive] = useState(active);
+
+  useEffect(() => {
+    if (!generating) return;
+    const drafting = window.setTimeout(
+      () => setGenerationMessage('Gemini is drafting your profile story'),
+      1200
+    );
+    const waiting = window.setTimeout(
+      () => setGenerationMessage('Still working — a thoughtful draft can take a moment'),
+      8000
+    );
+    return () => {
+      window.clearTimeout(drafting);
+      window.clearTimeout(waiting);
+    };
+  }, [generating]);
 
   if (wasActive !== active) {
     setWasActive(active);
@@ -54,6 +71,7 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
 
   const generate = async () => {
     setMessage('');
+    setGenerationMessage('Preparing your selected public work');
     const value = await onGenerate(apiKey);
     if (!value) return;
     setDraft(value);
@@ -190,10 +208,16 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
           </label>
           <div className="button-row">
             <button className="btn-primary" disabled={!apiKey.trim() || !consent || generating || config.userData?.id === 0} onClick={generate}>
-              {generating ? <><LoaderCircle className="spin" size={17} /> Writing your README…</> : <><Sparkles size={17} /> Generate complete draft</>}
+              {generating ? <><LoaderCircle className="spin" size={17} /> Creating your draft…</> : <><Sparkles size={17} /> Generate complete draft</>}
             </button>
             {generating && <button className="btn-secondary" onClick={onCancel}>Cancel</button>}
           </div>
+          {generating && (
+            <div className="generation-state" role="status" aria-live="polite">
+              <Sparkles className="generation-spark" size={17} />
+              <span key={generationMessage}>{generationMessage}</span>
+            </div>
+          )}
           <p className="help">Uses {AI_MODEL}. <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Get a Gemini API key ↗</a>{' · '}<a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener noreferrer">Pricing & data use ↗</a></p>
           {config.userData?.id === 0 && <p className="help">Import your own profile to use AI. The sample remains editable by hand.</p>}
         </div>
@@ -205,7 +229,7 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
           <div className="editor-section-label"><span>01</span><div><strong>Your introduction</strong><p>The first thing visitors will read.</p></div></div>
           <div className="field"><label htmlFor="bio">About me <span>2–4 sentences</span></label><textarea id="bio" rows={5} maxLength={4000} placeholder="I build thoughtful web products that turn complex problems into clear, useful experiences…" value={draft.aboutMe} onChange={(event) => update({ aboutMe: event.target.value }, 'aboutCode')} /></div>
           <div className="field"><label htmlFor="tagline">Short tagline <span>shown below your name</span></label><input id="tagline" maxLength={300} placeholder="Building useful software with care" value={draft.tagline} onChange={(event) => update({ tagline: event.target.value }, 'aboutCode')} /></div>
-          <div className="field"><label htmlFor="skills">Skills <span>comma separated</span></label><input id="skills" maxLength={1000} placeholder="TypeScript, React, Python, PostgreSQL" value={draft.skills.join(', ')} onChange={(event) => update({ skills: event.target.value.split(',').map((value) => value.trim()) }, 'skillIcons')} /></div>
+          <div className="field"><label htmlFor="skills">Skills <span>comma separated</span></label><input id="skills" maxLength={4000} placeholder="TypeScript, React, Python, PostgreSQL" value={draft.skills.join(', ')} onChange={(event) => update({ skills: event.target.value.split(',').map((value) => value.trim()) }, 'skillIcons')} /><p className="help">Every reviewed skill is preserved. Supported technologies also receive an icon.</p></div>
           <div className="field"><label htmlFor="learning">Currently exploring <span>optional</span></label><input id="learning" maxLength={300} placeholder="Accessible design systems and applied AI" value={draft.currentlyLearning} onChange={(event) => update({ currentlyLearning: event.target.value }, 'aboutCode')} /></div>
           <label className="check-option"><input type="checkbox" checked={!!config.openToWork} onChange={(event) => onChange({ openToWork: event.target.checked })} /><span>Add “Open to work” to the About section</span></label>
 

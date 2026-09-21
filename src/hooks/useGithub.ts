@@ -278,7 +278,7 @@ export const skillsToIconKeys = (skills: string[]): string => {
     }
   }
 
-  return icons.slice(0, 20).join(',');
+  return icons.join(',');
 };
 
 /** Legacy: map just repo languages (used as fallback) */

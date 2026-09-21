@@ -67,6 +67,7 @@ export function parseDraft(raw: string | null): Draft | null {
         'github_dark',
         'onedark',
         'nord',
+        'highcontrast',
         'catppuccin_mocha',
       ].includes(c.theme) ||
       !['wave', 'venom', 'slice', 'cylinder', 'shark'].includes(c.headerStyle)
@@ -79,13 +80,24 @@ export function parseDraft(raw: string | null): Draft | null {
       Object.values(c.socialLinks).some((v) => typeof v !== 'string')
     )
       return null;
+    const sectionKeys = Object.keys(PRESETS.balanced) as Array<
+      keyof GeneratorConfig['sections']
+    >;
     if (
       !c.sections ||
-      Object.keys(PRESETS.balanced).some(
-        (key) => typeof c.sections[key] !== 'boolean'
+      sectionKeys.some(
+        (key) =>
+          (key === 'contribution3d' &&
+            c.sections[key] !== undefined &&
+            typeof c.sections[key] !== 'boolean') ||
+          (key !== 'contribution3d' &&
+            typeof c.sections[key] !== 'boolean')
       )
     )
       return null;
+    const sections = Object.fromEntries(
+      sectionKeys.map((key) => [key, c.sections[key] === true])
+    ) as unknown as GeneratorConfig['sections'];
     const content: AIContent | null = c.aiContent
       ? validateAIContent(c.aiContent)
       : null;
@@ -96,13 +108,14 @@ export function parseDraft(raw: string | null): Draft | null {
         theme: c.theme,
         headerStyle: c.headerStyle,
         headerColor: c.headerColor,
-        sections: c.sections,
+        sections,
         socialLinks: c.socialLinks,
         jobTitle: c.jobTitle,
         aiContent: content,
         creativeSeed: typeof c.creativeSeed === 'number' ? c.creativeSeed : 0.5,
         openToWork: c.openToWork === true,
         snakeReady: c.snakeReady === true,
+        contribution3dReady: c.contribution3dReady === true,
         disabledWidgetUrls: Array.isArray(c.disabledWidgetUrls)
           ? c.disabledWidgetUrls.filter((v: unknown) => typeof v === 'string')
           : [],

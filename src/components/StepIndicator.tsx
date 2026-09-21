@@ -9,7 +9,7 @@ export function StepIndicator({ currentStep, onStep, hasProfile }: Props) {
     <nav aria-label="Profile builder steps">
       <ol className="steps">
         {['Profile', 'Style', 'Review'].map((label, index) => (
-          <li key={label}>
+          <li key={label} data-complete={currentStep > index + 1 || undefined}>
             <button
               onClick={() => onStep(index + 1)}
               disabled={index > 0 && !hasProfile}

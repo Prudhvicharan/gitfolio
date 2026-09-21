@@ -8,13 +8,21 @@ import { markdownSchema } from '../utils/markdownSchema';
 function PreviewImage({
   onRemove,
   readOnly,
+  assetBaseUrl,
   ...props
 }: ComponentProps<'img'> & {
   onRemove: (url: string) => void;
   readOnly: boolean;
+  assetBaseUrl?: string;
   align?: string;
 }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const source = props.src || '';
+  const previewSource =
+    assetBaseUrl && source.startsWith('./profile-3d-contrib/')
+      ? `${assetBaseUrl}${source.slice(2)}`
+      : source;
   if (failed)
     return (
       <span className="widget-error" role="status">
@@ -26,10 +34,10 @@ function PreviewImage({
           <button onClick={() => setFailed(false)} className="btn-secondary">
             Retry
           </button>
-          {props.src && (
+          {source && (
             <button
               className="btn-secondary"
-              onClick={() => onRemove(props.src!)}
+              onClick={() => onRemove(source)}
             >
               Remove from README
             </button>
@@ -40,9 +48,12 @@ function PreviewImage({
   return (
     <img
       {...props}
+      src={previewSource}
+      className={`${props.className || ''} ${loaded ? 'preview-image-loaded' : 'preview-image-loading'}`.trim()}
       loading="lazy"
       decoding="async"
       referrerPolicy="no-referrer"
+      onLoad={() => setLoaded(true)}
       onError={() => setFailed(true)}
     />
   );
@@ -51,11 +62,16 @@ export default function MarkdownPreview({
   markdown,
   onRemove,
   readOnly = false,
+  profileUsername,
 }: {
   markdown: string;
   onRemove: (url: string) => void;
   readOnly?: boolean;
+  profileUsername?: string;
 }) {
+  const assetBaseUrl = profileUsername
+    ? `https://raw.githubusercontent.com/${encodeURIComponent(profileUsername)}/${encodeURIComponent(profileUsername)}/HEAD/`
+    : undefined;
   return (
     <div className="md-preview">
       <ReactMarkdown
@@ -76,6 +92,7 @@ export default function MarkdownPreview({
               }
               onRemove={onRemove}
               readOnly={readOnly}
+              assetBaseUrl={assetBaseUrl}
             />
           ),
           a: ({ href, children }) =>

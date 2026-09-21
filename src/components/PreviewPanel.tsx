@@ -17,6 +17,7 @@ interface Props {
   demo: boolean;
   pending: boolean;
   hasProfile: boolean;
+  profileUsername?: string;
 }
 export default function PreviewPanel({
   markdown,
@@ -25,18 +26,37 @@ export default function PreviewPanel({
   demo,
   pending,
   hasProfile,
+  profileUsername,
 }: Props) {
   const [mode, setMode] = useState<'preview' | 'code'>('preview');
   const [status, setStatus] = useState('');
+  const [renderedMarkdown, setRenderedMarkdown] = useState(markdown);
   const [checking, setChecking] = useState(false);
   const [widgetResult, setWidgetResult] = useState<{
     source: string;
     failed: string[];
   } | null>(null);
   const widgetRequest = useRef<AbortController | null>(null);
+  const previewDocument = useRef<HTMLDivElement | null>(null);
   const urls = widgetUrls(markdown);
   const visibleMode = demo ? 'preview' : mode;
   useEffect(() => () => widgetRequest.current?.abort(), []);
+  useEffect(() => {
+    if (markdown === renderedMarkdown) return;
+    const timer = window.setTimeout(() => setRenderedMarkdown(markdown), 100);
+    return () => window.clearTimeout(timer);
+  }, [markdown, renderedMarkdown]);
+  useEffect(() => {
+    if (!previewDocument.current || !renderedMarkdown) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    previewDocument.current.animate(
+      [
+        { opacity: 0.86, transform: 'translateY(3px) scale(.998)' },
+        { opacity: 1, transform: 'translateY(0) scale(1)' },
+      ],
+      { duration: 180, easing: 'cubic-bezier(.16, 1, .3, 1)' }
+    );
+  }, [renderedMarkdown, visibleMode]);
   const check = async () => {
     widgetRequest.current?.abort();
     const controller = new AbortController();
@@ -89,6 +109,7 @@ export default function PreviewPanel({
         <div className="export-toolbar">
           <button
             className="btn-secondary"
+            data-success={status === 'Markdown copied.' || undefined}
             disabled={!markdown || pending}
             onClick={copy}
           >
@@ -153,8 +174,8 @@ export default function PreviewPanel({
           export is locked. Visual controls remain available in Style.
         </p>
       )}
-      <div className="preview-body">
-        {!markdown ? (
+      <div className="preview-body" ref={previewDocument}>
+        {!renderedMarkdown ? (
           <div className="empty-preview">
             <FileText size={38} />
             <h2>
@@ -175,7 +196,7 @@ export default function PreviewPanel({
             <textarea
               id="raw-markdown"
               className="raw-markdown"
-              value={markdown}
+              value={renderedMarkdown}
               readOnly
               spellCheck={false}
             />
@@ -183,9 +204,10 @@ export default function PreviewPanel({
         ) : (
           <Suspense fallback={<p role="status">Loading preview…</p>}>
             <MarkdownPreview
-              markdown={markdown}
+              markdown={renderedMarkdown}
               onRemove={onRemoveWidget}
               readOnly={demo}
+              profileUsername={profileUsername}
             />
           </Suspense>
         )}

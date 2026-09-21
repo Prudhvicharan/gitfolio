@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  generateContribution3dWorkflow,
   generateReadme,
   generateSnakeWorkflow,
 } from '../src/utils/generateMarkdown.ts';
@@ -102,6 +103,42 @@ test('snake is opt-in and its workflow is portable and free of personal data', (
   assert.match(workflow, /branches:\n      - main/);
   assert.doesNotMatch(workflow, /example|Prudhvicharan|@gmail|BEGIN [A-Z ]*KEY/);
 });
+
+test('3D contributions are gated behind a verified portable workflow', () => {
+  const pending = generateReadme({
+    ...config,
+    sections: { ...config.sections, contribution3d: true },
+  });
+  assert.doesNotMatch(pending, /profile-3d-contrib/);
+
+  const ready = generateReadme({
+    ...config,
+    sections: { ...config.sections, contribution3d: true },
+    contribution3dReady: true,
+  });
+  assert.match(ready, /Contribution landscape/);
+  assert.match(
+    ready,
+    /\.\/profile-3d-contrib\/profile-night-rainbow\.svg/
+  );
+
+  const workflow = generateContribution3dWorkflow();
+  assert.match(workflow, /yoshi389111\/github-profile-3d-contrib@v0\.9\.2/);
+  assert.match(workflow, /USERNAME: \$\{\{ github\.repository_owner \}\}/);
+  assert.match(workflow, /contents: write/);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /example|Prudhvicharan|BEGIN [A-Z ]*KEY/);
+});
+
+test('profile facts include resilient live GitHub signals', () => {
+  const md = generateReadme({
+    ...config,
+    sections: { ...config.sections, trophies: true },
+  });
+  assert.match(md, /img\.shields\.io\/github\/followers\/example/);
+  assert.match(md, /img\.shields\.io\/github\/stars\/example\?affiliations=OWNER/);
+  assert.match(md, /PUBLIC REPOSITORIES/);
+});
 test('username normalization rejects path and query injection', () => {
   assert.equal(normalizeUsername(' @octocat '), 'octocat');
   for (const value of ['https://github.com/x', 'x?admin=1', 'a--b', '-x'])
@@ -165,6 +202,11 @@ test('custom header gradients use the provider syntax without a random-color pre
   assert.doesNotMatch(md, /color=auto:/);
 });
 
+test('obsidian header retains visible depth instead of blending into GitHub', () => {
+  const md = generateReadme({ ...config, headerColor: '#0D1117' });
+  assert.match(md, /color=0:05070B,50:111827,100:312E81/);
+});
+
 test('review content, centered animation, and native work snapshot reach the export', () => {
   const md = generateReadme({
     ...config,
@@ -206,6 +248,48 @@ test('visual directions generate genuinely different compositions', () => {
   assert.notEqual(editorial, aurora);
 });
 
+test('technology constellation preserves every skill and repository language', () => {
+  const skills = [
+    'TypeScript',
+    'JavaScript',
+    'React',
+    'Node.js',
+    'PostgreSQL',
+    'Docker',
+    'AWS',
+    'Git',
+    'Accessible design systems',
+    'Frontend Development',
+  ];
+  const md = generateReadme({
+    ...config,
+    layout: 'aurora',
+    repos: [
+      {
+        id: 1,
+        name: 'styles',
+        description: null,
+        language: 'SCSS',
+        stargazers_count: 0,
+        forks_count: 0,
+        fork: false,
+        topics: [],
+      },
+    ],
+    aiContent: { ...EMPTY_CONTENT, skills },
+  });
+
+  for (const skill of [...skills, 'SCSS'])
+    assert.match(md, new RegExp(`<code>${skill.replace('.', '\\.')}</code>`));
+  assert.match(md, /toolkit: \[[^\n]*"Accessible design systems"/);
+  assert.match(md, /skillicons\.dev\/icons\?i=[^"&]*ts/);
+});
+
+test('AI validation accepts a comprehensive technology list', () => {
+  const skills = Array.from({ length: 60 }, (_, index) => `Technology ${index}`);
+  assert.deepEqual(validateAIContent({ ...EMPTY_CONTENT, skills }).skills, skills);
+});
+
 test('content security policy permits current providers and excludes unreliable stats hosts', async () => {
   const { readFile } = await import('node:fs/promises');
   const policy = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8')).headers[0].headers[0].value;
@@ -233,6 +317,50 @@ test('statistics and language mix render without remote image services', () => {
   assert.match(md, /Language mix/);
   assert.match(md, /TypeScript/);
   assert.doesNotMatch(md, /github-readme-stats/);
+});
+
+test('portfolio evidence uses every imported language and centers visual metrics', () => {
+  const languages = [
+    'TypeScript',
+    'JavaScript',
+    'Python',
+    'SCSS',
+    'HTML',
+    'Rust',
+    'Go',
+    'Kotlin',
+  ];
+  const portfolio = languages.map((language, index) => ({
+    id: index + 1,
+    name: `project-${index}`,
+    full_name: `example/project-${index}`,
+    html_url: `https://github.com/example/project-${index}`,
+    description: null,
+    language,
+    stargazers_count: 0,
+    forks_count: 0,
+    fork: false,
+    topics: [`topic-${index}`],
+  }));
+  const md = generateReadme(
+    {
+      ...config,
+      repos: portfolio.slice(0, 2),
+      sections: {
+        ...config.sections,
+        trophies: true,
+        stats: true,
+        languages: true,
+        activityGraph: true,
+      },
+    },
+    portfolio
+  );
+
+  for (const language of languages) assert.match(md, new RegExp(language));
+  assert.match(md, /8 IMPORTED PUBLIC REPOSITORIES/);
+  assert.match(md, /<div align="center">\n<table>/);
+  assert.match(md, /Working across <strong>TypeScript, JavaScript, Python, SCSS, HTML, Rust, Go, Kotlin<\/strong>/);
 });
 
 test('widget checks include only distinct HTTPS image URLs and decode query separators', async () => {

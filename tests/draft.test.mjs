@@ -49,3 +49,16 @@ test('fictional demo profiles are never restored as editable drafts', () => {
     null
   );
 });
+
+test('legacy drafts gain new optional sections without losing progress', () => {
+  const { contribution3d: _removed, ...legacySections } = PRESETS.balanced;
+  const restored = parseDraft(
+    JSON.stringify({
+      version: 1,
+      config: { ...config, sections: legacySections },
+      availableRepos: DEMO_REPOS,
+    })
+  );
+  assert.ok(restored);
+  assert.equal(restored.config.sections.contribution3d, false);
+});

@@ -12,7 +12,7 @@ import {
   writeSessionDraft,
 } from '../utils/draft';
 import { DEMO_CONTENT, DEMO_USER, DEMO_REPOS } from '../utils/demo';
-import { fetchProfile } from '../hooks/useGithub';
+import { extractLanguages, fetchProfile } from '../hooks/useGithub';
 import { generateAIContent } from '../hooks/useGemini';
 import { generateReadme } from '../utils/generateMarkdown';
 import Step1 from './Step1';
@@ -34,6 +34,7 @@ const initialConfig = (): GeneratorConfig => ({
   creativeSeed: 0.5,
   openToWork: false,
   snakeReady: false,
+  contribution3dReady: false,
   disabledWidgetUrls: [],
   layout: 'studio',
 });
@@ -89,9 +90,14 @@ export default function Wizard({
   const [generating, setGenerating] = useState(false);
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
   const [pending, setPending] = useState(false);
+  const [visibleStep, setVisibleStep] = useState(step);
+  const [stepMotion, setStepMotion] = useState<'idle' | 'exit' | 'enter'>('idle');
+  const [stepDirection, setStepDirection] = useState<'forward' | 'backward'>('forward');
   const isDemo = config.userData?.id === 0;
   const githubRequest = useRef<AbortController | null>(null);
   const aiRequest = useRef<AbortController | null>(null);
+  const visibleStepRef = useRef(step);
+  const stepTimers = useRef<number[]>([]);
   const patch = (value: Partial<GeneratorConfig>) =>
     setConfig((previous) => ({ ...previous, ...value }));
   const cancelAI = () => {
@@ -106,8 +112,23 @@ export default function Wizard({
     return () => {
       githubRequest.current?.abort();
       aiRequest.current?.abort();
+      stepTimers.current.forEach(window.clearTimeout);
     };
   }, []);
+  useEffect(() => {
+    if (step === visibleStepRef.current) return;
+    stepTimers.current.forEach(window.clearTimeout);
+    stepTimers.current = [];
+    const direction = step > visibleStepRef.current ? 'forward' : 'backward';
+    setStepDirection(direction);
+    setStepMotion('exit');
+    stepTimers.current.push(window.setTimeout(() => {
+      visibleStepRef.current = step;
+      setVisibleStep(step);
+      setStepMotion('enter');
+      stepTimers.current.push(window.setTimeout(() => setStepMotion('idle'), 220));
+    }, 120));
+  }, [step]);
   useEffect(() => {
     if (!config.userData || config.userData.id === 0) return;
     const draft = { config, availableRepos: repos };
@@ -116,8 +137,9 @@ export default function Wizard({
       setStatus('This browser could not save your progress. Download your README before leaving.');
   }, [config, repos, save]);
   useEffect(() => {
-    if (active) document.getElementById('step-heading-' + step)?.focus();
-  }, [step, active]);
+    if (active && stepMotion === 'idle')
+      document.getElementById('step-heading-' + visibleStep)?.focus();
+  }, [visibleStep, stepMotion, active]);
   useEffect(() => {
     if (!active || step !== 3) aiRequest.current?.abort();
   }, [active, step]);
@@ -178,6 +200,9 @@ export default function Wizard({
           aiContent: same ? previous.aiContent : null,
           openToWork: same ? previous.openToWork : false,
           snakeReady: same ? previous.snakeReady : false,
+          contribution3dReady: same
+            ? previous.contribution3dReady
+            : false,
           disabledWidgetUrls: same ? previous.disabledWidgetUrls : [],
           creativeSeed: same ? previous.creativeSeed : Math.random(),
         };
@@ -233,14 +258,33 @@ export default function Wizard({
     setError(null);
     const timeout = setTimeout(() => controller.abort(), 45000);
     try {
-      const content = await generateAIContent(
+      const generated = await generateAIContent(
         key,
         config.userData,
         config.repos,
         config.jobTitle,
+        extractLanguages(repos),
         undefined,
         controller.signal
       );
+      const content = {
+        ...generated,
+        skills: [
+          ...(config.aiContent?.skills || []),
+          ...generated.skills,
+          ...extractLanguages(repos),
+        ].reduce<string[]>((all, skill) => {
+          const value = skill.trim();
+          if (
+            value &&
+            !all.some(
+              (existing) => existing.toLowerCase() === value.toLowerCase()
+            )
+          )
+            all.push(value);
+          return all;
+        }, []),
+      };
       return aiRequest.current === controller && !controller.signal.aborted
         ? content
         : null;
@@ -307,7 +351,8 @@ export default function Wizard({
         ?.focus({ preventScroll: true });
     });
   };
-  const markdown = generateReadme(config);
+  const markdown = generateReadme(config, repos);
+  const stepClass = `step-frame step-${stepMotion} step-${stepDirection}`;
   return (
     <div className="builder-shell">
       <header className="builder-header">
@@ -375,7 +420,12 @@ export default function Wizard({
               aria-pressed={mobileView === 'edit'}
               onClick={() => {
                 setMobileView('edit');
-                window.scrollTo({ top: 0, behavior: 'instant' });
+                window.scrollTo({
+                  top: 0,
+                  behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                    ? 'auto'
+                    : 'smooth',
+                });
               }}
             >
               <Pencil size={16} /> Edit
@@ -384,7 +434,12 @@ export default function Wizard({
               aria-pressed={mobileView === 'preview'}
               onClick={() => {
                 setMobileView('preview');
-                window.scrollTo({ top: 0, behavior: 'instant' });
+                window.scrollTo({
+                  top: 0,
+                  behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                    ? 'auto'
+                    : 'smooth',
+                });
               }}
             >
               <Eye size={16} /> Preview
@@ -400,7 +455,7 @@ export default function Wizard({
                 {error}
               </div>
             )}
-            <div hidden={step !== 1}>
+            <div hidden={visibleStep !== 1} className={stepClass}>
               <Step1
                 username={username}
                 setUsername={setUsername}
@@ -421,7 +476,7 @@ export default function Wizard({
             </div>
             {config.userData && (
               <>
-                <div hidden={step !== 2}>
+                <div hidden={visibleStep !== 2} className={stepClass}>
                   <Step2
                     config={config}
                     onChange={patch}
@@ -432,7 +487,7 @@ export default function Wizard({
                     demo={isDemo}
                   />
                 </div>
-                <div hidden={step !== 3}>
+                <div hidden={visibleStep !== 3} className={stepClass}>
                   <Step3
                     key={
                       config.userData.login +
@@ -445,7 +500,7 @@ export default function Wizard({
                     onCancel={cancelAI}
                     onBack={() => go(2)}
                     onFinish={showPreview}
-                    active={active && step === 3}
+                    active={active && visibleStep === 3 && stepMotion === 'idle'}
                     onPending={setPending}
                     demo={isDemo}
                     onBuildProfile={onBuildProfile}
@@ -453,7 +508,7 @@ export default function Wizard({
                 </div>
               </>
             )}
-            {!config.userData && step !== 1 && (
+            {!config.userData && visibleStep !== 1 && (
               <button className="btn-primary" onClick={() => onStep(1)}>
                 <ArrowLeft size={16} /> Import a profile first
               </button>
@@ -516,6 +571,7 @@ export default function Wizard({
               demo={isDemo}
               pending={pending}
               hasProfile={!!config.userData}
+              profileUsername={config.userData?.login}
             />
             {config.userData && !isDemo && (
               <PublishGuide config={config} onChange={patch} />
