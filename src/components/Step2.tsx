@@ -157,12 +157,12 @@ export default function Step2({
   );
   const username = config.userData?.login || '';
   const recommended = useMemo(
-    () => new Set(selectRecommendedRepositories(availableRepos, username).map((repo) => repo.id)),
-    [availableRepos, username]
+    () => new Set(selectRecommendedRepositories(availableRepos, username, 6, referenceTime).map((repo) => repo.id)),
+    [availableRepos, referenceTime, username]
   );
   const recommendedOrder = useMemo(
-    () => new Map(rankRepositories(availableRepos, username).map((repo, index) => [repo.id, index])),
-    [availableRepos, username]
+    () => new Map(rankRepositories(availableRepos, username, referenceTime).map((repo, index) => [repo.id, index])),
+    [availableRepos, referenceTime, username]
   );
   const repoLanguages = useMemo(
     () => [...new Set(availableRepos.map((repo) => repo.language).filter((value): value is string => !!value))].sort(),

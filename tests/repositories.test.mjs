@@ -6,7 +6,7 @@ import {
 } from '../src/utils/repositories.ts';
 
 const repo = (name, values = {}) => ({
-  id: name.length + Math.random(),
+  id: [...name].reduce((sum, character) => sum + character.charCodeAt(0), 0),
   name,
   full_name: `octocat/${name}`,
   html_url: `https://github.com/octocat/${name}`,

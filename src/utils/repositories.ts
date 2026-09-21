@@ -9,9 +9,9 @@ function updatedTime(repo: GithubRepo): number {
   return Number.isFinite(value) ? value : 0;
 }
 
-function repositoryScore(repo: GithubRepo): number {
+function repositoryScore(repo: GithubRepo, referenceTime: number): number {
   const ageDays = repo.updated_at
-    ? Math.max(0, (Date.now() - updatedTime(repo)) / 86_400_000)
+    ? Math.max(0, (referenceTime - updatedTime(repo)) / 86_400_000)
     : Number.POSITIVE_INFINITY;
   const recency = Number.isFinite(ageDays)
     ? Math.max(0, 180 - Math.min(180, ageDays))
@@ -28,13 +28,14 @@ function repositoryScore(repo: GithubRepo): number {
 
 export function rankRepositories(
   repos: GithubRepo[],
-  username: string
+  username: string,
+  referenceTime = Date.now()
 ): GithubRepo[] {
   return repos
     .filter((repo) => !isProfileRepository(repo, username))
     .sort(
       (a, b) =>
-        repositoryScore(b) - repositoryScore(a) ||
+        repositoryScore(b, referenceTime) - repositoryScore(a, referenceTime) ||
         updatedTime(b) - updatedTime(a) ||
         b.stargazers_count - a.stargazers_count ||
         a.name.localeCompare(b.name)
@@ -44,7 +45,8 @@ export function rankRepositories(
 export function selectRecommendedRepositories(
   repos: GithubRepo[],
   username: string,
-  limit = 6
+  limit = 6,
+  referenceTime = Date.now()
 ): GithubRepo[] {
-  return rankRepositories(repos, username).slice(0, limit);
+  return rankRepositories(repos, username, referenceTime).slice(0, limit);
 }
