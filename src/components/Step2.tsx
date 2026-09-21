@@ -36,6 +36,11 @@ const THEMES: { id: ThemeId; label: string; colors: string[] }[] = [
   },
   { id: 'nord', label: 'Arctic', colors: ['#81a1c1', '#2e3440', '#88c0d0'] },
   {
+    id: 'highcontrast',
+    label: 'Gilded Black',
+    colors: ['#e7c678', '#050505', '#f8fafc'],
+  },
+  {
     id: 'catppuccin_mocha',
     label: 'Mocha Violet',
     colors: ['#cba6f7', '#1e1e2e', '#89b4fa'],
@@ -46,14 +51,18 @@ const HEADER_STYLES: { id: HeaderStyle; label: string; desc: string }[] = [
   { id: 'wave', label: 'Soft wave', desc: 'Smooth flowing banner' },
   { id: 'slice', label: 'Editorial cut', desc: 'Clean diagonal edge' },
   { id: 'cylinder', label: 'Soft frame', desc: 'Rounded premium frame' },
+  { id: 'venom', label: 'Velvet fold', desc: 'Sculpted cinematic depth' },
 ];
 
 const HEADER_COLORS = [
-  { value: '#312E81', label: 'Deep indigo' },
-  { value: '0:312E81,100:7C3AED', label: 'Violet dusk' },
-  { value: '0:0F766E,50:2563EB,100:7C3AED', label: 'Aurora' },
-  { value: '0:9A3412,100:BE123C', label: 'Ember' },
-  { value: '#0D1117', label: 'Obsidian' },
+  { value: '#312E81', label: 'Deep indigo', preview: '#312E81' },
+  { value: '0:312E81,100:7C3AED', label: 'Violet dusk', preview: 'linear-gradient(90deg, #312E81, #7C3AED)' },
+  { value: '0:0F766E,50:2563EB,100:7C3AED', label: 'Aurora', preview: 'linear-gradient(90deg, #0F766E, #2563EB, #7C3AED)' },
+  { value: '0:9A3412,100:BE123C', label: 'Ember', preview: 'linear-gradient(90deg, #9A3412, #BE123C)' },
+  { value: '#0D1117', label: 'Obsidian halo', preview: 'linear-gradient(90deg, #05070B, #111827, #312E81)' },
+  { value: '0:070B14,48:19324A,100:315B7D', label: 'Sapphire glass', preview: 'linear-gradient(90deg, #070B14, #19324A, #315B7D)' },
+  { value: '0:0A090D,52:30271E,100:B08D57', label: 'Champagne noir', preview: 'linear-gradient(90deg, #0A090D, #30271E, #B08D57)' },
+  { value: '0:130D1D,55:3B185F,100:A855F7', label: 'Imperial plum', preview: 'linear-gradient(90deg, #130D1D, #3B185F, #A855F7)' },
 ];
 const STYLE_PRESETS = {
   minimal: {
@@ -221,7 +230,8 @@ export default function Step2({
         </legend>
         <p className="help">
           Choose up to 8 for focused project stories. Every skill you review
-          next remains visible, including technologies without an icon.
+          next remains visible, including technologies without an icon. Language
+          mix uses your complete imported public portfolio.
         </p>
         {warning && (
           <p className="notice warning" role="status">
@@ -321,14 +331,20 @@ export default function Step2({
                 <div className="theme-options">
                   {THEMES.map((t) => (
                     <button
-                      className="theme-choice"
+                      className="theme-choice palette-choice"
                       key={t.id}
                       aria-pressed={config.theme === t.id}
                       onClick={() => onChange({ theme: t.id })}
                     >
-                      <span className="swatch" style={{ background: t.colors[0] }} />
-                      {t.label}
-                      {config.theme === t.id && <Check size={14} />}
+                      <span className="palette-preview" aria-hidden="true">
+                        {t.colors.map((color) => (
+                          <i key={color} style={{ background: color }} />
+                        ))}
+                      </span>
+                      <span className="theme-choice-label">
+                        {t.label}
+                        {config.theme === t.id && <Check size={14} />}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -342,11 +358,15 @@ export default function Step2({
                     {HEADER_STYLES.map((h) => (
                       <button
                         key={h.id}
-                        className="theme-choice"
+                        className="theme-choice shape-choice"
                         aria-pressed={config.headerStyle === h.id}
                         onClick={() => onChange({ headerStyle: h.id })}
                       >
-                        {h.label}
+                        <span className={`shape-preview shape-preview-${h.id}`} aria-hidden="true" />
+                        <span className="theme-choice-label">
+                          {h.label}
+                          {config.headerStyle === h.id && <Check size={14} />}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -357,12 +377,15 @@ export default function Step2({
                     {HEADER_COLORS.map((c) => (
                       <button
                         key={c.value}
-                        className="theme-choice"
+                        className="theme-choice color-choice"
                         aria-pressed={config.headerColor === c.value}
                         onClick={() => onChange({ headerColor: c.value })}
                       >
-                        {c.label}
-                        {config.headerColor === c.value && <Check size={14} />}
+                        <span className="banner-preview" style={{ background: c.preview }} aria-hidden="true" />
+                        <span className="theme-choice-label">
+                          {c.label}
+                          {config.headerColor === c.value && <Check size={14} />}
+                        </span>
                       </button>
                     ))}
                   </div>

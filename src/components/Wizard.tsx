@@ -263,6 +263,7 @@ export default function Wizard({
         config.userData,
         config.repos,
         config.jobTitle,
+        extractLanguages(repos),
         undefined,
         controller.signal
       );
@@ -271,7 +272,7 @@ export default function Wizard({
         skills: [
           ...(config.aiContent?.skills || []),
           ...generated.skills,
-          ...extractLanguages(config.repos),
+          ...extractLanguages(repos),
         ].reduce<string[]>((all, skill) => {
           const value = skill.trim();
           if (
@@ -350,7 +351,7 @@ export default function Wizard({
         ?.focus({ preventScroll: true });
     });
   };
-  const markdown = generateReadme(config);
+  const markdown = generateReadme(config, repos);
   const stepClass = `step-frame step-${stepMotion} step-${stepDirection}`;
   return (
     <div className="builder-shell">

@@ -202,6 +202,11 @@ test('custom header gradients use the provider syntax without a random-color pre
   assert.doesNotMatch(md, /color=auto:/);
 });
 
+test('obsidian header retains visible depth instead of blending into GitHub', () => {
+  const md = generateReadme({ ...config, headerColor: '#0D1117' });
+  assert.match(md, /color=0:05070B,50:111827,100:312E81/);
+});
+
 test('review content, centered animation, and native work snapshot reach the export', () => {
   const md = generateReadme({
     ...config,
@@ -312,6 +317,50 @@ test('statistics and language mix render without remote image services', () => {
   assert.match(md, /Language mix/);
   assert.match(md, /TypeScript/);
   assert.doesNotMatch(md, /github-readme-stats/);
+});
+
+test('portfolio evidence uses every imported language and centers visual metrics', () => {
+  const languages = [
+    'TypeScript',
+    'JavaScript',
+    'Python',
+    'SCSS',
+    'HTML',
+    'Rust',
+    'Go',
+    'Kotlin',
+  ];
+  const portfolio = languages.map((language, index) => ({
+    id: index + 1,
+    name: `project-${index}`,
+    full_name: `example/project-${index}`,
+    html_url: `https://github.com/example/project-${index}`,
+    description: null,
+    language,
+    stargazers_count: 0,
+    forks_count: 0,
+    fork: false,
+    topics: [`topic-${index}`],
+  }));
+  const md = generateReadme(
+    {
+      ...config,
+      repos: portfolio.slice(0, 2),
+      sections: {
+        ...config.sections,
+        trophies: true,
+        stats: true,
+        languages: true,
+        activityGraph: true,
+      },
+    },
+    portfolio
+  );
+
+  for (const language of languages) assert.match(md, new RegExp(language));
+  assert.match(md, /8 IMPORTED PUBLIC REPOSITORIES/);
+  assert.match(md, /<div align="center">\n<table>/);
+  assert.match(md, /Working across <strong>TypeScript, JavaScript, Python, SCSS, HTML, Rust, Go, Kotlin<\/strong>/);
 });
 
 test('widget checks include only distinct HTTPS image URLs and decode query separators', async () => {

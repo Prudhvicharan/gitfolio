@@ -35,6 +35,7 @@ export type ThemeId =
   | 'github_dark'
   | 'onedark'
   | 'nord'
+  | 'highcontrast'
   | 'catppuccin_mocha';
 export type HeaderStyle = 'wave' | 'venom' | 'slice' | 'cylinder' | 'shark';
 export type LayoutId = 'editorial' | 'studio' | 'aurora';

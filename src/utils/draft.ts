@@ -67,6 +67,7 @@ export function parseDraft(raw: string | null): Draft | null {
         'github_dark',
         'onedark',
         'nord',
+        'highcontrast',
         'catppuccin_mocha',
       ].includes(c.theme) ||
       !['wave', 'venom', 'slice', 'cylinder', 'shark'].includes(c.headerStyle)
