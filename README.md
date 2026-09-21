@@ -38,9 +38,10 @@ control.
 - Live sanitized Markdown preview and raw Markdown review.
 - Native profile facts, engineering footprint, language mix, and project cards.
 - Curated headers, palettes, skill icons, typing lines, social links, and personal notes.
+- Live follower and owned-star signals backed by stable native profile facts.
 - Automatic refresh recovery plus optional longer-term device saving.
 - Copy and download actions with a concise GitHub publishing guide.
-- An opt-in contribution snake with a portable GitHub Actions workflow and setup checklist.
+- Opt-in contribution snake and 3D landscape workflows, each gated by a setup checklist so broken assets never enter the export.
 - Clear failure states for GitHub imports, AI requests, storage, and optional image providers.
 
 ## Run locally
