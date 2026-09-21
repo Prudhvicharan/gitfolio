@@ -15,6 +15,8 @@ import { DEMO_CONTENT, DEMO_USER, DEMO_REPOS } from '../utils/demo';
 import { extractLanguages, fetchProfile } from '../hooks/useGithub';
 import { generateAIContent } from '../hooks/useGemini';
 import { generateReadme } from '../utils/generateMarkdown';
+import { selectRecommendedRepositories } from '../utils/repositories';
+import { assessExportQuality } from '../utils/readiness';
 import Step1 from './Step1';
 import Step2 from './Step2';
 import Step3 from './Step3';
@@ -196,7 +198,11 @@ export default function Wizard({
                   previous.repos.some((selected) => selected.id === repo.id)
                 )
                 .slice(0, 8)
-            : result.repos.filter((repo) => !repo.fork).slice(0, 6),
+            : selectRecommendedRepositories(
+                result.repos,
+                result.user.login,
+                6
+              ),
           aiContent: same ? previous.aiContent : null,
           openToWork: same ? previous.openToWork : false,
           snakeReady: same ? previous.snakeReady : false,
@@ -352,6 +358,7 @@ export default function Wizard({
     });
   };
   const markdown = generateReadme(config, repos);
+  const exportQuality = assessExportQuality(config, markdown);
   const stepClass = `step-frame step-${stepMotion} step-${stepDirection}`;
   return (
     <div className="builder-shell">
@@ -488,7 +495,7 @@ export default function Wizard({
                   />
                 </div>
                 <div hidden={visibleStep !== 3} className={stepClass}>
-                  <Step3
+                  {visibleStep === 3 && <Step3
                     key={
                       config.userData.login +
                       config.repos.map((repo) => repo.id).join(',')
@@ -500,11 +507,10 @@ export default function Wizard({
                     onCancel={cancelAI}
                     onBack={() => go(2)}
                     onFinish={showPreview}
-                    active={active && visibleStep === 3 && stepMotion === 'idle'}
                     onPending={setPending}
                     demo={isDemo}
                     onBuildProfile={onBuildProfile}
-                  />
+                  />}
                 </div>
               </>
             )}
@@ -572,6 +578,7 @@ export default function Wizard({
               pending={pending}
               hasProfile={!!config.userData}
               profileUsername={config.userData?.login}
+              quality={exportQuality}
             />
             {config.userData && !isDemo && (
               <PublishGuide config={config} onChange={patch} />

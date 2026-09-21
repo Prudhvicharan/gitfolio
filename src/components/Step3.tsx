@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Check, Eye, EyeOff, FilePenLine, LoaderCircle, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, Eye, EyeOff, FilePenLine, KeyRound, LoaderCircle, Sparkles } from 'lucide-react';
 import type { AIContent, GeneratorConfig } from '../types';
 import { EMPTY_CONTENT, validateAIContent } from '../utils/content';
 import { extractLanguages } from '../hooks/useGithub';
@@ -13,13 +13,12 @@ interface Props {
   onCancel: () => void;
   onBack: () => void;
   onFinish: () => void;
-  active: boolean;
   onPending: (pending: boolean) => void;
   demo?: boolean;
   onBuildProfile: () => void;
 }
 
-export default function Step3({ config, onChange, onGenerate, generating, onCancel, onBack, onFinish, active, onPending, demo = false, onBuildProfile }: Props) {
+export default function Step3({ config, onChange, onGenerate, generating, onCancel, onBack, onFinish, onPending, demo = false, onBuildProfile }: Props) {
   const fallback = { ...EMPTY_CONTENT, aboutMe: config.userData?.bio || '', skills: extractLanguages(config.repos) };
   const [draft, setDraft] = useState<AIContent>(() => config.aiContent ?? fallback);
   const [apiKey, setApiKey] = useState('');
@@ -28,8 +27,8 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
   const [mode, setMode] = useState<'ai' | 'manual' | null>(null);
   const [needsApproval, setNeedsApproval] = useState(false);
   const [message, setMessage] = useState('');
+  const [credentialStatus, setCredentialStatus] = useState('');
   const [generationMessage, setGenerationMessage] = useState('Preparing your selected public work');
-  const [wasActive, setWasActive] = useState(active);
 
   useEffect(() => {
     if (!generating) return;
@@ -47,13 +46,12 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
     };
   }, [generating]);
 
-  if (wasActive !== active) {
-    setWasActive(active);
-    if (!active) {
-      setApiKey('');
-      setConsent(false);
-    }
-  }
+  const clearCredential = (status = '') => {
+    setApiKey('');
+    setShowKey(false);
+    setConsent(false);
+    setCredentialStatus(status);
+  };
 
   const update = (patch: Partial<AIContent>, section?: 'aboutCode' | 'funFacts' | 'typing' | 'skillIcons') => {
     const next = { ...draft, ...patch };
@@ -70,9 +68,19 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
   };
 
   const generate = async () => {
+    const key = apiKey.trim();
     setMessage('');
     setGenerationMessage('Preparing your selected public work');
-    const value = await onGenerate(apiKey);
+    setApiKey('');
+    setShowKey(false);
+    setCredentialStatus(
+      'Key removed from the form. It is being used only for this request and is not saved.'
+    );
+    const value = await onGenerate(key);
+    setConsent(false);
+    setCredentialStatus(
+      'API key removed from the form after the request. It was never added to your draft or browser storage.'
+    );
     if (!value) return;
     setDraft(value);
     onChange({
@@ -182,7 +190,10 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
         </button>
       </div>}
 
-      {mode && <button className="text-button path-reset" onClick={() => setMode(null)}>← Choose a different method</button>}
+      {mode && <button className="text-button path-reset" onClick={() => {
+        clearCredential();
+        setMode(null);
+      }}>← Choose a different method</button>}
 
       {mode === 'ai' && <section className="ai-workspace" aria-labelledby="ai-draft-heading">
         <div className="ai-workspace-heading">
@@ -201,10 +212,21 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
                 {showKey ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            <div className="key-privacy">
+              <KeyRound size={15} aria-hidden="true" />
+              <span>
+                Used directly for one Google request. Never added to drafts,
+                localStorage, or sessionStorage. The field clears when generation starts.
+              </span>
+              {apiKey && (
+                <button type="button" className="text-button" onClick={() => clearCredential('API key cleared from this page.')}>Clear now</button>
+              )}
+            </div>
+            {credentialStatus && <p className="credential-status" role="status">{credentialStatus}</p>}
           </div>
           <label className="check-option">
             <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />
-            <span>Send my public profile and selected repository details to Google for this draft. The key stays in memory and is never saved.</span>
+            <span>Send my public profile and selected repository details to Google for this one draft.</span>
           </label>
           <div className="button-row">
             <button className="btn-primary" disabled={!apiKey.trim() || !consent || generating || config.userData?.id === 0} onClick={generate}>
@@ -272,8 +294,14 @@ export default function Step3({ config, onChange, onGenerate, generating, onCanc
       <p role="status" className="status-message">{message}</p>
       {needsApproval && <div className="review-box"><h2>{mode === 'ai' ? 'Review what AI created' : 'Review your story'}</h2><p>Read the live preview, correct anything that does not sound like you, then approve it for export.</p><button className="btn-primary" onClick={approve}><Check size={17} /> Approve this content</button></div>}
       <div className="button-row">
-        <button className="btn-secondary" onClick={onBack} disabled={generating}><ArrowLeft size={16} /> Style</button>
-        <button className="btn-primary" onClick={onFinish} disabled={!mode || needsApproval || generating}>Review & export <Check size={17} /></button>
+        <button className="btn-secondary" onClick={() => {
+          clearCredential();
+          onBack();
+        }} disabled={generating}><ArrowLeft size={16} /> Style</button>
+        <button className="btn-primary" onClick={() => {
+          clearCredential();
+          onFinish();
+        }} disabled={!mode || needsApproval || generating}>Review & export <Check size={17} /></button>
       </div>
     </section>
   );

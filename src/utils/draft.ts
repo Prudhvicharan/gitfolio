@@ -50,6 +50,7 @@ export function parseDraft(raw: string | null): Draft | null {
       typeof repo.stargazers_count === 'number' &&
       (repo.description == null || typeof repo.description === 'string') &&
       (repo.language == null || typeof repo.language === 'string') &&
+      (repo.updated_at == null || typeof repo.updated_at === 'string') &&
       Array.isArray(repo.topics) &&
       repo.topics.every((t) => typeof t === 'string');
     if (

@@ -95,7 +95,9 @@ an explicit sanitization schema.
 - GitFolio reads public GitHub data without asking for a GitHub login.
 - Gemini runs only after the user provides a key and consents to sending the displayed
   profile and selected repository data to Google.
-- API keys stay in memory and are never written to drafts or browser storage.
+- API keys are never written to drafts, `localStorage`, or `sessionStorage`. The
+  AI form clears when generation starts, when the user clears it, or when the user
+  leaves the AI step.
 - Current-tab recovery uses session storage. Longer-term device saving is opt-in.
 - GitFolio includes no advertising or analytics tracker.
 - Nothing writes to GitHub. The user reviews and publishes the exported file.

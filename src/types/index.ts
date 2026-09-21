@@ -26,6 +26,7 @@ export interface GithubRepo {
   forks_count: number;
   fork: boolean;
   topics: string[];
+  updated_at?: string;
 }
 
 export type ThemeId =

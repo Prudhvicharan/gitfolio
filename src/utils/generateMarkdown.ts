@@ -181,7 +181,7 @@ export const generateReadme = (
     if (typing) add(`<div align="center">\n${typing}\n</div>`);
   }
   if (sections.aboutCode) {
-    const about = [sections.header ? title(layout === 'aurora' ? 'The developer behind the code' : 'About me', '✦') : `<div align="center">\n<h1>Hi, I'm ${text(name)}</h1>${content?.tagline ? `\n<p><strong>${text(content.tagline)}</strong></p>` : ''}\n</div>`];
+    const about = [sections.header ? title(layout === 'aurora' ? 'The developer behind the code' : 'About me', '✦') : `<div align="center">\n<h1>Hi, I'm ${htmlAttribute(name)}</h1>${content?.tagline ? `\n<p><strong>${htmlAttribute(content.tagline)}</strong></p>` : ''}\n</div>`];
     if (sections.header && content?.tagline) about.push(`### ${text(content.tagline)}`);
     const bio = content ? content.aboutMe : user.bio;
     if (bio) about.push(text(bio));
@@ -324,7 +324,7 @@ export const generateReadme = (
       add(`${title('Selected work', '◆')}\n\n${repos.map((repo, index) => {
         const url = `https://github.com/${encodeURIComponent(user.login)}/${encodeURIComponent(repo.name)}`;
         const story = content?.projectStories[index] || repo.description || 'Explore the repository and its source code.';
-        return `### [${text(repo.name)}](${url})\n\n${text(story)}\n\n<sub>${text([repo.language, `${repo.stargazers_count} ★`].filter(Boolean).join(' · '))}</sub>`;
+        return `### [${text(repo.name)}](${url})\n\n${text(story)}\n\n<sub>${htmlAttribute([repo.language, `${repo.stargazers_count} ★`].filter(Boolean).join(' · '))}</sub>`;
       }).join('\n\n---\n\n')}`);
     } else {
       const cells = repos.map((repo, index) => {
@@ -359,7 +359,7 @@ export const generateReadme = (
     );
   }
   if (layout !== 'editorial' && parts.length) {
-    add(`<div align="center">\n<br/>\n<strong>${text(content?.collaborationPitch || content?.quote || 'Thanks for visiting — let’s build something meaningful.')}</strong>\n<br/><br/>\n<a href="https://github.com/${encodeURIComponent(user.login)}">Explore my work on GitHub →</a>\n</div>`);
+    add(`<div align="center">\n<br/>\n<strong>${htmlAttribute(content?.collaborationPitch || content?.quote || 'Thanks for visiting — let’s build something meaningful.')}</strong>\n<br/><br/>\n<a href="https://github.com/${encodeURIComponent(user.login)}">Explore my work on GitHub →</a>\n</div>`);
   }
   return parts.length ? `${parts.join('\n\n')}\n` : '';
 };
