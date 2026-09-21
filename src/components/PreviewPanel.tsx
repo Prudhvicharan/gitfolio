@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { checkWidgets, widgetUrls } from '../utils/checkWidgets';
 import { downloadFile } from '../utils/download';
+import type { ExportQuality } from '../utils/readiness';
 const MarkdownPreview = lazy(() => import('./MarkdownPreview'));
 interface Props {
   markdown: string;
@@ -18,6 +19,7 @@ interface Props {
   pending: boolean;
   hasProfile: boolean;
   profileUsername?: string;
+  quality: ExportQuality;
 }
 export default function PreviewPanel({
   markdown,
@@ -27,6 +29,7 @@ export default function PreviewPanel({
   pending,
   hasProfile,
   profileUsername,
+  quality,
 }: Props) {
   const [mode, setMode] = useState<'preview' | 'code'>('preview');
   const [status, setStatus] = useState('');
@@ -40,6 +43,27 @@ export default function PreviewPanel({
   const previewDocument = useRef<HTMLDivElement | null>(null);
   const urls = widgetUrls(markdown);
   const visibleMode = demo ? 'preview' : mode;
+  const widgetsComplete =
+    urls.length === 0 ||
+    (widgetResult?.source === markdown && widgetResult.failed.length === 0);
+  const readinessItems = [
+    ...quality.items,
+    {
+      label: 'Widgets checked',
+      complete: widgetsComplete,
+      detail:
+        urls.length === 0
+          ? 'No external widgets selected'
+          : widgetsComplete
+            ? `All ${urls.length} widget image${urls.length === 1 ? '' : 's'} loaded`
+            : 'Run Check widgets before publishing',
+    },
+  ];
+  const widgetIssues =
+    widgetResult?.source === markdown && widgetResult.failed.length
+      ? [`${widgetResult.failed.length} external widget image${widgetResult.failed.length === 1 ? '' : 's'} could not be loaded.`]
+      : [];
+  const qualityIssues = [...quality.issues, ...widgetIssues];
   useEffect(() => () => widgetRequest.current?.abort(), []);
   useEffect(() => {
     if (markdown === renderedMarkdown) return;
@@ -131,6 +155,40 @@ export default function PreviewPanel({
             <Download size={16} /> Download
           </button>
         </div>
+      )}
+      {!demo && markdown && (
+        <section className="quality-panel" aria-labelledby="quality-heading">
+          <div className="quality-heading">
+            <div>
+              <span className="eyebrow">EXPORT READINESS</span>
+              <h3 id="quality-heading">
+                {readinessItems.filter((item) => item.complete).length} of {readinessItems.length} checks ready
+              </h3>
+            </div>
+            <span className={qualityIssues.length ? 'quality-score needs-review' : 'quality-score'}>
+              {qualityIssues.length ? 'Review suggested' : 'Ready to publish'}
+            </span>
+          </div>
+          {!quality.items.find((item) => item.label === 'Bio completed')?.complete && (
+            <p className="quality-callout">
+              Your README can be exported now, but your About Me section is still empty.
+            </p>
+          )}
+          <ul className="quality-list">
+            {readinessItems.map((item) => (
+              <li data-complete={item.complete || undefined} key={item.label}>
+                <span aria-hidden="true">{item.complete ? '✓' : '○'}</span>
+                <span><strong>{item.label}</strong><small>{item.detail}</small></span>
+              </li>
+            ))}
+          </ul>
+          {qualityIssues.length > 0 && (
+            <details className="quality-issues">
+              <summary>{qualityIssues.length} quality suggestion{qualityIssues.length === 1 ? '' : 's'}</summary>
+              <ul>{qualityIssues.map((issue) => <li key={issue}>{issue}</li>)}</ul>
+            </details>
+          )}
+        </section>
       )}
       {!demo && urls.length > 0 && (
         <div className="widget-check">

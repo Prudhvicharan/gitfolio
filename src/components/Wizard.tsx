@@ -16,6 +16,7 @@ import { extractLanguages, fetchProfile } from '../hooks/useGithub';
 import { generateAIContent } from '../hooks/useGemini';
 import { generateReadme } from '../utils/generateMarkdown';
 import { selectRecommendedRepositories } from '../utils/repositories';
+import { assessExportQuality } from '../utils/readiness';
 import Step1 from './Step1';
 import Step2 from './Step2';
 import Step3 from './Step3';
@@ -357,6 +358,7 @@ export default function Wizard({
     });
   };
   const markdown = generateReadme(config, repos);
+  const exportQuality = assessExportQuality(config, markdown);
   const stepClass = `step-frame step-${stepMotion} step-${stepDirection}`;
   return (
     <div className="builder-shell">
@@ -577,6 +579,7 @@ export default function Wizard({
               pending={pending}
               hasProfile={!!config.userData}
               profileUsername={config.userData?.login}
+              quality={exportQuality}
             />
             {config.userData && !isDemo && (
               <PublishGuide config={config} onChange={patch} />
