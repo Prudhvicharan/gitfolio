@@ -12,6 +12,17 @@ test('landing page publishes valid free WebApplication structured data', async (
   assert.equal(data.operatingSystem, 'Web');
   assert.equal(data.isAccessibleForFree, true);
   assert.equal(data.offers.price, '0');
-  assert.equal(data.url, 'https://gitfolio-eight.vercel.app/');
+  assert.equal(data.url, 'https://gitfolio.prudhvicharan.com/');
   assert.equal(data.codeRepository, 'https://github.com/Prudhvicharan/gitfolio');
+});
+
+test('public SEO and sharing metadata use the canonical custom domain', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const domain = 'https://gitfolio.prudhvicharan.com';
+
+  assert.match(html, new RegExp(`<link rel="canonical" href="${domain}/"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="${domain}/"`));
+  assert.match(html, new RegExp(`property="og:image"\\s+content="${domain}/social-preview\\.png"`));
+  assert.match(html, new RegExp(`name="twitter:image"\\s+content="${domain}/social-preview\\.png"`));
+  assert.doesNotMatch(html, /gitfolio-eight\.vercel\.app/);
 });
