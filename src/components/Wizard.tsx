@@ -15,6 +15,7 @@ import { DEMO_CONTENT, DEMO_USER, DEMO_REPOS } from '../utils/demo';
 import { extractLanguages, fetchProfile } from '../hooks/useGithub';
 import { generateAIContent } from '../hooks/useGemini';
 import { generateReadme } from '../utils/generateMarkdown';
+import { selectRecommendedRepositories } from '../utils/repositories';
 import Step1 from './Step1';
 import Step2 from './Step2';
 import Step3 from './Step3';
@@ -196,7 +197,11 @@ export default function Wizard({
                   previous.repos.some((selected) => selected.id === repo.id)
                 )
                 .slice(0, 8)
-            : result.repos.filter((repo) => !repo.fork).slice(0, 6),
+            : selectRecommendedRepositories(
+                result.repos,
+                result.user.login,
+                6
+              ),
           aiContent: same ? previous.aiContent : null,
           openToWork: same ? previous.openToWork : false,
           snakeReady: same ? previous.snakeReady : false,

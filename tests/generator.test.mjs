@@ -207,6 +207,19 @@ test('obsidian header retains visible depth instead of blending into GitHub', ()
   assert.match(md, /color=0:05070B,50:111827,100:312E81/);
 });
 
+test('exported prose does not expose unnecessary punctuation escapes', () => {
+  const md = generateReadme({
+    ...config,
+    aiContent: {
+      ...EMPTY_CONTENT,
+      aboutMe: 'I build useful products. Clear, calm, and accessible!',
+      collaborationPitch: 'Thanks for visiting — let’s build something meaningful.',
+    },
+  });
+  assert.match(md, /meaningful\.<\/strong>/);
+  assert.doesNotMatch(md, /\\[.!~,(){}+-]/);
+});
+
 test('review content, centered animation, and native work snapshot reach the export', () => {
   const md = generateReadme({
     ...config,

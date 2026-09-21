@@ -86,12 +86,14 @@ export function safeUrl(value: string | null | undefined): string | null {
 
 // User/API values are plain text, never Markdown or HTML instructions.
 export function markdownText(value: string): string {
-  return value
+  const escaped = value
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/[\\`*_{}[\]()#+.!|>~-]/g, '\\$&')
-    .replace(/\r?\n/g, ' ');
+    .replace(/\r?\n/g, ' ')
+    .replace(/\\/g, '\\\\')
+    .replace(/[`*_[\]|]/g, '\\$&');
+  return escaped.replace(/^(\s*)(#{1,6}|[+-]|\d+[.)])(?=\s)/, '$1\\$2');
 }
 export function htmlAttribute(value: string): string {
   return value
