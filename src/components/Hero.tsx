@@ -100,6 +100,7 @@ export default function Hero({ onStart, onDemo }: Props) {
         </a>
         <nav className="nav-links" aria-label="Main navigation">
           <a href="#how-it-works">How it works</a>
+          <a href="#whats-new">What’s new</a>
           <a href="#privacy">Privacy</a>
           <a
             className="nav-source"
@@ -288,8 +289,8 @@ export default function Hero({ onStart, onDemo }: Props) {
               <span className="how-number">02 / CUSTOMIZE</span>
               <h3>Find your expression.</h3>
               <p>
-                Go Minimal, Balanced, or Animated. Choose your sections, seven
-                stats themes, and five header shapes.
+                Go Minimal, Balanced, or Animated. Choose your sections, eight
+                stats palettes, and four accurate header shapes.
               </p>
             </article>
             <article className="how-card">
@@ -336,6 +337,37 @@ export default function Hero({ onStart, onDemo }: Props) {
               <div className="sheet-wave" />
               <small>MOTION · STORY · SIGNAL</small>
             </article>
+          </div>
+        </section>
+        <section
+          className="landing-section whats-new-section"
+          id="whats-new"
+          aria-labelledby="whats-new-title"
+        >
+          <div className="whats-new-heading">
+            <div>
+              <span className="eyebrow">WHAT’S NEW · SEPTEMBER 2026</span>
+              <h2 id="whats-new-title">A sharper path from repositories to story.</h2>
+            </div>
+            <span className="release-badge">MAJOR BUILDER UPDATE</span>
+          </div>
+          <div className="release-grid">
+            {[
+              ['Smarter project selection', 'Recommendations favor described, recent, original work while keeping every repository searchable.'],
+              ['Three visual directions', 'Editorial, Studio, and Aurora turn the same evidence into distinctly different profiles.'],
+              ['AI or manual writing', 'Generate from public repository evidence, then review every field—or write the complete story yourself.'],
+              ['Keys stay unsaved', 'Gemini credentials remain in memory and are never written into browser drafts.'],
+              ['Export confidence', 'Readiness checks catch empty content, weak project metadata, invalid links, widgets, and escaping artifacts.'],
+              ['Guided publishing', 'Clear GitHub instructions and downloadable workflows cover profile setup, snake, and 3D contributions.'],
+            ].map(([title, description]) => (
+              <article className="release-item" key={title}>
+                <Check size={16} aria-hidden="true" />
+                <div>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
         <section
@@ -491,6 +523,7 @@ export default function Hero({ onStart, onDemo }: Props) {
       <footer className="site-footer">
         <span>GitFolio · Made for developers.</span>
         <div>
+          <a href="#whats-new">What’s new</a>
           <a href="#privacy">Privacy & data</a>
           <a
             href="https://github.com/Prudhvicharan/gitfolio"

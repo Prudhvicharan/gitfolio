@@ -2603,6 +2603,82 @@ textarea {
   gap: 60px;
   border-top: 1px solid var(--line);
 }
+.whats-new-section {
+  position: relative;
+  overflow: hidden;
+  padding: 58px;
+  border: 1px solid #353148;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 92% 0%, #5b35a62b, transparent 34%),
+    linear-gradient(145deg, #11131b, #0d0e14);
+}
+.whats-new-section::after {
+  position: absolute;
+  right: -70px;
+  bottom: -100px;
+  width: 280px;
+  height: 280px;
+  border: 1px solid #8b5cf62e;
+  border-radius: 50%;
+  box-shadow: 0 0 80px #7c3aed1f;
+  content: '';
+  pointer-events: none;
+}
+.whats-new-heading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+}
+.whats-new-heading h2 {
+  max-width: 660px;
+  margin: 10px 0 0;
+  font-size: clamp(29px, 4vw, 46px);
+  letter-spacing: -1.7px;
+}
+.release-badge {
+  padding: 7px 10px;
+  color: #d8c8ff;
+  background: #271d3a;
+  border: 1px solid #57417d;
+  border-radius: 999px;
+  font: 9px var(--font-mono);
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+.release-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 34px;
+  margin-top: 38px;
+}
+.release-item {
+  display: flex;
+  gap: 12px;
+  padding: 20px 0;
+  border-top: 1px solid #2f3140;
+}
+.release-item svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #6ee7b7;
+}
+.release-item h3 {
+  margin: 0 0 7px;
+  color: #f5f7fb;
+  font-size: 15px;
+}
+.release-item p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
 .privacy-list {
   display: flex;
   flex-direction: column;
@@ -2768,6 +2844,9 @@ textarea {
     grid-template-columns: 1fr;
     gap: 26px;
   }
+  .whats-new-section { padding: 38px; }
+  .whats-new-heading { flex-direction: column; }
+  .release-grid { grid-template-columns: 1fr; }
   .landing-section {
     padding: 55px 0;
   }
@@ -2857,6 +2936,7 @@ textarea {
   .nav-links .nav-source {
     display: none;
   }
+  .nav-links a[href='#whats-new'] { display: none; }
   .brand {
     font-size: 16px;
   }
