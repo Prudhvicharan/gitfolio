@@ -414,9 +414,10 @@ export default function Hero({ onStart, onDemo }: Props) {
               <div>
                 <strong>Your API key is never saved.</strong>
                 <p>
-                  It is held in this browser tab’s memory and cleared when you
-                  leave the AI review step. Saved keys from earlier GitFolio
-                  versions are removed when you open the builder.
+                  It stays only in the AI form until a request begins. The form
+                  clears immediately, and leaving the step removes its remaining
+                  state. Saved keys from earlier GitFolio versions are removed
+                  when you open the builder.
                 </p>
               </div>
             </div>

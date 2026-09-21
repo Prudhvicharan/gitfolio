@@ -495,7 +495,7 @@ export default function Wizard({
                   />
                 </div>
                 <div hidden={visibleStep !== 3} className={stepClass}>
-                  <Step3
+                  {visibleStep === 3 && <Step3
                     key={
                       config.userData.login +
                       config.repos.map((repo) => repo.id).join(',')
@@ -507,11 +507,10 @@ export default function Wizard({
                     onCancel={cancelAI}
                     onBack={() => go(2)}
                     onFinish={showPreview}
-                    active={active && visibleStep === 3 && stepMotion === 'idle'}
                     onPending={setPending}
                     demo={isDemo}
                     onBuildProfile={onBuildProfile}
-                  />
+                  />}
                 </div>
               </>
             )}

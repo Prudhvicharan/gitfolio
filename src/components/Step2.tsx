@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Check, Search, Sparkles, WandSparkles } from 'lucide-react';
+import { Activity, ArrowLeft, ArrowRight, Check, Search, Sparkles, WandSparkles } from 'lucide-react';
 import { useMemo, useState, type CSSProperties } from 'react';
 import type {
   GithubRepo,
@@ -432,17 +432,16 @@ export default function Step2({
               {sectionOptions(group.keys)}
             </section>
           ))}
-          <details className="section-group section-disclosure">
+          <details className="disclosure live-widget-disclosure">
             <summary>
-              <span>
-                <strong>Live widgets</strong>
-                <small>Optional activity visuals that may need setup</small>
-              </span>
-              <span>advanced</span>
+              <Activity size={16} /> Live widgets <span>advanced</span>
             </summary>
-            {sectionOptions(
-              SECTION_GROUPS.find((group) => group.title === 'Live widgets')!.keys
-            )}
+            <div className="form-stack">
+              <p className="help">Optional activity visuals that may need repository setup.</p>
+              {sectionOptions(
+                SECTION_GROUPS.find((group) => group.title === 'Live widgets')!.keys
+              )}
+            </div>
           </details>
         </div>
       </fieldset>
