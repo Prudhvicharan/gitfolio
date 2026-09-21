@@ -1073,10 +1073,22 @@ textarea {
   clip-path: polygon(0 0, 100% 0, 88% 100%, 0 70%);
 }
 .shape-preview-cylinder {
-  border-radius: 50% / 22%;
+  border-radius: 999px;
 }
 .shape-preview-venom {
-  clip-path: polygon(0 0, 100% 0, 94% 72%, 72% 100%, 50% 72%, 27% 100%, 6% 72%);
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+}
+.shape-preview-venom::before {
+  position: absolute;
+  top: -4px;
+  left: 31%;
+  width: 38%;
+  height: 30px;
+  border-radius: 10% 10% 50% 50% / 8% 8% 82% 82%;
+  background: linear-gradient(135deg, #153c46, #315ec7 55%, #6d2db3);
+  content: '';
 }
 .review-box {
   background: var(--surface-raised);

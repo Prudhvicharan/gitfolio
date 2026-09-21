@@ -50,8 +50,8 @@ const THEMES: { id: ThemeId; label: string; colors: string[] }[] = [
 const HEADER_STYLES: { id: HeaderStyle; label: string; desc: string }[] = [
   { id: 'wave', label: 'Soft wave', desc: 'Smooth flowing banner' },
   { id: 'slice', label: 'Editorial cut', desc: 'Clean diagonal edge' },
-  { id: 'cylinder', label: 'Soft frame', desc: 'Rounded premium frame' },
-  { id: 'venom', label: 'Velvet fold', desc: 'Sculpted cinematic depth' },
+  { id: 'cylinder', label: 'Capsule banner', desc: 'Full-width rounded capsule' },
+  { id: 'venom', label: 'Pendant drop', desc: 'Focused drop behind your title' },
 ];
 
 const HEADER_COLORS = [
