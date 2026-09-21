@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://gitfolio-eight.vercel.app/">
+  <a href="https://https://gitfolio.prudhvicharan.com/">
     <img src="public/social-preview.png" alt="GitFolio — Your GitHub Profile, Reimagined" width="100%" />
   </a>
 
@@ -10,7 +10,7 @@
   Import your repositories, shape the story, and export polished Markdown.
   No GitFolio account. AI is optional.
 
-  [Open GitFolio](https://gitfolio-eight.vercel.app/) · [Explore the code](https://github.com/Prudhvicharan/gitfolio) · [Report an issue](https://github.com/Prudhvicharan/gitfolio/issues)
+  [Open GitFolio](https://https://gitfolio.prudhvicharan.com/) · [Explore the code](https://github.com/Prudhvicharan/gitfolio) · [Report an issue](https://github.com/Prudhvicharan/gitfolio/issues)
 </div>
 
 ## From repositories to a profile worth reading
