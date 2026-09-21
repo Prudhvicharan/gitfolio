@@ -289,8 +289,8 @@ export default function Hero({ onStart, onDemo }: Props) {
               <span className="how-number">02 / CUSTOMIZE</span>
               <h3>Find your expression.</h3>
               <p>
-                Go Minimal, Balanced, or Animated. Choose your sections, eight
-                stats palettes, and four accurate header shapes.
+                Choose Editorial, Studio, or Aurora. Customize your sections,
+                color palette, and header style.
               </p>
             </article>
             <article className="how-card">
